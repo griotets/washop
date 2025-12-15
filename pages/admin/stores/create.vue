@@ -2,7 +2,7 @@
   <main class="px-6 py-10">
     <div class="mx-auto grid max-w-6xl gap-8 lg:grid-cols-2">
       <div class="rounded-xl bg-white p-6 shadow-sm">
-        <h1 class="text-2xl font-bold">Créer un nouveau magasin</h1>
+        <h1 class="text-2xl font-bold">{{ t('create.title') }}</h1>
         <form class="mt-6 space-y-6" @submit.prevent="submit">
           <div class="flex items-center gap-4">
             <label class="relative inline-flex h-16 w-16 cursor-pointer items-center justify-center rounded-full bg-gray-100">
@@ -10,45 +10,45 @@
               <span v-if="!form.logoUrl" class="material-icons text-gray-500">photo_camera</span>
               <img v-else :src="form.logoUrl" alt="logo" class="h-16 w-16 rounded-full object-cover" />
             </label>
-            <div class="text-sm text-gray-500">Logo</div>
+            <div class="text-sm text-gray-500">{{ t('create.logo') }}</div>
           </div>
 
           <div>
-            <label class="mb-1 block text-sm font-medium">Nom du magasin *</label>
-            <input v-model.trim="form.name" type="text" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none" placeholder="Ex. Boulangerie du Coin" />
+            <label class="mb-1 block text-sm font-medium">{{ t('create.name') }}</label>
+            <input v-model.trim="form.name" type="text" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none" :placeholder="t('create.placeholderName')" />
           </div>
 
           <div class="grid grid-cols-3 gap-3">
             <div>
-              <label class="mb-1 block text-sm font-medium">Indicatif *</label>
+              <label class="mb-1 block text-sm font-medium">{{ t('create.phoneCode') }}</label>
               <select v-model="form.code" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none">
                 <option value="+237">+237</option>
               </select>
             </div>
             <div class="col-span-2">
-              <label class="mb-1 block text-sm font-medium">Téléphone *</label>
-              <input v-model.trim="form.phone" inputmode="numeric" pattern="[0-9]*" type="tel" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none" placeholder="Numéro de téléphone" />
+              <label class="mb-1 block text-sm font-medium">{{ t('create.phone') }}</label>
+              <input v-model.trim="form.phone" inputmode="numeric" pattern="[0-9]*" type="tel" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none" :placeholder="t('create.placeholderPhone')" />
             </div>
           </div>
 
           <div>
-            <label class="mb-1 block text-sm font-medium">Lien de magasin *</label>
+            <label class="mb-1 block text-sm font-medium">{{ t('create.link') }}</label>
             <div class="flex items-center gap-2">
               <div class="rounded-lg bg-gray-100 px-3 py-2 text-sm text-gray-700">wa-shop.cm</div>
               <span class="text-gray-400">/</span>
               <input v-model.trim="form.slug" type="text" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none" />
             </div>
-            <p class="mt-1 text-xs text-gray-500">Généré automatiquement à partir du nom, modifiable.</p>
+            <p class="mt-1 text-xs text-gray-500">{{ t('create.slugHint') }}</p>
           </div>
 
           <div>
-            <label class="mb-2 block text-sm font-medium">Couleur</label>
+            <label class="mb-2 block text-sm font-medium">{{ t('create.color') }}</label>
             <div class="flex flex-wrap gap-3">
               <button v-for="c in colors" :key="c" type="button" :class="['h-8 w-8 rounded-full border-2', form.color===c ? 'border-black' : 'border-transparent']" :style="{ backgroundColor: c }" @click="form.color = c"></button>
             </div>
           </div>
 
-          <button :disabled="!isValid" type="submit" class="rounded-lg bg-primary px-5 py-2 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">Créer</button>
+          <button :disabled="!isValid" type="submit" class="rounded-lg bg-primary px-5 py-2 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">{{ t('create.create') }}</button>
         </form>
       </div>
 
@@ -66,8 +66,8 @@
             </div>
             <div class="mt-4 text-xl font-extrabold">{{ displayName }}</div>
             <div class="mt-2 flex w-full items-center gap-6 border-b px-6 pb-3">
-              <div class="flex items-center gap-2 text-gray-600"><span class="material-icons text-base">home</span><span>Accueil</span></div>
-              <div class="flex items-center gap-2 text-gray-600"><span class="material-icons text-base">search</span><span>Recherche</span></div>
+              <div class="flex items-center gap-2 text-gray-600"><span class="material-icons text-base">home</span><span>{{ t('common.home') }}</span></div>
+              <div class="flex items-center gap-2 text-gray-600"><span class="material-icons text-base">search</span><span>{{ t('common.search') }}</span></div>
             </div>
             <div class="px-6 py-6">
               <div class="grid gap-4 sm:grid-cols-2">
@@ -89,9 +89,11 @@
 </template>
 
 <script setup>
+import { useI18n } from '~/composables/i18n'
+const { t } = useI18n()
 const colors = ['#111827', '#ef4444', '#f59e0b', '#10b981', '#06b6d4', '#3b82f6', '#8b5cf6']
 const form = reactive({ name: '', code: '+237', phone: '', slug: '', color: colors[0], logoUrl: '' })
-const displayName = computed(() => form.name || 'Nom de boutique')
+const displayName = computed(() => form.name || t('create.placeholderName'))
 const initials = computed(() => (displayName.value.split(/\s+/).map(s => s[0]).join('.')).slice(0, 12))
 watch(() => form.name, (n) => {
   if (!form.slug || form.slug === slugify(prevSlugBase.value)) form.slug = slugify(n)
@@ -114,5 +116,5 @@ async function submit() {
   try { localStorage.setItem(`store:${store.slug}`, JSON.stringify(store)) } catch {}
   navigateTo(`/${store.slug}`)
 }
-useHead({ title: 'Admin | Créer un magasin' })
+useHead({ title: `Admin | ${t('create.title')}` })
 </script>

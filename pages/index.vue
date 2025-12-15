@@ -5,21 +5,26 @@
     <section class="relative pt-20 pb-16 lg:pt-32 lg:pb-24 overflow-hidden">
       <div class="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-gradient-to-r from-primary to-blue-500 opacity-20 blur-3xl animate-gradient-x animate-blob"></div>
       <div class="mx-auto max-w-7xl px-4 text-center">
+        <div class="flex justify-end mb-3">
+          <div class="flex items-center gap-2">
+            <button :class="['px-3 py-1 rounded', locale==='fr' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('fr')">FR</button>
+            <button :class="['px-3 py-1 rounded', locale==='en' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('en')">EN</button>
+          </div>
+        </div>
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-semibold uppercase tracking-wide mb-6">
           <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-          Official Partner
+          {{ t('home.officialPartner') }}
         </div>
         <h1 class="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight mb-6">
-          Create Ecommerce for <br class="hidden sm:block" />
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-green-600">WhatsApp</span>
+          {{ t('home.heroPrefix') }} <br class="hidden sm:block" />
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-green-600">{{ t('home.heroWhatsApp') }}</span>
         </h1>
         <p class="mx-auto max-w-2xl text-lg sm:text-xl text-gray-600 mb-10 leading-relaxed">
-          Simplify WhatsApp ordering. Boost sales with better customer service.
-          Launch your store in minutes without any coding.
+          {{ t('home.heroSubtitle') }}
         </p>
         <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-12">
           <NuxtLink to="/auth/register" class="w-full sm:w-auto px-8 py-4 bg-primary text-white rounded-xl font-bold shadow-lg hover:brightness-95 transition">
-            Start for Free
+            {{ t('home.ctaStartFree') }}
           </NuxtLink>
           <div class="flex items-center gap-1 text-sm text-gray-500">
             <span class="flex text-yellow-400">
@@ -29,7 +34,7 @@
               <Star class="w-4 h-4" />
               <Star class="w-4 h-4" />
             </span>
-            <span>500+ Reviews</span>
+            <span>{{ t('home.reviews') }}</span>
           </div>
         </div>
 
@@ -53,7 +58,7 @@
         </Reveal>
 
         <div class="mt-16 pt-8 border-t border-gray-100">
-          <p class="text-sm font-medium text-gray-500 mb-6 uppercase tracking-wider">Trusted by modern businesses</p>
+          <p class="text-sm font-medium text-gray-500 mb-6 uppercase tracking-wider">{{ t('home.trustedBy') }}</p>
           <div class="flex flex-wrap justify-center items-center gap-8 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
             <span class="text-xl font-bold text-gray-400">Meta</span>
             <span class="text-xl font-bold text-gray-400">Stripe</span>
@@ -67,8 +72,8 @@
     <section class="py-20 bg-surface-light">
       <div class="mx-auto max-w-7xl px-4">
         <div class="text-center mb-16">
-          <h2 class="text-3xl font-bold sm:text-4xl">Simplify WhatsApp Ordering</h2>
-          <p class="mt-4 text-gray-600">Automate your sales process with our powerful features.</p>
+          <h2 class="text-3xl font-bold sm:text-4xl">{{ t('home.sectionSimplifyTitle') }}</h2>
+          <p class="mt-4 text-gray-600">{{ t('home.sectionSimplifyDesc') }}</p>
         </div>
 
         <div class="grid gap-12">
@@ -78,14 +83,14 @@
               <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mb-6">
                 <Package class="w-6 h-6" />
               </div>
-              <h3 class="text-2xl font-bold mb-4">WhatsApp Order Form</h3>
-              <p class="text-gray-600 mb-6">Customers independently place orders through WhatsApp, specifying their choices and scheduling.</p>
-              <NuxtLink to="/products" class="text-blue-600 font-semibold hover:underline inline-flex items-center gap-1">Learn more <ArrowRight class="w-4 h-4" /></NuxtLink>
+              <h3 class="text-2xl font-bold mb-4">{{ t('home.featureOrderFormTitle') }}</h3>
+              <p class="text-gray-600 mb-6">{{ t('home.featureOrderFormDesc') }}</p>
+              <NuxtLink to="/products" class="text-blue-600 font-semibold hover:underline inline-flex items-center gap-1">{{ t('common.learnMore') }} <ArrowRight class="w-4 h-4" /></NuxtLink>
             </div>
             <div class="flex-1 w-full max-w-md relative z-10">
               <div class="relative bg-gray-900 rounded-[2.5rem] border-8 border-gray-900 shadow-2xl overflow-hidden aspect-[9/18] mx-auto">
                 <div class="absolute inset-0 bg-white flex flex-col">
-                  <div class="bg-primary p-4 text-white text-center font-bold">Store Order</div>
+                  <div class="bg-primary p-4 text-white text-center font-bold">{{ t('home.featureOrderFormTitle') }}</div>
                   <div class="p-4 space-y-3">
                     <div class="flex items-center gap-2">
                       <div class="w-10 h-10 bg-gray-200 rounded-lg"></div>
@@ -116,23 +121,23 @@
               <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mb-6">
                 <LayoutDashboard class="w-6 h-6" />
               </div>
-              <h3 class="text-2xl font-bold mb-4">Online Order Management</h3>
-              <p class="text-gray-600 mb-6">Track orders, manage inventory, and send updates automatically from a centralized dashboard.</p>
-              <NuxtLink to="/products" class="text-indigo-600 font-semibold hover:underline inline-flex items-center gap-1">Learn more <ArrowRight class="w-4 h-4" /></NuxtLink>
+              <h3 class="text-2xl font-bold mb-4">{{ t('home.featureOrderMgmtTitle') }}</h3>
+              <p class="text-gray-600 mb-6">{{ t('home.featureOrderMgmtDesc') }}</p>
+              <NuxtLink to="/products" class="text-indigo-600 font-semibold hover:underline inline-flex items-center gap-1">{{ t('common.learnMore') }} <ArrowRight class="w-4 h-4" /></NuxtLink>
             </div>
             <div class="flex-1 w-full max-w-md relative z-10">
               <div class="bg-surface-light rounded-xl shadow-lg p-6 border border-gray-200">
                 <div class="flex justify-between items-center mb-4 border-b border-gray-200 pb-2">
-                  <span class="font-bold text-sm">Order #1024</span>
-                  <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">Pending</span>
+                  <span class="font-bold text-sm">{{ t('preview.order') }}</span>
+                  <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">{{ t('preview.pending') }}</span>
                 </div>
                 <div class="space-y-3">
                   <div class="h-2 bg-gray-200 rounded w-3/4"></div>
                   <div class="h-2 bg-gray-200 rounded w-1/2"></div>
                 </div>
                 <div class="mt-4 flex gap-2">
-                  <button class="flex-1 bg-primary text-white text-xs py-2 rounded">Accept</button>
-                  <button class="flex-1 bg-gray-200 text-gray-700 text-xs py-2 rounded">Decline</button>
+                  <button class="flex-1 bg-primary text-white text-xs py-2 rounded">{{ t('preview.accept') }}</button>
+                  <button class="flex-1 bg-gray-200 text-gray-700 text-xs py-2 rounded">{{ t('preview.decline') }}</button>
                 </div>
               </div>
             </div>
@@ -149,13 +154,13 @@
     <section class="py-20 gradient-green">
       <div class="mx-auto max-w-7xl px-4">
         <div class="text-center mb-16">
-          <h2 class="text-3xl font-bold sm:text-4xl">Create Your Website in Minutes</h2>
-          <p class="mt-4 text-gray-600">Choose from professionally designed templates.</p>
+          <h2 class="text-3xl font-bold sm:text-4xl">{{ t('home.websiteTitle') }}</h2>
+          <p class="mt-4 text-gray-600">{{ t('home.websiteDesc') }}</p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
           <div class="bg-purple-50 rounded-2xl p-6 md:p-8 hover:bg-purple-100 transition-colors">
-            <h3 class="text-xl font-bold mb-2">Beautiful product catalogs</h3>
-            <p class="text-sm text-gray-600 mb-6">Showcase your products with stunning galleries.</p>
+            <h3 class="text-xl font-bold mb-2">{{ t('home.cardCatalogsTitle') }}</h3>
+            <p class="text-sm text-gray-600 mb-6">{{ t('home.cardCatalogsDesc') }}</p>
             <div class="bg-white rounded-xl shadow-lg p-4 h-64 flex flex-col justify-center items-center">
               <div class="grid grid-cols-2 gap-2 w-full">
                 <div class="bg-gray-100 h-24 rounded-lg"></div>
@@ -164,8 +169,8 @@
             </div>
           </div>
           <div class="bg-pink-50 rounded-2xl p-6 md:p-8 hover:bg-pink-100 transition-colors">
-            <h3 class="text-xl font-bold mb-2">Custom Domain</h3>
-            <p class="text-sm text-gray-600 mb-6">Use your own domain name for a professional look.</p>
+            <h3 class="text-xl font-bold mb-2">{{ t('home.cardDomainTitle') }}</h3>
+            <p class="text-sm text-gray-600 mb-6">{{ t('home.cardDomainDesc') }}</p>
               <div class="bg-white rounded-xl shadow-lg p-4 h-64 flex justify-center items-center">
               <div class="bg-gray-100 px-4 py-2 rounded-lg flex items-center gap-2 w-3/4">
                 <Lock class="w-4 h-4 text-gray-400" />
@@ -174,8 +179,8 @@
               </div>
           </div>
           <div class="bg-orange-50 rounded-2xl p-6 md:p-8 hover:bg-orange-100 transition-colors">
-            <h3 class="text-xl font-bold mb-2">Link-in-bio for Instagram</h3>
-            <p class="text-sm text-gray-600 mb-6">Perfect for social media selling.</p>
+            <h3 class="text-xl font-bold mb-2">{{ t('home.cardLinkBioTitle') }}</h3>
+            <p class="text-sm text-gray-600 mb-6">{{ t('home.cardLinkBioDesc') }}</p>
             <div class="bg-white rounded-xl shadow-lg p-4 h-64 flex justify-center items-center overflow-hidden">
               <div class="w-32 bg-gray-900 rounded-[20px] p-2 h-full border-4 border-gray-900">
                 <div class="bg-white w-full h-full rounded-[14px] flex flex-col items-center pt-4 px-2 space-y-2">
@@ -187,8 +192,8 @@
             </div>
           </div>
           <div class="bg-blue-50 rounded-2xl p-6 md:p-8 hover:bg-blue-100 transition-colors">
-            <h3 class="text-xl font-bold mb-2">Search Engine Optimization (SEO)</h3>
-            <p class="text-sm text-gray-600 mb-6">Get found on Google with built-in SEO tools.</p>
+            <h3 class="text-xl font-bold mb-2">{{ t('home.cardSeoTitle') }}</h3>
+            <p class="text-sm text-gray-600 mb-6">{{ t('home.cardSeoDesc') }}</p>
             <div class="bg-white rounded-xl shadow-lg p-4 h-64 flex justify-center items-center">
               <div class="w-full space-y-3">
                 <div class="h-4 bg-blue-600 w-1/3 rounded"></div>
@@ -208,11 +213,13 @@
 
 <script setup>
 import { Star, Package, LayoutDashboard, ArrowRight, Lock } from 'lucide-vue-next'
+import { useI18n } from '~/composables/i18n'
+const { t, locale, setLocale } = useI18n()
 useHead({
-  title: 'Wa-Shop Cameroun | Créez votre boutique WhatsApp gratuite',
+  title: `${t('home.title')} | ${t('home.description')}`,
   meta: [
-    { name: 'description', content: 'La solution la plus simple pour les commerçants camerounais. Créez un catalogue produit et recevez vos commandes directement sur WhatsApp Business. Simple, rapide et gratuit.' },
-    { property: 'og:title', content: 'Wa-Shop Cameroun | Catalogue WhatsApp simple' }
+    { name: 'description', content: t('home.description') },
+    { property: 'og:title', content: `${t('home.title')} | ${t('home.sectionSimplifyTitle')}` }
   ]
 })
 </script>

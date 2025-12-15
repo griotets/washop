@@ -2,62 +2,70 @@
   <main class="min-h-screen w-full bg-background-light flex items-center">
     <div class="mx-auto w-full max-w-7xl px-6 py-8 md:py-0 grid gap-8 md:grid-cols-2 md:h-screen md:items-center">
       <div class="rounded-2xl bg-white p-6 shadow-sm">
-        <h1 class="text-2xl font-bold mb-2">Démarrer</h1>
-        <p class="text-gray-600 mb-6">Créez votre compte commerçant en quelques étapes.</p>
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h1 class="text-2xl font-bold mb-1">{{ t('register.start') }}</h1>
+            <p class="text-gray-600">{{ t('register.subtitle') }}</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button :class="['px-3 py-1 rounded', locale==='fr' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('fr')">FR</button>
+            <button :class="['px-3 py-1 rounded', locale==='en' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('en')">EN</button>
+          </div>
+        </div>
 
         
 
         <div v-if="step===1" class="space-y-6">
           <div class="space-y-3">
-            <label class="block text-sm font-medium">Adresse e‑mail *</label>
+            <label class="block text-sm font-medium">{{ t('register.emailLabel') }}</label>
             <input v-model.trim="email" type="email" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none" placeholder="vous@exemple.com" />
           </div>
-          <button :disabled="!emailValid" class="w-full rounded-lg bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50" @click="submitEmail">Continuer avec l’e‑mail</button>
-          <div class="text-center text-sm text-gray-500">ou</div>
-          <button class="w-full rounded-lg border border-gray-300 px-5 py-3 font-semibold" @click="continueWithGoogle">Continuer avec Google</button>
+          <button :disabled="!emailValid" class="w-full rounded-lg bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50" @click="submitEmail">{{ t('register.continueEmail') }}</button>
+          <div class="text-center text-sm text-gray-500">{{ t('common.or') }}</div>
+          <button class="w-full rounded-lg border border-gray-300 px-5 py-3 font-semibold" @click="continueWithGoogle">{{ t('register.continueGoogle') }}</button>
         </div>
 
         <div v-else-if="step===2" class="space-y-6">
-          <h2 class="text-lg font-semibold">Entrez le code envoyé par e‑mail</h2>
-          <p class="text-gray-600">Un code de vérification a été envoyé à <span class="font-semibold">{{ email }}</span>.</p>
+          <h2 class="text-lg font-semibold">{{ t('register.codeTitle') }}</h2>
+          <p class="text-gray-600">{{ t('register.codeMessage', { email }) }}</p>
           <div class="space-y-3">
-            <label class="block text-sm font-medium">Code de vérification *</label>
+            <label class="block text-sm font-medium">{{ t('register.codeLabel') }}</label>
             <input v-model.trim="enteredCode" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="123456" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none tracking-widest text-center" />
-            <p v-if="codeError" class="text-sm text-red-600">Code invalide. Veuillez réessayer.</p>
+            <p v-if="codeError" class="text-sm text-red-600">{{ t('register.codeInvalid') }}</p>
           </div>
-          <button :disabled="!codeValid" class="w-full rounded-lg bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50" @click="verifyCode">Vérifier et continuer</button>
-          <button class="w-full rounded-lg border border-gray-300 px-5 py-3 font-semibold" @click="resendCode">Renvoyer le code</button>
+          <button :disabled="!codeValid" class="w-full rounded-lg bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50" @click="verifyCode">{{ t('register.verifyContinue') }}</button>
+          <button class="w-full rounded-lg border border-gray-300 px-5 py-3 font-semibold" @click="resendCode">{{ t('register.resendCode') }}</button>
         </div>
 
         <div v-else-if="step===3" class="space-y-6">
-          <label class="block text-sm font-medium">Quel type d’entreprise dirigez‑vous ? *</label>
+          <label class="block text-sm font-medium">{{ t('register.industryQuestion') }}</label>
           <select v-model="industry" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none">
-            <option value="" disabled>Sélectionnez un secteur d’activité</option>
+            <option value="" disabled>{{ t('register.selectIndustry') }}</option>
             <option v-for="opt in industries" :key="opt" :value="opt">{{ opt }}</option>
           </select>
-          <button :disabled="!industry" class="w-full rounded-lg bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50" @click="goStep(4)">Continuer</button>
+          <button :disabled="!industry" class="w-full rounded-lg bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50" @click="goStep(4)">{{ t('common.continue') }}</button>
         </div>
 
         <div v-else-if="step===4" class="space-y-6">
-          <h2 class="text-lg font-semibold">Quel est votre objectif ?</h2>
+          <h2 class="text-lg font-semibold">{{ t('register.goalsTitle') }}</h2>
           <div class="space-y-3">
             <label v-for="g in goalsList" :key="g" class="flex items-center gap-3">
               <input type="checkbox" :value="g" v-model="goals" />
               <span>{{ g }}</span>
             </label>
           </div>
-          <button :disabled="goals.length===0" class="w-full rounded-lg bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50" @click="goStep(5)">Continuer</button>
+          <button :disabled="goals.length===0" class="w-full rounded-lg bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50" @click="goStep(5)">{{ t('common.continue') }}</button>
         </div>
 
         <div v-else-if="step===5" class="space-y-6">
-          <h2 class="text-xl font-bold">Obtenez votre premier mois pour 1 $</h2>
+          <h2 class="text-xl font-bold">{{ t('register.offerTitle') }}</h2>
           <div class="rounded-xl border border-gray-200 p-4 space-y-3">
-            <div class="flex items-start gap-3"><Lock class="w-4 h-4" /><div><div class="font-semibold">Aujourd’hui : accès instantané</div><div class="text-sm text-gray-600">Débloquez toutes les fonctionnalités. Aucun plafond.</div></div></div>
-            <div class="flex items-start gap-3"><Clock class="w-4 h-4" /><div><div class="font-semibold">Jan 8 : rappel</div><div class="text-sm text-gray-600">Rappels par WhatsApp et e‑mail avant la fin de l’essai.</div></div></div>
-            <div class="flex items-start gap-3"><CreditCard class="w-4 h-4" /><div><div class="font-semibold">Jan 15 : forfait payant</div><div class="text-sm text-gray-600">Annulez à tout moment dans les réglages.</div></div></div>
+            <div class="flex items-start gap-3"><Lock class="w-4 h-4" /><div><div class="font-semibold">{{ t('register.offerTodayTitle') }}</div><div class="text-sm text-gray-600">{{ t('register.offerTodayDesc') }}</div></div></div>
+            <div class="flex items-start gap-3"><Clock class="w-4 h-4" /><div><div class="font-semibold">{{ t('register.offerRemindTitle') }}</div><div class="text-sm text-gray-600">{{ t('register.offerRemindDesc') }}</div></div></div>
+            <div class="flex items-start gap-3"><CreditCard class="w-4 h-4" /><div><div class="font-semibold">{{ t('register.offerStartTitle') }}</div><div class="text-sm text-gray-600">{{ t('register.offerStartDesc') }}</div></div></div>
           </div>
-          <button class="w-full rounded-lg bg-gray-900 text-white px-5 py-3 font-semibold" @click="subscribe">Commencer pour 1 $</button>
-          <button class="w-full rounded-lg border border-gray-300 px-5 py-3 font-semibold" @click="skip">Sauter pour l’instant</button>
+          <button class="w-full rounded-lg bg-gray-900 text-white px-5 py-3 font-semibold" @click="subscribe">{{ t('register.subscribeButton') }}</button>
+          <button class="w-full rounded-lg border border-gray-300 px-5 py-3 font-semibold" @click="skip">{{ t('register.skip') }}</button>
         </div>
       </div>
 
@@ -75,15 +83,15 @@
               <div class="grid grid-cols-6 gap-2">
                 <div v-for="i in 6" :key="i" :class="['h-10 rounded-md border', i===6 ? 'border-primary' : 'border-gray-300']"></div>
               </div>
-              <div class="text-center text-xs text-gray-500">Saisissez votre code reçu par e‑mail</div>
+              <div class="text-center text-xs text-gray-500">{{ t('register.codeHint') }}</div>
             </div>
             <div v-else-if="step===3" class="p-4">
               <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-2">
                   <div class="h-8 w-8 rounded-full bg-gray-200"></div>
-                  <div class="font-bold">Votre Boutique</div>
+                  <div class="font-bold">{{ t('preview.store') }}</div>
                 </div>
-                <div class="px-2 py-1 text-xs rounded bg-gray-100 text-gray-600">{{ industry || 'Secteur' }}</div>
+                <div class="px-2 py-1 text-xs rounded bg-gray-100 text-gray-600">{{ industry || t('preview.sector') }}</div>
               </div>
               <div class="grid grid-cols-2 gap-2">
                 <div v-for="(p,idx) in 6" :key="idx" :class="['rounded-xl border p-2 space-y-2', animTick===idx ? 'border-primary animate-pulse' : 'border-gray-200']">
@@ -98,16 +106,16 @@
             </div>
             <div v-else-if="step===4" class="p-5 space-y-3">
               <div class="flex items-center justify-between border-b pb-2">
-                <span class="font-bold text-sm">Order #1024</span>
-                <span :class="['px-2 py-1 text-xs rounded', animTick%2===0 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800']">{{ animTick%2===0 ? 'Pending' : 'Accepted' }}</span>
+                <span class="font-bold text-sm">{{ t('preview.order') }}</span>
+                <span :class="['px-2 py-1 text-xs rounded', animTick%2===0 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800']">{{ animTick%2===0 ? t('preview.pending') : t('preview.accepted') }}</span>
               </div>
               <div class="space-y-2">
                 <div class="h-2 bg-gray-200 rounded w-3/4"></div>
                 <div class="h-2 bg-gray-200 rounded w-1/2"></div>
               </div>
               <div class="mt-2 flex gap-2">
-                <button class="flex-1 bg-primary text-white text-xs py-2 rounded">Accept</button>
-                <button class="flex-1 bg-gray-200 text-gray-700 text-xs py-2 rounded">Decline</button>
+                <button class="flex-1 bg-primary text-white text-xs py-2 rounded">{{ t('preview.accept') }}</button>
+                <button class="flex-1 bg-gray-200 text-gray-700 text-xs py-2 rounded">{{ t('preview.decline') }}</button>
               </div>
             </div>
             <div v-else class="p-6 space-y-3">
@@ -140,10 +148,12 @@
 
 <script setup lang="ts">
 import { useAdminStore } from '~/stores/admin'
+import { useI18n } from '~/composables/i18n'
 import { Lock, Clock, CreditCard } from 'lucide-vue-next'
 
 const store = useAdminStore()
 store.load()
+const { t, locale, setLocale } = useI18n()
 
 const step = ref(1)
 const email = ref(store.onboarding.email)
@@ -157,7 +167,7 @@ const animTick = ref(0)
 let animTimer: any
 onMounted(() => { animTimer = setInterval(() => { animTick.value = (animTick.value + 1) % 6 }, 1200) })
 onUnmounted(() => { if (animTimer) clearInterval(animTimer) })
-const industries = [
+const industriesFr = [
   'Restauration & Gastronomie',
   'Épicerie & Supermarché',
   'Santé & Beauté (Spa, Salon, Gym, etc.)',
@@ -171,13 +181,36 @@ const industries = [
   'B2B',
   'Autres'
 ]
-const goalsList = [
+const industriesEn = [
+  'Food & Dining',
+  'Grocery & Supermarket',
+  'Health & Beauty (Spa, Salon, Gym, etc.)',
+  'Travel & Rental',
+  'Retail & Shopping',
+  'Gifts & Crafts',
+  'Pets & Grooming',
+  'Home Services (Cleaning, Repair, Gardening, etc.)',
+  'Education',
+  'Professional Services (Automotive, Legal, Real Estate, etc.)',
+  'B2B',
+  'Other'
+]
+const industries = computed(() => (locale.value === 'fr' ? industriesFr : industriesEn))
+const goalsFr = [
   'Gérez les livraisons & suivi',
   'Augmentez les ventes avec des automatisations WhatsApp',
   'Acceptez les paiements en ligne',
   'Créer des magasins en ligne et des domaines',
   'Analyser les ventes & clients'
 ]
+const goalsEn = [
+  'Manage deliveries & tracking',
+  'Increase sales with WhatsApp automations',
+  'Accept online payments',
+  'Create online stores and domains',
+  'Analyze sales & customers'
+]
+const goalsList = computed(() => (locale.value === 'fr' ? goalsFr : goalsEn))
 
 function goStep(n: number) { step.value = n }
 function submitEmail() {
