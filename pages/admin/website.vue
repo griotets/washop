@@ -20,18 +20,25 @@
         </div>
 
         <div v-if="tab==='vitrine'" class="mt-4 space-y-4">
+          <div class="flex items-center gap-2">
+            <button class="rounded-lg border bg-white px-3 py-2 text-sm" @click="addBlock('category')">Ajouter carte Catégorie</button>
+            <button class="rounded-lg border bg-white px-3 py-2 text-sm" @click="addBlock('banner')">Ajouter Bannière</button>
+            <button class="rounded-lg border bg-white px-3 py-2 text-sm" @click="addBlock('popup')">Ajouter Popup</button>
+          </div>
           <div v-for="(b,i) in blocks" :key="b.id" class="rounded-2xl border bg-white p-4">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2 text-sm text-gray-600">
                 <GripVertical class="h-5 w-5 text-gray-400" />
-                <span>Catégorie de produit</span>
+                <span v-if="b.type==='category'">Catégorie de produit</span>
+                <span v-else-if="b.type==='banner'">Bannière</span>
+                <span v-else>Popup</span>
               </div>
               <div class="flex items-center gap-2">
                 <button class="inline-flex h-8 w-8 items-center justify-center rounded-md border bg-white" @click="b.visible=!b.visible"><Eye class="h-4 w-4" :class="b.visible?'text-gray-700':'text-gray-400'" /></button>
                 <button class="inline-flex h-8 w-8 items-center justify-center rounded-md border bg-white" @click="removeBlock(i)"><Trash class="h-4 w-4 text-gray-700" /></button>
               </div>
             </div>
-            <div class="mt-3 grid gap-3 sm:grid-cols-2">
+            <div v-if="b.type==='category'" class="mt-3 grid gap-3 sm:grid-cols-2">
               <div>
                 <label class="block text-sm font-medium">Catégorie</label>
                 <select v-model="b.category_id" class="mt-1 w-full rounded-lg border px-3 py-2">
@@ -46,11 +53,36 @@
                   <button :class="b.layout==='grid' ? 'rounded px-3 py-1 text-xs bg-gray-900 text-white' : 'rounded px-3 py-1 text-xs border bg-white'" @click="b.layout='grid'">Grille</button>
                 </div>
               </div>
+              <label class="mt-3 inline-flex items-center gap-2">
+                <input type="checkbox" v-model="b.limit4" />
+                <span class="text-sm">Présentez jusqu'à 4 produits</span>
+              </label>
             </div>
-            <label class="mt-3 inline-flex items-center gap-2">
-              <input type="checkbox" v-model="b.limit4" />
-              <span class="text-sm">Présentez jusqu'à 4 produits</span>
-            </label>
+            <div v-else-if="b.type==='banner'" class="mt-3 grid gap-3 sm:grid-cols-2">
+              <div>
+                <label class="block text-sm font-medium">Texte</label>
+                <input v-model.trim="b.text" :maxlength="45" class="mt-1 w-full rounded-lg border px-3 py-2" />
+                <div class="mt-1 text-[11px] text-gray-600">{{ String(b.text||'').length }}/45 caractères</div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium">Lien</label>
+                <input v-model.trim="b.link" placeholder="https://" class="mt-1 w-full rounded-lg border px-3 py-2" />
+              </div>
+            </div>
+            <div v-else class="mt-3 grid gap-3 sm:grid-cols-2">
+              <div>
+                <label class="block text-sm font-medium">Titre</label>
+                <input v-model.trim="b.title" :maxlength="100" class="mt-1 w-full rounded-lg border px-3 py-2" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium">Description</label>
+                <input v-model.trim="b.description" :maxlength="100" class="mt-1 w-full rounded-lg border px-3 py-2" />
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-sm font-medium">Lien</label>
+                <input v-model.trim="b.link" placeholder="https://" class="mt-1 w-full rounded-lg border px-3 py-2" />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -110,23 +142,91 @@
         </div>
         <div v-else-if="tab==='apparence'" class="mt-4 rounded-2xl border bg-white p-6">
           <div class="grid gap-6 sm:grid-cols-2">
-            <div>
-              <div class="text-sm font-semibold mb-2">Couleur de la boutique</div>
-              <div class="flex items-center gap-2">
-                <input type="color" v-model="appearance.color" class="h-10 w-14 rounded border" />
-                <input v-model="appearance.color" class="flex-1 rounded border px-3 py-2 text-sm" />
+            <div class="space-y-6">
+              <div>
+                <div class="text-sm font-semibold mb-2">Profil</div>
+                <label class="block text-xs text-gray-600">Nom</label>
+                <input v-model.trim="appearance.profileName" class="mt-1 w-full rounded border px-3 py-2 text-sm" />
+                <label class="mt-3 block text-xs text-gray-600">Description</label>
+                <textarea v-model.trim="appearance.profileDescription" rows="3" class="mt-1 w-full rounded border px-3 py-2 text-sm" placeholder="Decorate with **bold**, ~strike~, _italic_"></textarea>
+                <div class="mt-2 rounded border bg-white p-2 text-xs">
+                  <div class="font-semibold mb-1">Aperçu</div>
+                  <div v-html="profileDescHtml"></div>
+                </div>
               </div>
-              <div class="mt-4 text-sm font-semibold mb-2">Logo (URL)</div>
-              <input v-model.trim="appearance.logoUrl" placeholder="https://exemple.com/logo.jpg" class="w-full rounded border px-3 py-2 text-sm" />
+              <div>
+                <div class="text-sm font-semibold mb-2">Couleurs</div>
+                <label class="block text-xs text-gray-600">Couleur primaire</label>
+                <div class="flex items-center gap-2">
+                  <input type="color" v-model="appearance.primary" class="h-10 w-14 rounded border" />
+                  <input v-model="appearance.primary" class="flex-1 rounded border px-3 py-2 text-sm" />
+                </div>
+                <div class="mt-1 text-[11px] text-gray-600">Choisissez une couleur qui reflète votre marque. Elle sera utilisée pour les boutons et les mises en évidence.</div>
+                <label class="mt-3 block text-xs text-gray-600">Couleur d’arrière plan</label>
+                <div class="flex items-center gap-2">
+                  <input type="color" v-model="appearance.background" class="h-10 w-14 rounded border" />
+                  <input v-model="appearance.background" class="flex-1 rounded border px-3 py-2 text-sm" />
+                </div>
+              </div>
+              <div>
+                <div class="text-sm font-semibold mb-2">Logo (URL)</div>
+                <input v-model.trim="appearance.logoUrl" placeholder="https://exemple.com/logo.jpg" class="w-full rounded border px-3 py-2 text-sm" />
+                <div class="mt-2">
+                  <input type="file" accept="image/*" @change="onLogoFileChange" />
+                </div>
+              </div>
+              <div>
+                <div class="text-sm font-semibold mb-2">Préréglages de couleurs</div>
+                <div class="flex flex-wrap gap-2">
+                  <button v-for="c in presetColors" :key="c" class="h-8 w-8 rounded-full border" :style="{ backgroundColor: c }" @click="applyPreset(c)" />
+                </div>
+              </div>
+              <div>
+                <div class="text-sm font-semibold mb-2">Bannière</div>
+                <label class="block text-xs text-gray-600">Texte</label>
+                <input v-model.trim="appearance.bannerText" :maxlength="45" class="mt-1 w-full rounded border px-3 py-2 text-sm" />
+                <div class="mt-1 text-[11px] text-gray-600">{{ bannerCount }}/45 caractères</div>
+                <label class="mt-3 block text-xs text-gray-600">Lien</label>
+                <input v-model.trim="appearance.bannerLink" placeholder="https://" class="mt-1 w-full rounded border px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <div class="text-sm font-semibold mb-2">Popup</div>
+                <div class="text-[11px] text-gray-600 mb-2">Affichée une fois lors de la première visite.</div>
+                <label class="flex items-center gap-2 text-xs">
+                  <span>Activer</span>
+                  <input type="checkbox" v-model="appearance.popupEnabled" />
+                </label>
+                <label class="mt-3 block text-xs text-gray-600">Titre</label>
+                <input v-model.trim="appearance.popupTitle" :maxlength="100" class="mt-1 w-full rounded border px-3 py-2 text-sm" />
+                <div class="mt-1 text-[11px] text-gray-600">{{ popupTitleCount }}/100 caractères</div>
+                <label class="mt-3 block text-xs text-gray-600">Description</label>
+                <input v-model.trim="appearance.popupDescription" :maxlength="100" class="mt-1 w-full rounded border px-3 py-2 text-sm" />
+                <div class="mt-1 text-[11px] text-gray-600">{{ popupDescCount }}/100 caractères</div>
+                <label class="mt-3 block text-xs text-gray-600">Lien vers</label>
+                <input v-model.trim="appearance.popupLink" placeholder="https://" class="mt-1 w-full rounded border px-3 py-2 text-sm" />
+              </div>
             </div>
             <div>
               <div class="text-sm font-semibold mb-2">Aperçu</div>
               <div class="rounded-xl border bg-white p-3">
                 <div class="flex items-center gap-3">
-                  <div class="h-10 w-10 rounded-full overflow-hidden" :style="{ backgroundColor: appearance.color }">
+                  <div class="h-10 w-10 rounded-full overflow-hidden" :style="{ backgroundColor: appearance.primary }">
                     <img v-if="appearance.logoUrl" :src="appearance.logoUrl" class="h-full w-full object-cover" />
                   </div>
-                  <div class="font-semibold text-sm">{{ storeName }}</div>
+                  <div class="font-semibold text-sm">{{ appearance.profileName || storeName }}</div>
+                </div>
+                <div class="mt-3 text-xs text-gray-700" v-html="profileDescHtml"></div>
+                <div v-if="appearance.bannerText" class="mt-3 rounded-lg px-3 py-2 text-xs" :style="{ backgroundColor: appearance.background }">
+                  <a v-if="appearance.bannerLink" :href="appearance.bannerLink" target="_blank" class="font-semibold" :style="{ color: appearance.primary }">{{ appearance.bannerText }}</a>
+                  <span v-else class="font-semibold" :style="{ color: appearance.primary }">{{ appearance.bannerText }}</span>
+                </div>
+                <div v-if="appearance.popupEnabled" class="mt-3 rounded-lg border bg-white p-3 text-xs">
+                  <div class="font-semibold mb-1">{{ appearance.popupTitle || 'Offre de bienvenue spéciale' }}</div>
+                  <div class="text-gray-700">{{ appearance.popupDescription || 'Bénéficiez de 20 % de réduction sur votre premier achat.' }}</div>
+                  <div class="mt-2">
+                    <a v-if="appearance.popupLink" :href="appearance.popupLink" target="_blank" class="rounded bg-gray-900 px-3 py-2 text-white">Découvrir</a>
+                    <span v-else class="rounded border bg-white px-3 py-2">Aucun lien</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -159,25 +259,45 @@
                   <ShoppingCart class="h-4 w-4 text-gray-600" />
                 </div>
               </div>
-              <div class="px-3 py-3">
+              <div class="px-3 py-3" :style="{ backgroundColor: tab==='apparence' ? appearance.background : undefined }">
                 <div v-if="tab==='vitrine'">
                   <div v-for="b in blocks.filter(x=>x.visible)" :key="b.id" class="mb-3 rounded-xl border bg-white p-3">
-                    <div class="text-sm font-semibold mb-2">{{ categoryName(b.category_id) || 'Produits' }}</div>
-                    <div v-if="b.layout==='list'" class="space-y-2">
-                      <div v-for="p in previewProducts(b)" :key="p.id" class="rounded border p-2">
-                        <div class="font-medium text-sm">{{ p.name }}</div>
-                        <div class="text-xs text-gray-600">{{ checkout.currency }} {{ Number(p.price||0).toLocaleString('fr-FR') }}</div>
-                      </div>
-                    </div>
-                    <div v-else class="grid grid-cols-2 gap-2">
-                      <div v-for="p in previewProducts(b)" :key="p.id" class="rounded border p-2">
-                        <div class="h-20 w-full rounded bg-gray-100 mb-2 overflow-hidden">
-                          <img :src="firstImage(p)" class="h-full w-full object-cover" />
+                    <template v-if="b.type==='category'">
+                      <div class="text-sm font-semibold mb-2">{{ categoryName(b.category_id) || 'Produits' }}</div>
+                      <div v-if="b.layout==='list'" class="space-y-2">
+                        <div v-for="p in previewProducts(b)" :key="p.id" class="rounded border p-2">
+                          <div class="font-medium text-sm">{{ p.name }}</div>
+                          <div class="text-xs text-gray-600" :style="{ color: appearance.primary }">{{ checkout.currency }} {{ Number(p.price||0).toLocaleString('fr-FR') }}</div>
                         </div>
-                        <div class="text-xs font-medium truncate">{{ p.name }}</div>
-                        <div class="text-[11px] text-gray-600">{{ checkout.currency }} {{ Number(p.price||0).toLocaleString('fr-FR') }}</div>
                       </div>
-                    </div>
+                      <div v-else class="grid grid-cols-2 gap-2">
+                        <div v-for="p in previewProducts(b)" :key="p.id" class="rounded border p-2">
+                          <div class="h-20 w-full rounded bg-gray-100 mb-2 overflow-hidden">
+                            <img :src="firstImage(p)" class="h-full w-full object-cover" />
+                          </div>
+                          <div class="text-xs font-medium truncate">{{ p.name }}</div>
+                          <div class="text-[11px]" :style="{ color: appearance.primary }">{{ checkout.currency }} {{ Number(p.price||0).toLocaleString('fr-FR') }}</div>
+                        </div>
+                      </div>
+                    </template>
+                    <template v-else-if="b.type==='banner'">
+                      <div class="text-sm font-semibold mb-2">Bannière</div>
+                      <div class="rounded-lg px-3 py-2 text-xs" :style="{ backgroundColor: appearance.background }">
+                        <a v-if="b.link" :href="b.link" target="_blank" class="font-semibold" :style="{ color: appearance.primary }">{{ b.text }}</a>
+                        <span v-else class="font-semibold" :style="{ color: appearance.primary }">{{ b.text }}</span>
+                      </div>
+                    </template>
+                    <template v-else>
+                      <div class="text-sm font-semibold mb-2">Popup</div>
+                      <div class="rounded-lg border bg-white p-3 text-xs">
+                        <div class="font-semibold mb-1">{{ b.title || 'Titre de popup' }}</div>
+                        <div class="text-gray-700">{{ b.description || 'Description de popup' }}</div>
+                        <div class="mt-2">
+                          <a v-if="b.link" :href="b.link" target="_blank" class="rounded bg-gray-900 px-3 py-2 text-white">Découvrir</a>
+                          <span v-else class="rounded border bg-white px-3 py-2">Aucun lien</span>
+                        </div>
+                      </div>
+                    </template>
                   </div>
                 </div>
                 <div v-else-if="tab==='caisse'">
@@ -245,6 +365,20 @@
                     </div>
                   </div>
                 </div>
+                <div v-else-if="tab==='apparence'">
+                  <div v-if="appearance.bannerText" class="rounded-lg px-3 py-2 text-xs" :style="{ backgroundColor: appearance.background }">
+                    <a v-if="appearance.bannerLink" :href="appearance.bannerLink" target="_blank" class="font-semibold" :style="{ color: appearance.primary }">{{ appearance.bannerText }}</a>
+                    <span v-else class="font-semibold" :style="{ color: appearance.primary }">{{ appearance.bannerText }}</span>
+                  </div>
+                  <div v-if="appearance.popupEnabled" class="mt-3 rounded-xl border bg-white p-3">
+                    <div class="text-sm font-semibold mb-1">{{ appearance.popupTitle || 'Offre de bienvenue spéciale' }}</div>
+                    <div class="text-xs text-gray-700">{{ appearance.popupDescription || 'Bénéficiez de 20 % de réduction sur votre premier achat.' }}</div>
+                    <div class="mt-2">
+                      <a v-if="appearance.popupLink" :href="appearance.popupLink" target="_blank" class="rounded bg-gray-900 px-3 py-2 text-xs text-white">Découvrir</a>
+                      <span v-else class="rounded border bg-white px-3 py-2 text-xs">Aucun lien</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -269,14 +403,15 @@ const admin = useAdminStore()
 const tab = ref<'vitrine'|'caisse'|'apparence'|'menu'>('vitrine')
 const categories = ref<any[]>([])
 const productsByCat = reactive<Record<string, any[]>>({})
-const blocks = reactive<Array<{ id: string; category_id: number | null; layout: 'list'|'grid'; limit4: boolean; visible: boolean }>>([])
+const blocks = reactive<any[]>([])
 const checkout = reactive<{ methods: { cash: boolean; momo: boolean; card: boolean }; require_phone: boolean; require_email: boolean; allow_notes: boolean; currency: string; delivery: { pickup: boolean; delivery: boolean; zones: Array<{ name: string; fee: number }> }; message_template: string }>({ methods: { cash: true, momo: true, card: false }, require_phone: true, require_email: false, allow_notes: true, currency: 'FCFA', delivery: { pickup: true, delivery: true, zones: [] }, message_template: 'Bonjour {store}, je confirme ma commande de {items} pour {total} {currency}. {deliveryMethod}' })
-const appearance = reactive<{ color: string; logoUrl: string }>({ color: '#25D366', logoUrl: '' })
+const appearance = reactive<{ color: string; logoUrl: string; primary: string; background: string; profileName: string; profileDescription: string; bannerText: string; bannerLink: string; popupEnabled: boolean; popupTitle: string; popupDescription: string; popupLink: string }>({ color: '#25D366', logoUrl: '', primary: '#25D366', background: '#ffffff', profileName: '', profileDescription: '', bannerText: '', bannerLink: '', popupEnabled: false, popupTitle: '', popupDescription: '', popupLink: '' })
 const menuItems = reactive<Array<{ key: string; label: string; visible: boolean }>>([
   { key: 'home', label: 'Accueil', visible: true },
   { key: 'categories', label: 'Catégories', visible: true },
   { key: 'promos', label: 'Promos', visible: true }
 ])
+const presetColors = ['#25D366', '#C03E37', '#111827', '#EF4444', '#10B981', '#2563EB']
 const storeName = ref('Votre boutique')
 const toastShow = ref(false)
 const toastMsg = ref('')
@@ -286,7 +421,23 @@ function firstImage(p: any) {
   const arr = Array.isArray(p.images) ? p.images : (typeof p.images === 'string' ? JSON.parse(p.images || '[]') : [])
   return arr[0] || ''
 }
-function addBlock() { blocks.push({ id: String(Date.now() + Math.random()), category_id: null, layout: 'list', limit4: true, visible: true }) }
+const bannerCount = computed(() => String(appearance.bannerText || '').length)
+const popupTitleCount = computed(() => String(appearance.popupTitle || '').length)
+const popupDescCount = computed(() => String(appearance.popupDescription || '').length)
+function escapeHtml(s: string) { return String(s || '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;') }
+const profileDescHtml = computed(() => {
+  const raw = escapeHtml(String(appearance.profileDescription || ''))
+  return raw
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/_([^_]+)_/g, '<em>$1</em>')
+    .replace(/~([^~]+)~/g, '<del>$1</del>')
+})
+function addBlock(type: 'category'|'banner'|'popup' = 'category') {
+  const id = String(Date.now() + Math.random())
+  if (type === 'category') blocks.push({ id, type: 'category', category_id: null, layout: 'list', limit4: true, visible: true })
+  else if (type === 'banner') blocks.push({ id, type: 'banner', text: '', link: '', visible: true })
+  else blocks.push({ id, type: 'popup', title: '', description: '', link: '', visible: true })
+}
 function removeBlock(i: number) { blocks.splice(i, 1) }
 function previewProducts(b: any) {
   const arr = productsByCat[String(b.category_id || 'all')] || []
@@ -307,6 +458,27 @@ function messagePreview() {
     .replace('{total}', String(total))
     .replace('{currency}', checkout.currency)
     .replace('{deliveryMethod}', deliveryMethod)
+}
+async function onLogoFileChange(e: any) {
+  const f = e.target.files?.[0]
+  if (!f) return
+  const storeId = admin.selectedShopId
+  if (!storeId) return
+  const cfg = useRuntimeConfig()
+  const bucket = String((cfg.public as any)?.supabaseStorageBucket || 'branding')
+  const path = `stores/${storeId}/branding/${Date.now()}-${f.name}`
+  const r = await supabase.storage.from(bucket).upload(path, f, { upsert: true })
+  if (!r.error) {
+    const publicUrl = supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl
+    appearance.logoUrl = publicUrl
+    const { data: sone } = await supabase.from('stores').select('id').eq('id', storeId).maybeSingle()
+    if (sone?.id) await supabase.from('stores').update({ image_url: publicUrl }).eq('id', sone.id)
+    notify('Logo mis à jour')
+  }
+}
+function applyPreset(color: string) {
+  appearance.primary = color
+  if (!appearance.color) appearance.color = color
 }
 async function loadData() {
   const storeId = admin.selectedShopId
@@ -336,6 +508,16 @@ async function loadData() {
     if (saved?.appearance) {
       appearance.color = String(saved.appearance.color || appearance.color)
       appearance.logoUrl = String(saved.appearance.logoUrl || '')
+      appearance.primary = String(saved.appearance.primary || appearance.primary)
+      appearance.background = String(saved.appearance.background || appearance.background)
+      appearance.profileName = String(saved.appearance.profileName || '')
+      appearance.profileDescription = String(saved.appearance.profileDescription || '')
+      appearance.bannerText = String(saved.appearance.bannerText || '')
+      appearance.bannerLink = String(saved.appearance.bannerLink || '')
+      appearance.popupEnabled = !!saved.appearance.popupEnabled
+      appearance.popupTitle = String(saved.appearance.popupTitle || '')
+      appearance.popupDescription = String(saved.appearance.popupDescription || '')
+      appearance.popupLink = String(saved.appearance.popupLink || '')
     }
     if (saved?.menu) {
       menuItems.splice(0, menuItems.length, ...Array.isArray(saved.menu) ? saved.menu : menuItems)
@@ -369,9 +551,10 @@ async function saveConfig() {
   try {
     const current = localStorage.getItem(`store:${slug}`)
     const v = current ? JSON.parse(current) : {}
-    v.name = storeName.value
+    v.name = appearance.profileName || storeName.value
     v.logoUrl = appearance.logoUrl
-    v.color = appearance.color
+    v.color = appearance.color || appearance.primary
+    v.background = appearance.background
     localStorage.setItem(`store:${slug}`, JSON.stringify(v))
   } catch {}
   notify('Design mis à jour')
