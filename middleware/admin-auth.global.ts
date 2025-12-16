@@ -4,6 +4,12 @@ export default defineNuxtRouteMiddleware(async (to) => {
     if (to.path.startsWith('/admin')) {
       const nuxt = useNuxtApp()
       const supabase = nuxt.$supabase as any
+      if (!supabase?.auth) {
+        // Supabase not initialized, redirect to login (or error page?)
+        // If config is missing, login won't work either.
+        // But better than crash.
+        return navigateTo('/auth/login')
+      }
       const { data } = await supabase.auth.getUser()
       const user = data?.user
       if (!user) {

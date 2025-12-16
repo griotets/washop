@@ -63,6 +63,8 @@ async function sendEmailOtp() {
 async function verifyEmailOtp() {
   const res = await verifyOtp(String(email.value || ''), String(code.value || ''))
   if (!res.error) {
+    if (!supabase?.auth) return
+
     const { data } = await supabase.auth.getUser()
     const uid = data?.user?.id
     if (!uid) return router.push('/auth/login')

@@ -1,7 +1,10 @@
 import { defineStore } from 'pinia'
 
 export const useCartStore = defineStore('cart', {
-  state: () => ({ items: [] as Array<{ id: string; name: string; price: number; quantity: number; image?: string }> }),
+  state: () => ({ 
+    items: [] as Array<{ id: string; name: string; price: number; quantity: number; image?: string }>,
+    currentSlug: ''
+  }),
   getters: {
     count: (s) => s.items.reduce((a, i) => a + (i.quantity || 1), 0),
     total: (s) => s.items.reduce((a, i) => a + (i.price || 0) * (i.quantity || 1), 0)
@@ -24,15 +27,16 @@ export const useCartStore = defineStore('cart', {
       this.persist()
     },
     load(slug: string) {
+      this.currentSlug = slug
       try {
         const raw = localStorage.getItem(`cart:${slug}`)
         this.items = raw ? JSON.parse(raw) : []
       } catch { this.items = [] }
     },
-    persist(slug?: string) {
+    persist() {
+      if (!this.currentSlug) return
       try {
-        const key = slug ? `cart:${slug}` : 'cart:default'
-        localStorage.setItem(key, JSON.stringify(this.items))
+        localStorage.setItem(`cart:${this.currentSlug}`, JSON.stringify(this.items))
       } catch {}
     }
   }

@@ -5,7 +5,12 @@ export default defineNuxtPlugin(() => {
   const url = String(config.public.supabaseUrl || '')
   const key = String(config.public.supabaseAnonKey || '')
   if (!url || !key) {
-    throw new Error('Missing Supabase configuration: set NUXT_PUBLIC_SUPABASE_URL and NUXT_PUBLIC_SUPABASE_ANON_KEY')
+    console.error('Missing Supabase configuration: set NUXT_PUBLIC_SUPABASE_URL and NUXT_PUBLIC_SUPABASE_ANON_KEY')
+    return {
+      provide: {
+        supabase: null as unknown as SupabaseClient
+      }
+    }
   }
   const client: SupabaseClient = createClient(url, key)
   return {

@@ -103,7 +103,7 @@
       <div class="rounded-2xl bg-indigo-50 p-6">
         <div class="mx-auto max-w-sm">
           <div
-            class="relative aspect-[9/18] rounded-[2rem] border-8 border-gray-900 bg-white shadow-xl overflow-hidden">
+            class="relative aspect-[11/18] rounded-[2rem] border-8 border-gray-900 bg-white shadow-xl overflow-hidden">
             <div v-if="step === 1" class="p-6 space-y-4">
               <div class="h-4 w-1/2 bg-gray-100 rounded"></div>
               <div class="h-3 w-full bg-gray-200 rounded"></div>
@@ -287,34 +287,22 @@ async function submitEmail() {
   }
 }
 async function verifyCode() {
+  console.log('[Register] Verifying code...', { email: email.value, code: enteredCode.value })
   verifying.value = true
   try {
     const res = await verifyOtp(email.value, enteredCode.value)
+    console.log('[Register] Verify result:', res)
     codeError.value = !!res.error
     if (!codeError.value) {
+      console.log('[Register] Success! Moving to step 3')
       store.verifyEmail()
       store.persist()
-      const entId = await ensureEnterprise()
-      if (!entId) { await navigateTo('/auth/login'); return }
-      const { data: stores } = await supabase.from('stores').select('id,name,slug').eq('enterprise_id', entId)
-      if (!stores || stores.length === 0) {
-        await navigateTo('/admin/stores/create')
-        return
-      }
-      if (stores.length === 1) {
-        store.selectShop(String(stores[0].id))
-      } else {
-        await navigateTo('/admin/stores/switch')
-        return
-      }
-      try {
-        const raw = localStorage.getItem('postLoginPath')
-        localStorage.removeItem('postLoginPath')
-        const target = String(raw || '')
-        if (target) { await navigateTo(target); return }
-      } catch {}
-      await navigateTo('/admin/dashboard')
+      step.value = 3 // Now correctly moves to the next step
+    } else {
+      console.error('[Register] Verification failed:', res.error)
     }
+  } catch (e) {
+    console.error('[Register] Exception during verification:', e)
   } finally {
     verifying.value = false
   }
@@ -333,6 +321,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
 async function ensureEnterprise() {
+  if (!supabase?.auth) return
   const { data } = await supabase.auth.getUser()
   const uid = data?.user?.id
   if (!uid) return

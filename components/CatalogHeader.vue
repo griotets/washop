@@ -31,15 +31,24 @@
 </template>
 
 <script setup>
+const props = defineProps(['store'])
 const route = useRoute()
 const slug = computed(() => String(route.params['boutiqueSlug'] || ''))
-const store = reactive({ name: '', logoUrl: '', color: '#111827' })
-const color = computed(() => store.color || '#111827')
-const initials = computed(() => (store.name || 'Boutique').split(/\s+/).map(s => s[0]).join('.'))
+const localStore = reactive({ name: '', logoUrl: '', color: '#111827' })
+
+// Merge props and local state
+const store = computed(() => {
+  if (props.store && props.store.name) return props.store
+  return localStore
+})
+
+const color = computed(() => store.value.color || '#111827')
+const initials = computed(() => (store.value.name || 'Boutique').split(/\s+/).map(s => s[0]).join('.'))
+
 onMounted(() => {
   try {
     const raw = localStorage.getItem(`store:${slug.value}`)
-    if (raw) Object.assign(store, JSON.parse(raw))
+    if (raw) Object.assign(localStore, JSON.parse(raw))
   } catch {}
 })
 import { useCartStore } from '~/stores/cart'

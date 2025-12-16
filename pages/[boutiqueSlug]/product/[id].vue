@@ -1,6 +1,6 @@
 <template>
   <div>
-    <CatalogHeader />
+    <CatalogHeader :store="store" />
     <main class="mx-auto max-w-6xl px-4 py-8">
       <div class="grid gap-8 lg:grid-cols-2">
         <div>
@@ -124,6 +124,7 @@ function buyNow() {
   navigateTo(`/${slug.value}/cart`)
 }
 onMounted(async () => {
+  if (!supabase) return
   try {
     const raw = localStorage.getItem(`design:${slug.value}`)
     const d = raw ? JSON.parse(raw) : null

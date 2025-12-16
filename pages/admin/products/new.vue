@@ -559,23 +559,31 @@ async function save() {
       is_visible: form.is_visible,
       is_out_of_stock: form.is_out_of_stock,
       daily_capacity: form.daily_capacity,
-      max_order_qty: form.max_order_qty,
-      min_order_qty: form.min_order_qty,
+      max_order_quantity: form.max_order_qty,
+      min_order_quantity: form.min_order_qty,
       tax_exempt: form.tax_exempt,
       tax_exempt_reason: form.tax_exempt_reason || null,
       show_estimated_price: form.show_estimated_price,
       track_cost: form.track_cost,
-      cost_per_item: form.cost_per_item || null,
+      cost_price: form.cost_per_item || null,
       show_net_price: form.show_net_price,
-      weight: form.weight || null,
+      // weight: form.weight || null,
       category_id: form.category_id,
       unit: unit.value,
-      unit_value: unitValue,
+      unit_value: unitValue.value,
       requires_shipping: requiresShipping.value,
       delivery_methods: Array.from(deliveryMethods)
     }
-    const { data } = await supabase.from('products').insert(payload).select('id').maybeSingle()
-    const pid = String(data?.id || '')
+    const { data, error: insertError } = await supabase.from('products').insert(payload).select('id').maybeSingle()
+    if (insertError) {
+      console.error('Insert Error:', insertError)
+      throw new Error(insertError.message)
+    }
+    if (!data?.id) {
+      console.error('No ID returned from insert')
+      throw new Error('No ID returned from insert')
+    }
+    const pid = String(data.id)
     // Ensure created tags exist and associate them
     const tagIds: number[] = []
     for (const t of tags.value) {
@@ -608,6 +616,9 @@ async function save() {
     }
     notify('Produit créé')
     setTimeout(() => navigateTo(`/admin/products/${pid}`), 600)
+  } catch (e: any) {
+    console.error('Error saving product:', e)
+    notify(e.message || 'Erreur lors de la création du produit')
   } finally { saving.value = false }
 }
 async function loadFilters() {

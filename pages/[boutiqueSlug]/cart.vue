@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <CatalogHeader />
+    <CatalogHeader :store="storeData" />
     
     <main class="mx-auto max-w-3xl px-4 py-8 pb-32">
       <!-- Stepper -->
@@ -201,11 +201,14 @@
 </template>
 
 <script setup lang="ts">
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { ShoppingCart, Trash2, Package, Store, Truck, MessageCircle } from 'lucide-vue-next'
 import { useCartStore } from '~/stores/cart'
 import PhoneInput from '~/components/PhoneInput.vue'
 
 const route = useRoute()
+const nuxt = useNuxtApp()
+const supabase = nuxt.$supabase as SupabaseClient
 const slug = computed(() => String(route.params['boutiqueSlug'] || ''))
 const cart = useCartStore()
 
@@ -214,6 +217,7 @@ useHead({ title: `Panier | ${slug.value}` })
 // State
 const step = ref(1)
 const storeConfig = ref<any>({})
+const storeData = ref<any>(null)
 const form = reactive({
   name: '',
   phone: '',
@@ -233,9 +237,21 @@ const availableMethods = computed(() => {
 })
 
 // Methods
-onMounted(() => {
+onMounted(async () => {
   cart.load(slug.value)
   loadStoreConfig()
+  
+  // Fetch store info
+  const { data } = await supabase.from('stores').select('name, phone, color, image_url').eq('slug', slug.value).maybeSingle()
+  if (data) {
+     storeData.value = {
+       name: data.name,
+       phone: data.phone,
+       color: data.color,
+       logoUrl: data.image_url
+     }
+     localStorage.setItem(`store:${slug.value}`, JSON.stringify(storeData.value))
+  }
 })
 
 function loadStoreConfig() {
@@ -280,6 +296,7 @@ function sendWhatsApp() {
 }
 
 function getStorePhone() {
+  if (storeData.value?.phone) return String(storeData.value.phone).replace(/\D/g, '')
   try {
     const raw = localStorage.getItem(`store:${slug.value}`)
     const data = raw ? JSON.parse(raw) : {}

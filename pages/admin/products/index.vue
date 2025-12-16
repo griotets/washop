@@ -135,8 +135,12 @@ function toggleSelectAll() {
   else selected.value = []
 }
 function firstImage(p: any) {
-  const arr = Array.isArray(p.images) ? p.images : (typeof p.images === 'string' ? JSON.parse(p.images || '[]') : [])
-  return arr[0] || p.variant_image || ''
+  try {
+    const arr = Array.isArray(p.images) ? p.images : (typeof p.images === 'string' ? JSON.parse(p.images || '[]') : [])
+    return arr[0] || p.variant_image || ''
+  } catch (e) {
+    return ''
+  }
 }
 async function loadProducts() {
   const storeId = admin.selectedShopId
@@ -148,7 +152,13 @@ async function loadProducts() {
   const term = String(search.value || '').trim()
   if (term) query = query.ilike('name', `%${term}%`)
   if (categoryFilter.value) query = query.eq('category_id', Number(categoryFilter.value))
-  const { data } = await query
+  const { data, error } = await query
+  if (error) {
+    console.error('loadProducts error:', error)
+    notify('Erreur de chargement des produits')
+    loading.value = false
+    return
+  }
   let list = Array.isArray(data) ? data : []
   if (tagsFilter.size > 0) {
     const ids = new Set(list.map((p: any) => String(p.id)))
@@ -183,7 +193,16 @@ async function loadFilters() {
   categories.value = Array.isArray(c) ? c : []
   const { data: tg } = await supabase.from('tags').select('id,name').eq('store_id', storeId)
   tags.value = Array.isArray(tg) ? tg : []
-  const { data: pt } = await supabase.from('product_tags').select('product_id,tag_id').in('product_id', (await supabase.from('products').select('id').eq('store_id', storeId)).data?.map((x: any) => x.id) || [])
+  
+  const { data: allProducts } = await supabase.from('products').select('id').eq('store_id', storeId)
+  const allIds = Array.isArray(allProducts) ? allProducts.map((x: any) => x.id) : []
+  
+  if (allIds.length === 0) {
+    productTagMap.value = {}
+    return
+  }
+
+  const { data: pt } = await supabase.from('product_tags').select('product_id,tag_id').in('product_id', allIds)
   const map: Record<string, number[]> = {}
   for (const row of Array.isArray(pt) ? pt : []) {
     const pid = String(row.product_id)
@@ -274,7 +293,7 @@ async function importCsv(e: any) {
   await loadProducts()
   notify('Importation terminée')
 }
-watch([search, limit], () => { page.value = 1; loadProducts() })
+watch([search, limit, categoryFilter], () => { page.value = 1; loadProducts() })
 watch(page, () => loadProducts())
 onMounted(async () => {
   if (!admin.selectedShopId) {
