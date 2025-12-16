@@ -3,7 +3,13 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   buildModules: [],
   extends: [],
-  runtimeConfig: {},
+  runtimeConfig: {
+    public: {
+      supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
+      supabaseAnonKey: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY,
+      otpResendDelay: process.env.NUXT_PUBLIC_OTP_RESEND_DELAY || 30
+    }
+  },
   modules: [
     '@nuxtjs/tailwindcss',
     '@pinia/nuxt',

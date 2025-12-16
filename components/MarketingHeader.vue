@@ -75,6 +75,10 @@
         <NuxtLink to="/resources" class="text-gray-700 hover:text-primary">Resources</NuxtLink>
       </nav>
       <div class="hidden items-center gap-3 md:flex">
+        <div class="flex items-center gap-2">
+          <button :class="['px-3 py-1 rounded', locale==='fr' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('fr')">FR</button>
+          <button :class="['px-3 py-1 rounded', locale==='en' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('en')">EN</button>
+        </div>
         <NuxtLink to="/auth/login" class="text-gray-700 hover:text-primary">Login</NuxtLink>
         <NuxtLink to="/auth/register" class="rounded-lg bg-primary px-4 py-2 font-semibold text-white shadow-sm hover:brightness-95">Start Free</NuxtLink>
       </div>
@@ -102,6 +106,10 @@
         <NuxtLink to="/resources" class="rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="open=false">Resources</NuxtLink>
       </nav>
       <div class="border-t px-4 py-4">
+        <div class="mb-2 flex items-center gap-2">
+          <button :class="['px-3 py-1 rounded', locale==='fr' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('fr')">FR</button>
+          <button :class="['px-3 py-1 rounded', locale==='en' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('en')">EN</button>
+        </div>
         <NuxtLink to="/auth/login" class="block rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="open=false">Login</NuxtLink>
         <NuxtLink to="/auth/register" class="mt-2 block rounded-lg bg-primary px-4 py-2 text-center font-semibold text-white" @click="open=false">Start Free</NuxtLink>
       </div>
@@ -114,4 +122,6 @@ const open = ref(false)
 const pdOpen = ref(false)
 const inOpen = ref(false)
 import { Store, ChevronDown, Menu, X } from 'lucide-vue-next'
+import { useI18n } from '~/composables/i18n'
+const { locale, setLocale } = useI18n()
 </script>

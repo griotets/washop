@@ -18,17 +18,9 @@
             <input v-model.trim="form.name" type="text" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none" :placeholder="t('create.placeholderName')" />
           </div>
 
-          <div class="grid grid-cols-3 gap-3">
-            <div>
-              <label class="mb-1 block text-sm font-medium">{{ t('create.phoneCode') }}</label>
-              <select v-model="form.code" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none">
-                <option value="+237">+237</option>
-              </select>
-            </div>
-            <div class="col-span-2">
-              <label class="mb-1 block text-sm font-medium">{{ t('create.phone') }}</label>
-              <input v-model.trim="form.phone" inputmode="numeric" pattern="[0-9]*" type="tel" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none" :placeholder="t('create.placeholderPhone')" />
-            </div>
+          <div>
+            <label class="mb-1 block text-sm font-medium">{{ t('create.phone') }}</label>
+            <PhoneInput v-model="form.phoneFull" :placeholder="t('create.placeholderPhone')" />
           </div>
 
           <div>
@@ -88,11 +80,14 @@
   </main>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useI18n } from '~/composables/i18n'
+import PhoneInput from '~/components/PhoneInput.vue'
+import type { SupabaseClient } from '@supabase/supabase-js'
+import { useAdminStore } from '~/stores/admin'
 const { t } = useI18n()
 const colors = ['#111827', '#ef4444', '#f59e0b', '#10b981', '#06b6d4', '#3b82f6', '#8b5cf6']
-const form = reactive({ name: '', code: '+237', phone: '', slug: '', color: colors[0], logoUrl: '' })
+const form = reactive({ name: '', phoneFull: '', slug: '', color: colors[0], logoUrl: '' })
 const displayName = computed(() => form.name || t('create.placeholderName'))
 const initials = computed(() => (displayName.value.split(/\s+/).map(s => s[0]).join('.')).slice(0, 12))
 watch(() => form.name, (n) => {
@@ -103,7 +98,7 @@ const prevSlugBase = ref('')
 function slugify(s) {
   return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
 }
-const isValid = computed(() => !!form.name && !!form.phone && !!form.slug)
+const isValid = computed(() => !!form.name && !!form.phoneFull && !!form.slug)
 function onLogoChange(e) {
   const f = e.target.files?.[0]
   if (!f) return
@@ -112,9 +107,37 @@ function onLogoChange(e) {
   r.readAsDataURL(f)
 }
 async function submit() {
-  const store = { name: form.name, phone: `${form.code}${form.phone}`, slug: form.slug, color: form.color, logoUrl: form.logoUrl }
-  try { localStorage.setItem(`store:${store.slug}`, JSON.stringify(store)) } catch {}
-  navigateTo(`/${store.slug}`)
+  const nuxt = useNuxtApp()
+  const supabase = nuxt.$supabase as SupabaseClient
+  const admin = useAdminStore()
+  const { data } = await supabase.auth.getUser()
+  const uid = data?.user?.id
+  if (!uid) return navigateTo('/auth/login')
+  // ensure enterprise exists
+  let { data: ent } = await supabase.from('enterprises').select('id').eq('owner_id', uid).maybeSingle()
+  if (!ent) {
+    const name = String(data?.user?.email || 'My Business').split('@')[0]
+    const ins = await supabase.from('enterprises').insert({ owner_id: uid, name }).select('id').maybeSingle()
+    ent = ins.data as any
+  }
+  const enterprise_id = ent?.id
+  if (!enterprise_id) return navigateTo('/admin/dashboard')
+  const payload = {
+    enterprise_id,
+    name: form.name,
+    phone: `${String(form.phoneFull || '').replace(/\s+/g, '')}`,
+    slug: form.slug,
+    color: form.color,
+    image_url: form.logoUrl
+  }
+  const { data: created, error } = await supabase.from('stores').insert(payload).select('id').maybeSingle()
+  if (error) {
+    console.error(error.message)
+    return
+  }
+  if (created?.id) admin.selectShop(String(created.id))
+  try { localStorage.setItem(`store:${form.slug}`, JSON.stringify({ name: form.name, logoUrl: form.logoUrl, color: form.color })) } catch {}
+  navigateTo('/admin/dashboard')
 }
 useHead({ title: `Admin | ${t('create.title')}` })
 </script>

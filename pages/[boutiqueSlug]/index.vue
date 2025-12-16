@@ -10,5 +10,6 @@
 </template>
 <script setup>
 const route = useRoute()
-useHead({ title: `${route.params['boutique-slug']} | Wa-Shop` })
+useHead({ title: `${route.params['boutiqueSlug']} | Wa-Shop` })
 </script>
+

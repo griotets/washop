@@ -7,10 +7,6 @@
             <h1 class="text-2xl font-bold mb-1">{{ t('register.start') }}</h1>
             <p class="text-gray-600">{{ t('register.subtitle') }}</p>
           </div>
-          <div class="flex items-center gap-2">
-            <button :class="['px-3 py-1 rounded', locale==='fr' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('fr')">FR</button>
-            <button :class="['px-3 py-1 rounded', locale==='en' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('en')">EN</button>
-          </div>
         </div>
 
         
@@ -20,9 +16,9 @@
             <label class="block text-sm font-medium">{{ t('register.emailLabel') }}</label>
             <input v-model.trim="email" type="email" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none" placeholder="vous@exemple.com" />
           </div>
-          <button :disabled="!emailValid" class="w-full rounded-lg bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50" @click="submitEmail">{{ t('register.continueEmail') }}</button>
-          <div class="text-center text-sm text-gray-500">{{ t('common.or') }}</div>
-          <button class="w-full rounded-lg border border-gray-300 px-5 py-3 font-semibold" @click="continueWithGoogle">{{ t('register.continueGoogle') }}</button>
+          <button :disabled="!emailValid || authLoading" class="w-full rounded-lg bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50" @click="submitEmail">{{ authLoading ? t('common.sending') : t('register.continueEmail') }}</button>
+          <p v-if="authError" class="text-sm text-red-600">{{ authError }}</p>
+          <p v-if="otpSent" class="text-sm text-green-700">{{ t('register.codeSent') }}</p>
         </div>
 
         <div v-else-if="step===2" class="space-y-6">
@@ -32,9 +28,13 @@
             <label class="block text-sm font-medium">{{ t('register.codeLabel') }}</label>
             <input v-model.trim="enteredCode" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="123456" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none tracking-widest text-center" />
             <p v-if="codeError" class="text-sm text-red-600">{{ t('register.codeInvalid') }}</p>
+            <p v-if="authError" class="text-sm text-red-600">{{ authError }}</p>
           </div>
-          <button :disabled="!codeValid" class="w-full rounded-lg bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50" @click="verifyCode">{{ t('register.verifyContinue') }}</button>
-          <button class="w-full rounded-lg border border-gray-300 px-5 py-3 font-semibold" @click="resendCode">{{ t('register.resendCode') }}</button>
+          <button :disabled="!codeValid || authLoading" class="w-full rounded-lg bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50" @click="verifyCode">{{ authLoading ? t('common.verifying') : t('register.verifyContinue') }}</button>
+          <button :disabled="authLoading || resendCooldown>0" class="w-full rounded-lg border border-gray-300 px-5 py-3 font-semibold disabled:opacity-50" @click="resendCode">
+            <span v-if="resendCooldown>0">{{ t('register.resendIn', { s: resendCooldown }) }}</span>
+            <span v-else>{{ t('register.resendCode') }}</span>
+          </button>
         </div>
 
         <div v-else-if="step===3" class="space-y-6">
@@ -157,7 +157,7 @@ const { t, locale, setLocale } = useI18n()
 
 const step = ref(1)
 const email = ref(store.onboarding.email)
-const emailValid = computed(() => /.+@.+\..+/.test(email.value))
+const emailValid = computed(() => /.+@.+\..+/.test(String(email.value || '')))
 const industry = ref(store.onboarding.industry)
 const goals = ref([...store.onboarding.goals])
 const enteredCode = ref('')
@@ -166,7 +166,7 @@ const codeError = ref(false)
 const animTick = ref(0)
 let animTimer: any
 onMounted(() => { animTimer = setInterval(() => { animTick.value = (animTick.value + 1) % 6 }, 1200) })
-onUnmounted(() => { if (animTimer) clearInterval(animTimer) })
+onUnmounted(() => { if (animTimer) clearInterval(animTimer); if (resendTimer) clearInterval(resendTimer) })
 const industriesFr = [
   'Restauration & Gastronomie',
   'Épicerie & Supermarché',
@@ -213,41 +213,70 @@ const goalsEn = [
 const goalsList = computed(() => (locale.value === 'fr' ? goalsFr : goalsEn))
 
 function goStep(n: number) { step.value = n }
-function submitEmail() {
+import { useAuth } from '~/composables/auth'
+const cfg = useRuntimeConfig()
+const otpDelay = Number((cfg.public as any)?.otpResendDelay || 30)
+const { sendOtp, verifyOtp, error: authError, loading: authLoading } = useAuth()
+const otpSent = ref(false)
+const resendCooldown = ref(0)
+let resendTimer: any = null
+
+async function submitEmail() {
   store.setEmail(email.value)
-  const code = String(Math.floor(100000 + Math.random() * 900000))
-  store.setEmailCode(code)
+  const res = await sendOtp(email.value)
   store.persist()
-  step.value = 2
+  if (!res.error) {
+    otpSent.value = true
+    step.value = 2
+    startCooldown()
+  }
 }
-function continueWithGoogle() {
-  store.setEmail('google-user@example.com')
-  const code = String(Math.floor(100000 + Math.random() * 900000))
-  store.setEmailCode(code)
-  store.persist()
-  step.value = 2
-}
-function verifyCode() {
-  codeError.value = enteredCode.value !== (store.onboarding.emailCode || '')
+async function verifyCode() {
+  const res = await verifyOtp(email.value, enteredCode.value)
+  codeError.value = !!res.error
   if (!codeError.value) { store.verifyEmail(); store.persist(); step.value = 3 }
 }
-function resendCode() {
-  const code = String(Math.floor(100000 + Math.random() * 900000))
-  store.setEmailCode(code)
+async function resendCode() {
+  const res = await sendOtp(email.value)
   store.persist()
-  codeError.value = false
-  enteredCode.value = ''
+  codeError.value = !!res.error
+  if (!codeError.value) { otpSent.value = true; enteredCode.value = ''; startCooldown() }
 }
 
 watch(industry, (v) => { store.setIndustry(v); store.persist() })
 watch(goals, (v) => { store.onboarding.goals = v; store.persist() })
 
+import type { SupabaseClient } from '@supabase/supabase-js'
+const nuxt = useNuxtApp()
+const supabase = nuxt.$supabase as SupabaseClient
+async function ensureEnterprise() {
+  const { data } = await supabase.auth.getUser()
+  const uid = data?.user?.id
+  if (!uid) return
+  let { data: ent } = await supabase.from('enterprises').select('id,name').eq('owner_id', uid).maybeSingle()
+  if (!ent) {
+    const name = String(data?.user?.email || 'My Business').split('@')[0]
+    const ins = await supabase.from('enterprises').insert({ owner_id: uid, name }).select('id').maybeSingle()
+    ent = ins.data as any
+  }
+  return ent?.id as string | undefined
+}
 async function subscribe() {
-  store.setSubscribed(true); store.persist(); await navigateTo('/admin/stores/create')
+  store.setSubscribed(true); store.persist(); await ensureEnterprise(); await navigateTo('/admin/stores/create')
 }
 async function skip() {
-  store.setSubscribed(false); store.persist(); await navigateTo('/admin/stores/create')
+  store.setSubscribed(false); store.persist(); await ensureEnterprise(); await navigateTo('/admin/stores/create')
 }
 
 useHead({ title: 'Inscription | Wa-Shop Cameroun' })
+
+function startCooldown() {
+  resendCooldown.value = otpDelay
+  if (resendTimer) clearInterval(resendTimer)
+  resendTimer = setInterval(() => {
+    if (resendCooldown.value > 0) resendCooldown.value--
+    else { clearInterval(resendTimer); resendTimer = null }
+  }, 1000)
+}
+
 </script>

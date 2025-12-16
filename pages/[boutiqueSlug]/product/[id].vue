@@ -8,3 +8,4 @@
 const route = useRoute()
 useHead({ title: `Produit ${route.params.id} | Wa-Shop` })
 </script>
+

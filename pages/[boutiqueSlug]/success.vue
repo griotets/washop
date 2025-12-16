@@ -6,5 +6,6 @@
 </template>
 <script setup>
 const route = useRoute()
-useHead({ title: `Confirmation | ${route.params['boutique-slug']}` })
+useHead({ title: `Confirmation | ${route.params['boutiqueSlug']}` })
 </script>
+

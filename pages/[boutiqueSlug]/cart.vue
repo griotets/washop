@@ -14,17 +14,18 @@
         </div>
       </div>
     </main>
-    <CartBar :slug="String(route.params['boutique-slug']||'')" />
+    <CartBar :slug="String(route.params['boutiqueSlug']||'')" />
   </div>
 </template>
 <script setup>
 const route = useRoute()
-useHead({ title: `Panier | ${route.params['boutique-slug']}` })
+useHead({ title: `Panier | ${route.params['boutiqueSlug']}` })
 const items = ref([])
 onMounted(() => {
   try {
-    const raw = localStorage.getItem(`cart:${String(route.params['boutique-slug']||'')}`)
+    const raw = localStorage.getItem(`cart:${String(route.params['boutiqueSlug']||'')}`)
     items.value = raw ? JSON.parse(raw) : []
   } catch { items.value = [] }
 })
 </script>
+

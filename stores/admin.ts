@@ -27,15 +27,20 @@ export const useAdminStore = defineStore('admin', {
       else this.onboarding.goals.push(goal)
     },
     setSubscribed(v: boolean) { this.onboarding.subscribed = v },
-    selectShop(id: string) { this.selectedShopId = id },
+    selectShop(id: string) { this.selectedShopId = id; this.persist() },
     reset() { this.selectedShopId = ''; this.onboarding = { email: '', emailVerified: false, emailCode: '', industry: '', goals: [], subscribed: false } },
     persist() {
       try { localStorage.setItem('admin:onboarding', JSON.stringify(this.onboarding)) } catch {}
+      try { localStorage.setItem('admin:selectedShopId', this.selectedShopId) } catch {}
     },
     load() {
       try {
         const raw = localStorage.getItem('admin:onboarding')
         this.onboarding = raw ? JSON.parse(raw) : this.onboarding
+      } catch {}
+      try {
+        const s = localStorage.getItem('admin:selectedShopId') || ''
+        this.selectedShopId = s
       } catch {}
     }
   }

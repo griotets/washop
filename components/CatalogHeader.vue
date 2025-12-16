@@ -9,6 +9,10 @@
         <div class="font-semibold">{{ store.name || 'Boutique' }}</div>
       </div>
       <div class="flex items-center gap-4">
+        <div class="hidden sm:flex items-center gap-2">
+          <button :class="['px-2 py-1 rounded text-sm', locale==='fr' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('fr')">FR</button>
+          <button :class="['px-2 py-1 rounded text-sm', locale==='en' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('en')">EN</button>
+        </div>
         <button class="flex items-center gap-1 text-gray-700 hover:text-primary">
           <Search class="h-5 w-5" />
           <span class="hidden sm:inline">Recherche</span>
@@ -25,7 +29,7 @@
 
 <script setup>
 const route = useRoute()
-const slug = computed(() => String(route.params['boutique-slug'] || ''))
+const slug = computed(() => String(route.params['boutiqueSlug'] || ''))
 const store = reactive({ name: '', logoUrl: '', color: '#111827' })
 const color = computed(() => store.color || '#111827')
 const initials = computed(() => (store.name || 'Boutique').split(/\s+/).map(s => s[0]).join('.'))
@@ -40,4 +44,6 @@ const cart = useCartStore()
 onMounted(() => cart.load(slug.value))
 const count = computed(() => cart.count)
 import { ShoppingCart, Search } from 'lucide-vue-next'
+import { useI18n } from '~/composables/i18n'
+const { locale, setLocale } = useI18n()
 </script>
