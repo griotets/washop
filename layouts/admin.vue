@@ -21,9 +21,6 @@
           <NuxtLink to="/admin/clients" class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-100">
             <span>Clients</span>
           </NuxtLink>
-          <NuxtLink to="/admin/chats" class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-100">
-            <span>Chats</span>
-          </NuxtLink>
           <NuxtLink to="/admin/stats" class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-100">
             <span>Statistiques</span>
           </NuxtLink>
@@ -37,21 +34,7 @@
           <NuxtLink to="/admin/whatsapp" class="flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-100">
             <span>WhatsApp</span>
           </NuxtLink>
-          <NuxtLink to="/admin/instagram" class="flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-100">
-            <span>Instagram</span>
-            <span class="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-700">NOUVEAU</span>
-          </NuxtLink>
-          <NuxtLink to="/admin/google" class="flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-100">
-            <span>Google</span>
-            <span class="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-700">NOUVEAU</span>
-          </NuxtLink>
-          <NuxtLink to="/admin/pos" class="flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-100">
-            <span>Point of Sale</span>
-            <span class="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-700">BÊTA</span>
-          </NuxtLink>
-          <NuxtLink to="/admin/table-booking" class="flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-100">
-            <span>Table Booking</span>
-          </NuxtLink>
+          
         </nav>
         <div class="mt-auto p-4">
           <label class="block text-xs font-semibold text-gray-500 mb-2">Langue</label>

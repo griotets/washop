@@ -17,7 +17,21 @@
       <div class="flex items-center gap-2">
         <button class="inline-flex h-9 w-9 items-center justify-center rounded-md border bg-white"><Filter class="h-4 w-4 text-gray-700" /></button>
         <button class="inline-flex h-9 w-9 items-center justify-center rounded-md border bg-white"><ArrowUpDown class="h-4 w-4 text-gray-700" /></button>
-        <button class="rounded-lg border bg-white px-3 py-2 text-sm">Exportation</button>
+        <label class="rounded-lg border bg-white px-3 py-2 text-sm cursor-pointer">
+          <input type="file" accept=".csv,text/csv" class="hidden" @change="importCsv" />
+          Importation
+        </label>
+        <button class="rounded-lg border bg-white px-3 py-2 text-sm" @click="exportCsv">Exportation</button>
+      </div>
+    </div>
+
+    <div class="mt-3 flex items-center gap-3">
+      <select v-model="categoryFilter" class="rounded border px-2 py-1 text-sm">
+        <option value="">Toutes catégories</option>
+        <option v-for="c in categories" :key="c.id" :value="String(c.id)">{{ c.name }}</option>
+      </select>
+      <div class="flex flex-wrap gap-2">
+        <button v-for="t in tags" :key="t.id" class="rounded-full border px-3 py-1 text-xs" :class="tagsFilter.has(Number(t.id))?'bg-green-100 border-green-300':'bg-white'" @click="toggleTagFilter(Number(t.id))">{{ t.name }}</button>
       </div>
     </div>
 
@@ -60,9 +74,13 @@
               </label>
             </td>
             <td class="px-4 py-3">
-              <button :class="p.is_visible ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'" class="rounded px-2 py-1 text-xs font-semibold" @click="toggleVisibility(p)">
-                {{ p.is_visible ? 'VISIBLE' : 'MASQUÉ' }}
-              </button>
+              <div class="flex items-center gap-2">
+                <button :class="p.is_visible ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'" class="rounded px-2 py-1 text-xs font-semibold" @click="toggleVisibility(p)">
+                  {{ p.is_visible ? 'VISIBLE' : 'MASQUÉ' }}
+                </button>
+                <NuxtLink :to="`/admin/products/${p.id}`" class="rounded border px-2 py-1 text-xs">Modifier</NuxtLink>
+                <button class="rounded border px-2 py-1 text-xs" @click="deleteRow(p)">Supprimer</button>
+              </div>
             </td>
           </tr>
           <tr v-if="loading">
@@ -102,6 +120,11 @@ const loading = ref(false)
 const products = ref<any[]>([])
 const selected = ref<string[]>([])
 const selectAll = ref(false)
+const categories = ref<any[]>([])
+const tags = ref<any[]>([])
+const categoryFilter = ref<string>('')
+const tagsFilter = reactive(new Set<number>())
+const productTagMap = ref<Record<string, number[]>>({})
 function toggleSelectAll() {
   if (selectAll.value) selected.value = products.value.map(p => String(p.id))
   else selected.value = []
@@ -116,11 +139,19 @@ async function loadProducts() {
   loading.value = true
   const from = (page.value - 1) * limit.value
   const to = from + limit.value - 1
-  let query = supabase.from('products').select('id,name,sku,price,images,is_visible,track_inventory,is_out_of_stock').eq('store_id', storeId).order('created_at', { ascending: false }).range(from, to)
+  let query = supabase.from('products').select('id,name,sku,price,images,is_visible,track_inventory,is_out_of_stock,category_id').eq('store_id', storeId).order('created_at', { ascending: false }).range(from, to)
   const term = String(search.value || '').trim()
   if (term) query = query.ilike('name', `%${term}%`)
+  if (categoryFilter.value) query = query.eq('category_id', Number(categoryFilter.value))
   const { data } = await query
-  products.value = Array.isArray(data) ? data : []
+  let list = Array.isArray(data) ? data : []
+  if (tagsFilter.size > 0) {
+    const ids = new Set(list.map((p: any) => String(p.id)))
+    const relevant = Object.entries(productTagMap.value).filter(([pid, arr]) => ids.has(pid) && Array.from(tagsFilter).every(t => arr.includes(t)))
+    const keepIds = new Set(relevant.map(([pid]) => pid))
+    list = list.filter((p: any) => keepIds.has(String(p.id)))
+  }
+  products.value = list
   loading.value = false
 }
 function toggleVisibility(p: any) {
@@ -132,6 +163,109 @@ async function updateField(id: string | number, patch: Record<string, any>) {
   const storeId = admin.selectedShopId
   if (!storeId) return
   await supabase.from('products').update(patch).eq('id', id).eq('store_id', storeId)
+}
+async function deleteRow(p: any) {
+  const storeId = admin.selectedShopId
+  if (!storeId) return
+  if (!confirm('Supprimer ce produit ?')) return
+  await supabase.from('products').delete().eq('id', p.id).eq('store_id', storeId)
+  await loadProducts()
+}
+async function loadFilters() {
+  const storeId = admin.selectedShopId
+  if (!storeId) return
+  const { data: c } = await supabase.from('categories').select('id,name').eq('store_id', storeId)
+  categories.value = Array.isArray(c) ? c : []
+  const { data: tg } = await supabase.from('tags').select('id,name').eq('store_id', storeId)
+  tags.value = Array.isArray(tg) ? tg : []
+  const { data: pt } = await supabase.from('product_tags').select('product_id,tag_id').in('product_id', (await supabase.from('products').select('id').eq('store_id', storeId)).data?.map((x: any) => x.id) || [])
+  const map: Record<string, number[]> = {}
+  for (const row of Array.isArray(pt) ? pt : []) {
+    const pid = String(row.product_id)
+    map[pid] = map[pid] || []
+    map[pid].push(Number(row.tag_id))
+  }
+  productTagMap.value = map
+}
+function toggleTagFilter(tid: number) {
+  if (tagsFilter.has(tid)) tagsFilter.delete(tid)
+  else tagsFilter.add(tid)
+  page.value = 1
+  loadProducts()
+}
+function toCsvRow(p: any) {
+  const images = Array.isArray(p.images) ? p.images.join(';') : ''
+  const vals = [
+    `"${String(p.name || '').replace(/"/g, '""')}"`,
+    `"${String(p.sku || '').replace(/"/g, '""')}"`,
+    String(p.price || 0),
+    `"${String(p.description || '').replace(/"/g, '""')}"`,
+    `"${images}"`,
+    String(p.is_visible ? 1 : 0),
+    String(p.track_inventory ? 1 : 0),
+    String(p.stock_quantity || 0),
+    String(p.category_id || '')
+  ]
+  return vals.join(',')
+}
+async function exportCsv() {
+  const storeId = admin.selectedShopId
+  if (!storeId) return
+  const { data } = await supabase.from('products').select('id,name,sku,price,description,images,is_visible,track_inventory,stock_quantity,category_id').eq('store_id', storeId).order('created_at', { ascending: false }).limit(1000)
+  const rows = Array.isArray(data) ? data : []
+  const header = ['name','sku','price','description','images','is_visible','track_inventory','stock_quantity','category_id'].join(',')
+  const csv = [header, ...rows.map(toCsvRow)].join('\n')
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'products.csv'
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+function parseCsv(text: string) {
+  const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0)
+  if (lines.length === 0) return []
+  const headers = lines[0].split(',').map(h => h.trim())
+  const rows: any[] = []
+  for (let i = 1; i < lines.length; i++) {
+    const cols = []
+    let cur = ''
+    let inQuotes = false
+    for (const ch of lines[i]) {
+      if (ch === '"') { inQuotes = !inQuotes; continue }
+      if (ch === ',' && !inQuotes) { cols.push(cur); cur = ''; continue }
+      cur += ch
+    }
+    cols.push(cur)
+    const obj: any = {}
+    headers.forEach((h, idx) => obj[h] = cols[idx])
+    rows.push(obj)
+  }
+  return rows
+}
+async function importCsv(e: any) {
+  const f = e.target.files?.[0]
+  if (!f) return
+  const text = await f.text()
+  const rows = parseCsv(text)
+  const storeId = admin.selectedShopId
+  const payloads = rows.map(r => ({
+    store_id: storeId,
+    name: r.name,
+    sku: r.sku,
+    price: Number(r.price || 0),
+    description: r.description || '',
+    images: String(r.images || '').split(';').filter(Boolean),
+    is_visible: r.is_visible === '1' || r.is_visible === 'true',
+    track_inventory: r.track_inventory === '1' || r.track_inventory === 'true',
+    stock_quantity: Number(r.stock_quantity || 0),
+    category_id: r.category_id ? Number(r.category_id) : null
+  }))
+  for (const pl of payloads) { await supabase.from('products').insert(pl) }
+  await loadProducts()
 }
 watch([search, limit], () => { page.value = 1; loadProducts() })
 watch(page, () => loadProducts())
@@ -147,6 +281,7 @@ onMounted(async () => {
     const sid = Array.isArray(s) && s[0]?.id ? String(s[0].id) : ''
     if (sid) admin.selectShop(sid)
   }
+  await loadFilters()
   await loadProducts()
 })
 function prevPage() { if (page.value > 1) page.value-- }
