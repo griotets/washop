@@ -2,8 +2,8 @@
   <header class="sticky top-0 z-50 bg-white/85 backdrop-blur border-b">
     <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
       <NuxtLink to="/" class="flex items-center gap-2">
-        <Store class="h-5 w-5 text-primary" />
-        <span class="font-semibold">Wa-Shop Cameroun</span>
+        <img src="/logo.svg" alt="Wa-Shop" class="h-8 w-8" />
+        <span class="font-semibold text-lg">Wa-Shop Cameroun</span>
       </NuxtLink>
       <nav class="hidden items-center gap-6 md:flex">
         <div class="relative" @mouseenter="pdOpen=true" @mouseleave="pdOpen=false">
@@ -75,10 +75,11 @@
         <NuxtLink to="/resources" class="text-gray-700 hover:text-primary">Resources</NuxtLink>
       </nav>
       <div class="hidden items-center gap-3 md:flex">
-        <div class="flex items-center gap-2">
-          <button :class="['px-3 py-1 rounded', locale==='fr' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('fr')">FR</button>
-          <button :class="['px-3 py-1 rounded', locale==='en' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('en')">EN</button>
-        </div>
+        <select v-model="locale" class="rounded border border-gray-200 bg-gray-50 px-2 py-1 text-sm focus:border-primary focus:ring-primary">
+          <option value="en">English</option>
+          <option value="fr">Français</option>
+          <option value="it">Italiano</option>
+        </select>
         <NuxtLink to="/auth/login" class="text-gray-700 hover:text-primary">Login</NuxtLink>
         <NuxtLink to="/auth/register" class="rounded-lg bg-primary px-4 py-2 font-semibold text-white shadow-sm hover:brightness-95">Start Free</NuxtLink>
       </div>
@@ -106,9 +107,12 @@
         <NuxtLink to="/resources" class="rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="open=false">Resources</NuxtLink>
       </nav>
       <div class="border-t px-4 py-4">
-        <div class="mb-2 flex items-center gap-2">
-          <button :class="['px-3 py-1 rounded', locale==='fr' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('fr')">FR</button>
-          <button :class="['px-3 py-1 rounded', locale==='en' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('en')">EN</button>
+        <div class="mb-2">
+          <select v-model="locale" class="w-full rounded border border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:border-primary focus:ring-primary">
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="it">Italiano</option>
+          </select>
         </div>
         <NuxtLink to="/auth/login" class="block rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="open=false">Login</NuxtLink>
         <NuxtLink to="/auth/register" class="mt-2 block rounded-lg bg-primary px-4 py-2 text-center font-semibold text-white" @click="open=false">Start Free</NuxtLink>

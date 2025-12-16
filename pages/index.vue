@@ -7,8 +7,9 @@
       <div class="mx-auto max-w-7xl px-4 text-center">
         <div class="flex justify-end mb-3">
           <div class="flex items-center gap-2">
-            <button :class="['px-3 py-1 rounded', locale==='fr' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('fr')">FR</button>
             <button :class="['px-3 py-1 rounded', locale==='en' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('en')">EN</button>
+            <button :class="['px-3 py-1 rounded', locale==='fr' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('fr')">FR</button>
+            <button :class="['px-3 py-1 rounded', locale==='it' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('it')">IT</button>
           </div>
         </div>
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-semibold uppercase tracking-wide mb-6">

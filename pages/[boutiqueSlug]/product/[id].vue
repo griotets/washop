@@ -39,8 +39,13 @@
               <div class="text-xl font-bold">{{ product.name || 'Produit' }}</div>
               <div class="mt-2 text-gray-700" style="white-space: pre-line">{{ product.description || '' }}</div>
               <div class="mt-3 text-lg font-semibold">FCFA {{ Number(product.price || 0).toLocaleString('fr-FR') }}</div>
-              <div class="mt-4">
-                <a v-if="waLink" :href="waLink" target="_blank" class="block rounded bg-green-500 px-4 py-2 text-sm font-semibold text-white text-center">Contacter sur WhatsApp</a>
+              <div class="mt-4 flex flex-col gap-3">
+                <button class="block w-full rounded bg-primary px-4 py-3 text-sm font-bold text-white shadow hover:brightness-110" @click="buyNow">
+                  Acheter maintenant
+                </button>
+                <button class="block w-full rounded border border-primary px-4 py-3 text-sm font-bold text-primary hover:bg-primary/5" @click="addToCart">
+                  Ajouter au panier
+                </button>
               </div>
             </div>
           </div>
@@ -66,7 +71,9 @@
   </template>
 <script setup lang="ts">
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { useCartStore } from '~/stores/cart'
 const route = useRoute()
+const cart = useCartStore()
 const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
 const slug = computed(() => String(route.params['boutiqueSlug'] || ''))
@@ -98,9 +105,24 @@ function endDrag() { dragging.value = false }
 const storeInitials = computed(() => (store.name || 'Boutique').split(/\s+/).map(s => s[0]).join('.'))
 const waLink = computed(() => {
   const phone = String(store.phone || '').trim()
-  const digits = phone.replace(/[^\d+]/g, '')
-  return digits ? `https://wa.me/${digits.replace(/^0+/, '')}` : ''
+  if (!phone) return ''
+  const text = encodeURIComponent(`Bonjour, je suis intéressé par ${product.name || 'un produit'}.`)
+  return `https://wa.me/${phone.replace(/\D/g, '')}?text=${text}`
 })
+
+function addToCart() {
+  cart.add({
+    id: productId.value,
+    name: product.name || 'Produit',
+    price: product.price || 0,
+    image: images.value[0]
+  })
+}
+
+function buyNow() {
+  addToCart()
+  navigateTo(`/${slug.value}/cart`)
+}
 onMounted(async () => {
   try {
     const raw = localStorage.getItem(`design:${slug.value}`)

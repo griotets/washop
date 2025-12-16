@@ -1,24 +1,29 @@
 <template>
   <main class="mx-auto max-w-md px-6 py-12">
-    <h1 class="text-2xl font-semibold">Connexion</h1>
+    <div class="mb-6 flex justify-center">
+      <NuxtLink to="/">
+        <img src="/logo.svg" alt="Wa-Shop" class="h-16 w-16" />
+      </NuxtLink>
+    </div>
+    <h1 class="text-2xl font-semibold text-center">{{ t('login.title') }}</h1>
     <div class="mt-6 space-y-4">
       <div v-if="!otpSent" class="space-y-2">
-        <label class="block text-sm">Email</label>
+        <label class="block text-sm">{{ t('register.emailLabel') }}</label>
         <input v-model.trim="email" type="email" class="mt-1 w-full rounded border px-3 py-2" />
         <button :disabled="!emailValid || loading" class="w-full rounded bg-primary px-4 py-2 text-white" @click="sendEmailOtp">
-          {{ loading ? 'Envoi...' : 'Continuer avec l’e‑mail' }}
+          {{ loading ? t('common.sending') : t('register.continueEmail') }}
         </button>
         <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
       </div>
       <div v-else class="space-y-2">
-        <label class="block text-sm">Code reçu par e‑mail</label>
+        <label class="block text-sm">{{ t('register.codeLabel') }}</label>
         <input v-model.trim="code" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="12345678" class="mt-1 w-full rounded border px-3 py-2 tracking-widest text-center" />
         <button :disabled="!codeValid || loading" class="w-full rounded bg-primary px-4 py-2 text-white" @click="verifyEmailOtp">
-          {{ loading ? 'Vérification...' : 'Se connecter' }}
+          {{ loading ? t('common.verifying') : t('login.title') }}
         </button>
         <button :disabled="loading || resendCooldown>0" class="w-full rounded border px-4 py-2" @click="resend">
-          <span v-if="resendCooldown>0">Renvoyer dans {{ resendCooldown }}s</span>
-          <span v-else>Renvoyer le code</span>
+          <span v-if="resendCooldown>0">{{ t('register.resendIn', { s: resendCooldown }) }}</span>
+          <span v-else>{{ t('register.resendCode') }}</span>
         </button>
         <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
       </div>
@@ -28,9 +33,11 @@
 
 <script setup lang="ts">
 import { useAuth } from '~/composables/auth'
+import { useI18n } from '~/composables/i18n'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
 
+const { t } = useI18n()
 const { sendOtp, verifyOtp, loading, error } = useAuth()
 const email = ref('')
 const emailValid = computed(() => /.+@.+\..+/.test(String(email.value || '')))

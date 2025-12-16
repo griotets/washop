@@ -4,6 +4,9 @@
       <div class="rounded-2xl bg-white p-6 shadow-sm">
         <div class="flex items-center justify-between mb-4">
           <div>
+            <NuxtLink to="/" class="inline-block mb-4">
+              <img src="/logo.svg" alt="Wa-Shop" class="h-12 w-12" />
+            </NuxtLink>
             <h1 class="text-2xl font-bold mb-1">{{ t('register.start') }}</h1>
             <p class="text-gray-600">{{ t('register.subtitle') }}</p>
           </div>
@@ -248,7 +251,18 @@ const goalsEn = [
   'Create online stores and domains',
   'Analyze sales & customers'
 ]
-const goalsList = computed(() => (locale.value === 'fr' ? goalsFr : goalsEn))
+const goalsIt = [
+  'Gestire consegne & tracciamento',
+  'Aumentare le vendite con automazioni WhatsApp',
+  'Accettare pagamenti online',
+  'Creare negozi online e domini',
+  'Analizzare vendite & clienti'
+]
+const goalsList = computed(() => {
+  if (locale.value === 'fr') return goalsFr
+  if (locale.value === 'it') return goalsIt
+  return goalsEn
+})
 
 function goStep(n: number) { step.value = n }
 import { useAuth } from '~/composables/auth'

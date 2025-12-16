@@ -4,7 +4,7 @@
       <aside class="hidden lg:block w-64 border-r bg-white">
         <div class="p-4">
           <div class="flex items-center gap-3">
-            <div class="h-10 w-10 rounded-lg bg-gray-900 text-white flex items-center justify-center font-semibold">WA</div>
+            <img src="/logo.svg" alt="Wa-Shop" class="h-10 w-10" />
             <div class="text-lg font-semibold">Wa‑Shop</div>
           </div>
         </div>
@@ -39,8 +39,9 @@
         <div class="mt-auto p-4">
           <label class="block text-xs font-semibold text-gray-500 mb-2">Langue</label>
           <select class="w-full rounded border px-2 py-1 text-sm" v-model="locale">
-            <option value="fr">Français</option>
             <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="it">Italiano</option>
           </select>
         </div>
       </aside>
