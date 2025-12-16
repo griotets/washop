@@ -21,10 +21,10 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
-      title: 'Wa-Shop Cameroun | Créez votre boutique WhatsApp gratuite',
+      title: 'Wa-Shop | Créez votre boutique WhatsApp gratuite',
       meta: [
         { name: 'description', content: 'La solution la plus simple pour les commerçants camerounais. Créez un catalogue produit et recevez vos commandes directement sur WhatsApp Business. Simple, rapide et gratuit.' },
-        { property: 'og:title', content: 'Wa-Shop Cameroun | Catalogue WhatsApp simple' },
+        { property: 'og:title', content: 'Wa-Shop | Catalogue WhatsApp simple' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' }
       ],
       link: [

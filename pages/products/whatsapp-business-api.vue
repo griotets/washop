@@ -5,5 +5,5 @@
   </main>
 </template>
 <script setup>
-useHead({ title: 'WhatsApp Business API | Wa-Shop Cameroun' })
+useHead({ title: 'WhatsApp Business API | Wa-Shop' })
 </script>

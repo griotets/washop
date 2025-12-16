@@ -3,7 +3,7 @@ export function useI18n() {
 
   const dict: Record<string, Record<string, string>> = {
     fr: {
-      'home.title': 'Wa-Shop Cameroun',
+      'home.title': 'Wa-Shop',
       'home.description': 'Créez votre boutique WhatsApp en quelques minutes.',
       'home.cta': 'Commencer',
       'home.officialPartner': 'Partenaire officiel',

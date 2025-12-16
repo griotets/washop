@@ -3,7 +3,7 @@
     <div class="mx-auto max-w-6xl px-6 py-10">
       <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <div class="text-xl font-bold">Wa-Shop Cameroun</div>
+          <div class="text-xl font-bold">Wa-Shop</div>
           <p class="mt-2 text-gray-600">Empowering businesses in Cameroon with WhatsApp-first e-commerce tools.</p>
         </div>
         <div>
@@ -28,7 +28,7 @@
           </ul>
         </div>
       </div>
-      <div class="mt-8 text-sm text-gray-500">Propulsé par Wa-Shop Cameroun</div>
+      <div class="mt-8 text-sm text-gray-500">Propulsé par Wa-Shop</div>
     </div>
   </footer>
 </template>

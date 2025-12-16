@@ -351,7 +351,7 @@ async function skip() {
   store.setSubscribed(false); store.persist(); await ensureEnterprise(); await navigateTo('/admin/stores/create')
 }
 
-useHead({ title: 'Inscription | Wa-Shop Cameroun' })
+useHead({ title: 'Inscription | Wa-Shop' })
 
 function startCooldown() {
   resendCooldown.value = otpDelay

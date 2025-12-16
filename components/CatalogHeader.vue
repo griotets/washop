@@ -10,8 +10,11 @@
       </div>
       <div class="flex items-center gap-4">
         <div class="hidden sm:flex items-center gap-2">
-          <button :class="['px-2 py-1 rounded text-sm', locale==='fr' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('fr')">FR</button>
-          <button :class="['px-2 py-1 rounded text-sm', locale==='en' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('en')">EN</button>
+          <select v-model="locale" class="rounded border border-gray-200 bg-gray-50 px-2 py-1 text-sm focus:border-primary focus:ring-primary">
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="it">Italiano</option>
+          </select>
         </div>
         <button class="flex items-center gap-1 text-gray-700 hover:text-primary" aria-label="Recherche">
           <Search class="h-5 w-5" />

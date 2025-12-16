@@ -5,13 +5,6 @@
     <section class="relative pt-20 pb-16 lg:pt-32 lg:pb-24 overflow-hidden">
       <div class="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-gradient-to-r from-primary to-blue-500 opacity-20 blur-3xl animate-gradient-x animate-blob"></div>
       <div class="mx-auto max-w-7xl px-4 text-center">
-        <div class="flex justify-end mb-3">
-          <div class="flex items-center gap-2">
-            <button :class="['px-3 py-1 rounded', locale==='en' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('en')">EN</button>
-            <button :class="['px-3 py-1 rounded', locale==='fr' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('fr')">FR</button>
-            <button :class="['px-3 py-1 rounded', locale==='it' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('it')">IT</button>
-          </div>
-        </div>
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-semibold uppercase tracking-wide mb-6">
           <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
           {{ t('home.officialPartner') }}

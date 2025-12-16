@@ -5,5 +5,5 @@
   </main>
 </template>
 <script setup>
-useHead({ title: 'WhatsApp Order | Wa-Shop Cameroun' })
+useHead({ title: 'WhatsApp Order | Wa-Shop' })
 </script>

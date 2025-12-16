@@ -5,5 +5,5 @@
   </main>
 </template>
 <script setup>
-useHead({ title: 'Tarifs | Wa-Shop Cameroun' })
+useHead({ title: 'Tarifs | Wa-Shop' })
 </script>

@@ -65,5 +65,5 @@ const sv = [
   { label: 'Tour & Travel Services', slug: 'tour-travel-services' },
   { label: 'Ticketing', slug: 'ticketing' }
 ]
-useHead({ title: 'Industry | Wa-Shop Cameroun' })
+useHead({ title: 'Industry | Wa-Shop' })
 </script>

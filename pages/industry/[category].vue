@@ -41,5 +41,5 @@ import { getIndustryContent } from '~/data/industry.js'
 const route = useRoute()
 const slug = computed(() => String(route.params.category || ''))
 const content = computed(() => getIndustryContent(slug.value) || { title: slug.value, lead: 'Industry', subtitle: '', benefits: [], features: [], kpis: [] })
-useHead({ title: `${content.value.title} | Wa-Shop Cameroun`, meta: [{ name: 'description', content: content.value.subtitle }] })
+useHead({ title: `${content.value.title} | Wa-Shop`, meta: [{ name: 'description', content: content.value.subtitle }] })
 </script>

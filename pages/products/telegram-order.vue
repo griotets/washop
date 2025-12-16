@@ -5,5 +5,5 @@
   </main>
 </template>
 <script setup>
-useHead({ title: 'Telegram Order | Wa-Shop Cameroun' })
+useHead({ title: 'Telegram Order | Wa-Shop' })
 </script>

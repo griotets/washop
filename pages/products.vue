@@ -39,5 +39,5 @@
   </main>
 </template>
 <script setup>
-useHead({ title: 'Products | Wa-Shop Cameroun' })
+useHead({ title: 'Products | Wa-Shop' })
 </script>

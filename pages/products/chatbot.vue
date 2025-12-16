@@ -5,5 +5,5 @@
   </main>
 </template>
 <script setup>
-useHead({ title: 'Chatbot | Wa-Shop Cameroun' })
+useHead({ title: 'Chatbot | Wa-Shop' })
 </script>

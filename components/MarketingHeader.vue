@@ -3,7 +3,7 @@
     <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
       <NuxtLink to="/" class="flex items-center gap-2">
         <img src="/logo.svg" alt="Wa-Shop" class="h-8 w-8" />
-        <span class="font-semibold text-lg">Wa-Shop Cameroun</span>
+        <span class="font-semibold text-lg">Wa-Shop</span>
       </NuxtLink>
       <nav class="hidden items-center gap-6 md:flex">
         <div class="relative" @mouseenter="pdOpen=true" @mouseleave="pdOpen=false">
@@ -75,13 +75,13 @@
         <NuxtLink to="/resources" class="text-gray-700 hover:text-primary">Resources</NuxtLink>
       </nav>
       <div class="hidden items-center gap-3 md:flex">
+        <NuxtLink to="/auth/login" class="text-gray-700 hover:text-primary">Login</NuxtLink>
+        <NuxtLink to="/auth/register" class="rounded-lg bg-primary px-4 py-2 font-semibold text-white shadow-sm hover:brightness-95">Start Free</NuxtLink>
         <select v-model="locale" class="rounded border border-gray-200 bg-gray-50 px-2 py-1 text-sm focus:border-primary focus:ring-primary">
           <option value="en">English</option>
           <option value="fr">Français</option>
           <option value="it">Italiano</option>
         </select>
-        <NuxtLink to="/auth/login" class="text-gray-700 hover:text-primary">Login</NuxtLink>
-        <NuxtLink to="/auth/register" class="rounded-lg bg-primary px-4 py-2 font-semibold text-white shadow-sm hover:brightness-95">Start Free</NuxtLink>
       </div>
       <button class="md:hidden inline-flex items-center justify-center rounded-md border border-gray-200 p-2 text-gray-700" @click="open = true" aria-label="Menu">
         <Menu class="h-5 w-5" />
@@ -93,7 +93,7 @@
       <div class="flex items-center justify-between border-b px-4 py-3">
         <div class="flex items-center gap-2">
           <Store class="h-5 w-5 text-primary" />
-          <span class="font-semibold">Wa-Shop Cameroun</span>
+          <span class="font-semibold">Wa-Shop</span>
         </div>
         <button class="inline-flex items-center justify-center rounded-md border border-gray-200 p-2 text-gray-700" @click="open = false" aria-label="Close">
           <X class="h-5 w-5" />
@@ -107,15 +107,15 @@
         <NuxtLink to="/resources" class="rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="open=false">Resources</NuxtLink>
       </nav>
       <div class="border-t px-4 py-4">
-        <div class="mb-2">
+        <NuxtLink to="/auth/login" class="block rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="open=false">Login</NuxtLink>
+        <NuxtLink to="/auth/register" class="mt-2 block rounded-lg bg-primary px-4 py-2 text-center font-semibold text-white" @click="open=false">Start Free</NuxtLink>
+        <div class="mt-4">
           <select v-model="locale" class="w-full rounded border border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:border-primary focus:ring-primary">
             <option value="en">English</option>
             <option value="fr">Français</option>
             <option value="it">Italiano</option>
           </select>
         </div>
-        <NuxtLink to="/auth/login" class="block rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="open=false">Login</NuxtLink>
-        <NuxtLink to="/auth/register" class="mt-2 block rounded-lg bg-primary px-4 py-2 text-center font-semibold text-white" @click="open=false">Start Free</NuxtLink>
       </div>
     </div>
   </header>
