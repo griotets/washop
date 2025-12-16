@@ -1,0 +1,161 @@
+<template>
+  <div>
+    <div class="flex items-center justify-between">
+      <h1 class="text-2xl font-bold">Commandes</h1>
+      <div class="flex items-center gap-2">
+        <select v-model="statusFilter" class="rounded border px-3 py-2 text-sm">
+          <option value="">Tous statuts</option>
+          <option value="new">Nouveau</option>
+          <option value="sent_to_whatsapp">Envoyé WhatsApp</option>
+          <option value="processing">En cours</option>
+          <option value="completed">Terminé</option>
+          <option value="cancelled">Annulé</option>
+        </select>
+        <input type="date" v-model="startDateStr" class="rounded border px-3 py-2 text-sm" />
+        <div class="flex items-center rounded-lg border bg-white px-3 py-2 w-full max-w-xl">
+          <Search class="h-4 w-4 text-gray-500" />
+          <input v-model.trim="search" type="text" placeholder="Recherche client, téléphone" class="ml-2 w-full bg-transparent text-sm outline-none" />
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 overflow-hidden rounded-xl border">
+      <table class="min-w-full bg-white">
+        <thead class="bg-gray-50 text-sm text-gray-600">
+          <tr>
+            <th class="px-4 py-3 text-left">Date</th>
+            <th class="px-4 py-3 text-left">Client</th>
+            <th class="px-4 py-3 text-left">Téléphone</th>
+            <th class="px-4 py-3 text-left">Total</th>
+            <th class="px-4 py-3 text-left">Statut</th>
+            <th class="px-4 py-3 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="o in orders" :key="o.id" class="border-t align-top">
+            <td class="px-4 py-3">
+              <div class="text-sm">{{ formatDate(o.created_at) }}</div>
+            </td>
+            <td class="px-4 py-3">
+              <div class="font-medium">{{ o.customer_name }}</div>
+              <div class="text-xs text-gray-500">{{ o.customer_email || '—' }}</div>
+            </td>
+            <td class="px-4 py-3">
+              <div class="text-sm">{{ o.customer_phone }}</div>
+            </td>
+            <td class="px-4 py-3">
+              <div>FCFA {{ Number(o.total_amount || 0).toLocaleString('fr-FR') }}</div>
+            </td>
+            <td class="px-4 py-3">
+              <select v-model="o.status" class="rounded border px-2 py-1 text-xs" @change="updateStatus(o)">
+                <option value="new">Nouveau</option>
+                <option value="sent_to_whatsapp">Envoyé WhatsApp</option>
+                <option value="processing">En cours</option>
+                <option value="completed">Terminé</option>
+                <option value="cancelled">Annulé</option>
+              </select>
+            </td>
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-2">
+                <button class="rounded border px-2 py-1 text-xs" @click="toggleExpand(o.id)">Détails</button>
+                <button class="rounded border px-2 py-1 text-xs" @click="deleteOrder(o)">Supprimer</button>
+              </div>
+            </td>
+          </tr>
+          <tr v-for="o in orders" :key="o.id + ':exp'" v-show="expanded.has(String(o.id))" class="border-t bg-gray-50">
+            <td colspan="6" class="px-4 py-3">
+              <div class="font-semibold text-sm">Articles</div>
+              <div class="mt-2 grid gap-2 md:grid-cols-2">
+                <div v-for="it in orderItems[o.id] || []" :key="it.id" class="rounded border bg-white p-3">
+                  <div class="font-medium">{{ it.product_name }}</div>
+                  <div class="text-xs text-gray-600">Qté: {{ it.quantity }} • Prix: FCFA {{ Number(it.unit_price || 0).toLocaleString('fr-FR') }}</div>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr v-if="loading">
+            <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">Chargement...</td>
+          </tr>
+          <tr v-if="!loading && orders.length===0">
+            <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">Aucune commande.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import type { SupabaseClient } from '@supabase/supabase-js'
+import { useAdminStore } from '~/stores/admin'
+import { Search } from 'lucide-vue-next'
+definePageMeta({ layout: 'admin' })
+const nuxt = useNuxtApp()
+const supabase = nuxt.$supabase as SupabaseClient
+const admin = useAdminStore()
+const search = ref('')
+const statusFilter = ref<string>('')
+const startDate = ref(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
+const startDateStr = computed({
+  get() { return startDate.value.toISOString().slice(0, 10) },
+  set(v: string) { startDate.value = new Date(v) }
+})
+const orders = ref<any[]>([])
+const orderItems = reactive<Record<string, any[]>>({})
+const expanded = reactive(new Set<string>())
+const loading = ref(false)
+function formatDate(d: string) {
+  try { return new Date(d).toLocaleString('fr-FR') } catch { return d }
+}
+function toggleExpand(id: string) {
+  const key = String(id)
+  if (expanded.has(key)) { expanded.delete(key); return }
+  expanded.add(key)
+  loadOrderItems(key)
+}
+async function loadOrderItems(orderId: string) {
+  const { data } = await supabase.from('order_items').select('id,product_name,unit_price,quantity').eq('order_id', orderId)
+  orderItems[orderId] = Array.isArray(data) ? data : []
+}
+async function loadOrders() {
+  const storeId = admin.selectedShopId
+  if (!storeId) return
+  loading.value = true
+  let query = supabase.from('orders').select('id,customer_name,customer_phone,customer_email,total_amount,status,created_at').eq('store_id', storeId).gte('created_at', startDate.value.toISOString())
+  const term = String(search.value || '').trim()
+  if (term) query = query.or(`customer_name.ilike.%${term}%,customer_phone.ilike.%${term}%`)
+  if (statusFilter.value) query = query.eq('status', statusFilter.value)
+  const { data } = await query.order('created_at', { ascending: false })
+  orders.value = Array.isArray(data) ? data : []
+  loading.value = false
+}
+async function updateStatus(o: any) {
+  const storeId = admin.selectedShopId
+  if (!storeId) return
+  await supabase.from('orders').update({ status: o.status }).eq('id', o.id).eq('store_id', storeId)
+}
+async function deleteOrder(o: any) {
+  const storeId = admin.selectedShopId
+  if (!storeId) return
+  if (!confirm('Supprimer cette commande ?')) return
+  await supabase.from('orders').delete().eq('id', o.id).eq('store_id', storeId)
+  await loadOrders()
+}
+watch([search, statusFilter, startDate], () => loadOrders())
+onMounted(async () => {
+  if (!admin.selectedShopId) {
+    const { data } = await supabase.auth.getUser()
+    const uid = data?.user?.id
+    if (!uid) return navigateTo('/auth/login')
+    const { data: ent } = await supabase.from('enterprises').select('id').eq('owner_id', uid).maybeSingle()
+    const enterprise_id = ent?.id
+    if (!enterprise_id) return navigateTo('/admin/stores/create')
+    const { data: s } = await supabase.from('stores').select('id').eq('enterprise_id', enterprise_id).limit(1)
+    const sid = Array.isArray(s) && s[0]?.id ? String(s[0].id) : ''
+    if (sid) admin.selectShop(sid)
+  }
+  await loadOrders()
+})
+useHead({ title: 'Admin | Commandes' })
+</script>
+

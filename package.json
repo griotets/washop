@@ -2,6 +2,9 @@
   "name": "wa-shop-cameroun",
   "type": "module",
   "private": true,
+  "imports": {
+    "#internal/*": "./.nuxt/*"
+  },
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",

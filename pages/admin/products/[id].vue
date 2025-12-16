@@ -150,7 +150,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
 import { Plus, Trash } from 'lucide-vue-next'
-definePageMeta({ layout: 'admin' })
+definePageMeta({ layout: 'admin', alias: ['/admin/product/:id'] })
 const route = useRoute()
 const id = computed(() => String(route.params.id || ''))
 const nuxt = useNuxtApp()
