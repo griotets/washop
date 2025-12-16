@@ -33,14 +33,22 @@
         <div class="rounded-xl border bg-white p-6">
           <div class="flex items-center justify-between">
             <div class="font-semibold">Images</div>
-            <input type="file" accept="image/*" @change="onImageFile" />
+            <input ref="imageFileInput" type="file" accept="image/*" class="hidden" @change="onImageFile" />
+          </div>
+          <div class="mt-3">
+            <div class="flex items-center justify-center rounded-lg border-2 border-dashed px-4 py-10 text-center cursor-pointer" :class="dropActive?'border-green-400 bg-green-50':'border-gray-300 bg-gray-50'" @click="triggerImageInput" @dragenter.prevent="onImageDragEnter" @dragover.prevent="onImageDragOver" @dragleave.prevent="onImageDragLeave" @drop.prevent="onImageDrop">
+              <div>
+                <span class="inline-block rounded bg-white px-3 py-2 text-sm font-medium text-gray-800">Faites glisser un fichier ou cliquez</span>
+                <div class="mt-1 text-xs text-gray-500">10 MB max. Ratio recommandé 1:1.</div>
+              </div>
+            </div>
           </div>
           <div class="mt-4 flex items-center gap-3">
             <input v-model.trim="imageUrl" placeholder="https://..." class="flex-1 rounded-lg border px-3 py-2 text-sm" />
             <button class="rounded-lg border bg-white px-3 py-2 text-sm" @click="addImageUrl">Ajouter l'URL</button>
           </div>
           <div class="mt-4 grid gap-3 sm:grid-cols-3">
-            <div v-for="(img,i) in form.images" :key="i" class="relative">
+            <div v-for="(img,i) in form.images" :key="i" class="relative" draggable="true" @dragstart="onImageTileDragStart(i)" @dragover.prevent @drop="onImageTileDrop(i)">
               <img :src="img" alt="" class="h-24 w-full rounded object-cover bg-gray-100" />
               <button class="absolute right-2 top-2 rounded bg-white/80 px-2 py-1 text-xs" @click="removeImage(i)">Supprimer</button>
             </div>
@@ -174,6 +182,8 @@ const categories = ref<any[]>([])
 const tags = ref<any[]>([])
 const productTagIds = ref<Set<number>>(new Set())
 const imageUrl = ref('')
+const imageFileInput = ref<HTMLInputElement | null>(null)
+const dropActive = ref(false)
 function addImageUrl() {
   const url = String(imageUrl.value || '').trim()
   if (!url) return
@@ -185,6 +195,30 @@ function onImageFile(e: any) {
   const f = e.target.files?.[0]
   if (!f) return
   uploadImage(f)
+}
+function triggerImageInput() { imageFileInput.value?.click() }
+function onImageDragEnter() { dropActive.value = true }
+function onImageDragOver() { dropActive.value = true }
+function onImageDragLeave() { dropActive.value = false }
+async function onImageDrop(e: DragEvent) {
+  dropActive.value = false
+  const files: File[] = []
+  const dt = e.dataTransfer
+  if (dt?.items && dt.items.length) {
+    for (const item of Array.from(dt.items)) {
+      if (item.kind === 'file') {
+        const f = item.getAsFile()
+        if (f) files.push(f)
+      }
+    }
+  } else if (dt?.files && dt.files.length) {
+    files.push(...Array.from(dt.files))
+  }
+  const MAX = 10 * 1024 * 1024
+  for (const f of files) {
+    if (f.size > MAX) { alert('Fichier trop volumineux (>10MB)'); continue }
+    await uploadImage(f)
+  }
 }
 const isValid = computed(() => !!form.name && Number(form.price) >= 0)
 onMounted(async () => {
@@ -257,6 +291,14 @@ async function uploadImage(file: File) {
     const publicUrl = supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl
     form.images.push(publicUrl)
   }
+}
+let dragImageIndex: number | null = null
+function onImageTileDragStart(i: number) { dragImageIndex = i }
+function onImageTileDrop(i: number) {
+  if (dragImageIndex === null || dragImageIndex === i) return
+  const v = form.images.splice(dragImageIndex,1)[0]
+  form.images.splice(i,0,v)
+  dragImageIndex = null
 }
 
 async function addVariant() {

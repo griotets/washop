@@ -69,12 +69,21 @@ async function verifyEmailOtp() {
     const { data: stores } = await supabase.from('stores').select('id,name,slug').eq('enterprise_id', ent.id)
     if (!stores || stores.length === 0) {
       router.push('/admin/stores/create')
-    } else if (stores.length === 1) {
+      return
+    }
+    if (stores.length === 1) {
       admin.selectShop(String(stores[0].id))
-      router.push('/admin/dashboard')
     } else {
       router.push('/admin/stores/switch')
+      return
     }
+    try {
+      const raw = localStorage.getItem('postLoginPath')
+      localStorage.removeItem('postLoginPath')
+      const target = String(raw || '')
+      if (target) { router.push(target); return }
+    } catch {}
+    router.push('/admin/dashboard')
   }
 }
 async function resend() {

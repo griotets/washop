@@ -280,8 +280,26 @@ async function verifyCode() {
     if (!codeError.value) {
       store.verifyEmail()
       store.persist()
-      await ensureEnterprise()
-      await navigateTo('/admin/stores/create')
+      const entId = await ensureEnterprise()
+      if (!entId) { await navigateTo('/auth/login'); return }
+      const { data: stores } = await supabase.from('stores').select('id,name,slug').eq('enterprise_id', entId)
+      if (!stores || stores.length === 0) {
+        await navigateTo('/admin/stores/create')
+        return
+      }
+      if (stores.length === 1) {
+        store.selectShop(String(stores[0].id))
+      } else {
+        await navigateTo('/admin/stores/switch')
+        return
+      }
+      try {
+        const raw = localStorage.getItem('postLoginPath')
+        localStorage.removeItem('postLoginPath')
+        const target = String(raw || '')
+        if (target) { await navigateTo(target); return }
+      } catch {}
+      await navigateTo('/admin/dashboard')
     }
   } finally {
     verifying.value = false

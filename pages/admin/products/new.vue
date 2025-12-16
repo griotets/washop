@@ -13,30 +13,68 @@
         <div class="rounded-xl border bg-white p-6">
           <label class="block text-sm font-medium">Nom *</label>
           <input v-model.trim="form.name" type="text" class="mt-1 w-full rounded-lg border px-3 py-2" />
-          <div class="mt-4 grid gap-4 sm:grid-cols-2">
+          <div class="mt-4 grid gap-4 sm:grid-cols-3">
+            <div>
+              <label class="block text-sm font-medium">Type</label>
+              <select v-model="form.type" class="mt-1 w-full rounded-lg border px-3 py-2">
+                <option value="physical">Physique</option>
+                <option value="digital">Numérique</option>
+                <option value="reservation">Réservation</option>
+                <option value="subscription">Abonnement</option>
+                <option value="other">Autre</option>
+              </select>
+            </div>
             <div>
               <label class="block text-sm font-medium">Prix *</label>
               <input v-model.number="form.price" type="number" min="0" step="0.01" class="mt-1 w-full rounded-lg border px-3 py-2" />
             </div>
             <div>
+              <label class="block text-sm font-medium">Prix original</label>
+              <input v-model.number="form.original_price" type="number" min="0" step="0.01" class="mt-1 w-full rounded-lg border px-3 py-2" />
+            </div>
+            <div class="sm:col-span-3 grid gap-4 sm:grid-cols-3 mt-2">
+              <label class="inline-flex items-center gap-2">
+                <input type="checkbox" v-model="form.show_estimated_price" />
+                <span class="text-sm">Affichage du prix estimé</span>
+              </label>
+              <label class="inline-flex items-center gap-2">
+                <input type="checkbox" v-model="form.track_cost" />
+                <span class="text-sm">Coût par article</span>
+              </label>
+              <label class="inline-flex items-center gap-2">
+                <input type="checkbox" v-model="form.show_net_price" />
+                <span class="text-sm">Prix net par unité</span>
+              </label>
+            </div>
+            <div>
               <label class="block text-sm font-medium">UGS</label>
               <input v-model.trim="form.sku" type="text" class="mt-1 w-full rounded-lg border px-3 py-2" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium">Poids</label>
+              <div class="flex items-center gap-2">
+                <input v-model.number="form.weight" type="number" min="0" step="0.01" class="mt-1 w-full rounded-lg border px-3 py-2" />
+                <span class="text-sm text-gray-600">g</span>
+              </div>
             </div>
           </div>
           <div class="mt-4">
             <label class="block text-sm font-medium">Description</label>
-            <textarea v-model.trim="form.description" rows="4" class="mt-1 w-full rounded-lg border px-3 py-2"></textarea>
+            <textarea v-model.trim="form.description" rows="4" class="mt-1 w-full rounded-lg border px-3 py-2" placeholder='Decorate with **bold**, ~strike~, _italic_'></textarea>
           </div>
           <div class="mt-4 grid gap-4 sm:grid-cols-2">
             <div>
               <label class="block text-sm font-medium">Catégorie</label>
-              <select v-model="form.category_id" class="mt-1 w-full rounded-lg border px-3 py-2">
-                <option :value="null">—</option>
-                <option v-for="c in categories" :key="c.id" :value="Number(c.id)">{{ c.name }}</option>
-              </select>
-              <div class="mt-2 flex items-center gap-2">
-                <input v-model.trim="newCategoryName" placeholder="Nouvelle catégorie" class="flex-1 rounded-lg border px-3 py-2 text-sm" />
-                <button class="rounded-lg border bg-white px-3 py-2 text-sm" @click="createCategory">Créer</button>
+              <div class="relative">
+                <input v-model.trim="categorySearch" @focus="categoryOpen=true" @input="categoryOpen=true" @blur="closeCategoryDropdownLater" placeholder="Rechercher ou créer une catégorie" class="mt-1 w-full rounded-lg border px-3 py-2" />
+                <div v-if="categoryOpen" class="absolute z-20 mt-1 w-full rounded-lg border bg-white shadow">
+                  <button class="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100" @click="selectCategory(null)">Aucune</button>
+                  <button v-for="c in filteredCategories" :key="c.id" class="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100" @click="selectCategory(c)">{{ c.name }}</button>
+                  <div class="border-t px-3 py-2">
+                    <div class="text-xs text-gray-600 mb-1">Créer “{{ categorySearch || '...' }}”</div>
+                    <button class="rounded-lg border bg-white px-3 py-2 text-xs" @click="createCategoryFromSearch">Créer la catégorie</button>
+                  </div>
+                </div>
               </div>
             </div>
             <div>
@@ -55,14 +93,24 @@
         <div class="rounded-xl border bg-white p-6">
           <div class="flex items-center justify-between">
             <div class="font-semibold">Images</div>
-            <input type="file" accept="image/*" @change="onImageFile" />
+            <input ref="imageFileInput" type="file" accept="image/*" class="hidden" @change="onImageFile" />
+          </div>
+          <div class="mt-3">
+            <div class="flex items-center justify-center rounded-lg border-2 border-dashed px-4 py-10 text-center cursor-pointer" :class="dropActive?'border-green-400 bg-green-50':'border-gray-300 bg-gray-50'" @click="triggerImageInput" @dragenter.prevent="onImageDragEnter" @dragover.prevent="onImageDragOver" @dragleave.prevent="onImageDragLeave" @drop.prevent="onImageDrop">
+              <div>
+                <Upload class="mx-auto h-8 w-8 text-gray-400" />
+                <div class="mt-2 text-sm font-medium text-gray-800">Faites glisser un fichier ici ou cliquez pour en sélectionner un</div>
+                <div class="mt-1 text-xs text-gray-500">Le fichier ne doit pas dépasser 10 mb. Le rapport recommandé est de 1:1.</div>
+              </div>
+            </div>
           </div>
           <div class="mt-4 flex items-center gap-3">
             <input v-model.trim="imageUrl" placeholder="https://..." class="flex-1 rounded-lg border px-3 py-2 text-sm" />
             <button class="rounded-lg border bg-white px-3 py-2 text-sm" @click="addImageUrl">Ajouter l'URL</button>
+            <button class="rounded-lg border bg-white px-3 py-2 text-sm" @click="generateImage">Générer l'image</button>
           </div>
           <div class="mt-4 grid gap-3 sm:grid-cols-3">
-            <div v-for="(img,i) in form.images" :key="i" class="relative">
+            <div v-for="(img,i) in form.images" :key="i" class="relative" draggable="true" @dragstart="onImageTileDragStart(i)" @dragover.prevent @drop="onImageTileDrop(i)">
               <img :src="img" alt="" class="h-24 w-full rounded object-cover bg-gray-100" />
               <button class="absolute right-2 top-2 rounded bg-white/80 px-2 py-1 text-xs" @click="removeImage(i)">Supprimer</button>
             </div>
@@ -83,6 +131,36 @@
               <input type="checkbox" v-model="form.is_visible" />
               <span class="text-sm">Visible</span>
             </label>
+          </div>
+          <div class="mt-4 grid gap-4 sm:grid-cols-3">
+            <label class="inline-flex items-center gap-2">
+              <input type="checkbox" v-model="form.is_out_of_stock" />
+              <span class="text-sm">Marquer comme épuisé</span>
+            </label>
+            <div>
+              <label class="block text-sm font-medium">Capacité journalière</label>
+              <input v-model.number="form.daily_capacity" type="number" min="0" class="mt-1 w-full rounded-lg border px-3 py-2" />
+            </div>
+            <div class="grid gap-2 sm:grid-cols-2">
+              <div>
+                <label class="block text-sm font-medium">Qté max par commande</label>
+                <input v-model.number="form.max_order_qty" type="number" min="0" class="mt-1 w-full rounded-lg border px-3 py-2" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium">Qté min par commande</label>
+                <input v-model.number="form.min_order_qty" type="number" min="0" class="mt-1 w-full rounded-lg border px-3 py-2" />
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 grid gap-4 sm:grid-cols-2">
+            <label class="inline-flex items-center gap-2">
+              <input type="checkbox" v-model="form.tax_exempt" />
+              <span class="text-sm">Dérogation fiscale</span>
+            </label>
+            <div>
+              <label class="block text-sm font-medium">Motif</label>
+              <input v-model.trim="form.tax_exempt_reason" type="text" class="mt-1 w-full rounded-lg border px-3 py-2" />
+            </div>
           </div>
         </div>
 
@@ -128,10 +206,16 @@
         <div class="rounded-xl border bg-white p-6">
           <div class="flex items-center justify-between">
             <div class="font-semibold">Variantes</div>
-            <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="addVariant">Ajouter</button>
+            <div class="flex items-center gap-2">
+              <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="addVariant">Ajouter</button>
+              <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="reorderModeVariants=!reorderModeVariants">Modifier la séquence</button>
+            </div>
           </div>
           <div class="mt-4 space-y-3">
-            <div v-for="(v,i) in variants" :key="i" class="grid gap-3 sm:grid-cols-5 items-center">
+            <div v-for="(v,i) in variants" :key="i" class="grid gap-3 sm:grid-cols-5 items-center" draggable="true" @dragstart="onVariantDragStart(i)" @dragover.prevent @drop="onVariantDrop(i)">
+              <div class="hidden sm:flex items-center">
+                <GripVertical class="h-4 w-4 text-gray-400" />
+              </div>
               <input v-model.trim="v.name" type="text" placeholder="Nom" class="rounded border px-2 py-1 text-sm" />
               <input v-model.number="v.price" type="number" min="0" step="0.01" placeholder="Prix" class="rounded border px-2 py-1 text-sm" />
               <input v-model.number="v.original_price" type="number" min="0" step="0.01" placeholder="Prix original" class="rounded border px-2 py-1 text-sm" />
@@ -140,6 +224,8 @@
                 <input type="file" accept="image/*" @change="(e:any)=>uploadVariantImage(e,v)" />
               </div>
               <div class="flex items-center gap-2">
+                <button v-if="reorderModeVariants" class="rounded border px-2 py-1 text-xs" @click="moveVariantUp(i)" :disabled="i===0">↑</button>
+                <button v-if="reorderModeVariants" class="rounded border px-2 py-1 text-xs" @click="moveVariantDown(i)" :disabled="i===variants.length-1">↓</button>
                 <button class="rounded border px-2 py-1 text-xs" @click="removeVariant(i)">Supprimer</button>
               </div>
             </div>
@@ -149,10 +235,16 @@
         <div class="rounded-xl border bg-white p-6">
           <div class="flex items-center justify-between">
             <div class="font-semibold">Options</div>
-            <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="addOption">Ajouter</button>
+            <div class="flex items-center gap-2">
+              <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="addOption">Ajouter</button>
+              <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="reorderModeOptions=!reorderModeOptions">Modifier l'ordre</button>
+            </div>
           </div>
           <div class="mt-4 space-y-3">
-            <div v-for="(o,i) in options" :key="i" class="grid gap-3 sm:grid-cols-5 items-center">
+            <div v-for="(o,i) in options" :key="i" class="grid gap-3 sm:grid-cols-5 items-center" draggable="true" @dragstart="onOptionDragStart(i)" @dragover.prevent @drop="onOptionDrop(i)">
+              <div class="hidden sm:flex items-center">
+                <GripVertical class="h-4 w-4 text-gray-400" />
+              </div>
               <input v-model.trim="o.name" type="text" placeholder="Nom" class="rounded border px-2 py-1 text-sm" />
               <select v-model="o.type" class="rounded border px-2 py-1 text-sm">
                 <option value="text">Texte</option>
@@ -167,6 +259,8 @@
                 <span class="text-sm">Obligatoire</span>
               </label>
               <div class="flex items-center gap-2">
+                <button v-if="reorderModeOptions" class="rounded border px-2 py-1 text-xs" @click="moveOptionUp(i)" :disabled="i===0">↑</button>
+                <button v-if="reorderModeOptions" class="rounded border px-2 py-1 text-xs" @click="moveOptionDown(i)" :disabled="i===options.length-1">↓</button>
                 <button class="rounded border px-2 py-1 text-xs" @click="removeOption(i)">Supprimer</button>
               </div>
             </div>
@@ -176,12 +270,34 @@
 
       <div class="space-y-6">
         <div class="rounded-xl border bg-white p-6">
-          <div class="font-semibold">Aperçu</div>
-          <div class="mt-4 flex items-center gap-3">
-            <img :src="form.images[0] || ''" class="h-16 w-16 rounded object-cover bg-gray-100" />
-            <div>
-              <div class="font-medium">{{ form.name || 'Nom du produit' }}</div>
-              <div class="text-sm text-gray-600">FCFA {{ Number(form.price || 0).toLocaleString('fr-FR') }}</div>
+          <div class="font-semibold">Aperçu (téléphone)</div>
+          <div class="mt-4 flex justify-center">
+            <div class="w-[360px] rounded-3xl border bg-gray-50 p-4">
+              <div class="rounded-xl bg-white shadow overflow-hidden">
+                <div class="flex items-center gap-3 border-b p-3">
+                  <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200">
+                    <span class="text-xs font-semibold text-gray-700">{{ storeInitials || 'SB' }}</span>
+                  </div>
+                  <div class="flex-1">
+                    <div class="text-sm font-semibold">{{ storeName || 'Votre boutique' }}</div>
+                    <div class="text-xs text-gray-500">en ligne</div>
+                  </div>
+                  <a v-if="waLink" :href="waLink" target="_blank" class="rounded bg-green-500 px-2 py-1 text-xs font-semibold text-white">WhatsApp</a>
+                </div>
+                <img :src="form.images[0] || ''" class="h-40 w-full object-cover bg-gray-100" />
+                <div class="p-3">
+                  <div class="font-semibold">{{ form.name || 'Nom du produit' }}</div>
+                  <div class="mt-1 text-sm text-gray-600" style="white-space: pre-line">{{ form.description || 'Description du produit' }}</div>
+                  <div class="mt-2 text-sm font-semibold">FCFA {{ Number(form.price || 0).toLocaleString('fr-FR') }}</div>
+                  <div class="mt-3">
+                    <a v-if="waLink" :href="waLink" target="_blank" class="block rounded bg-green-500 px-3 py-2 text-sm font-semibold text-white text-center">Contacter sur WhatsApp</a>
+                    <span v-else class="block rounded border bg-white px-3 py-2 text-sm text-center text-gray-600">Numéro non disponible</span>
+                  </div>
+                </div>
+                <div class="border-t p-3 text-sm text-gray-700">
+                  WhatsApp: {{ storePhone || '—' }}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -191,12 +307,18 @@
   <div v-if="toastShow" class="fixed bottom-4 right-4 rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow-lg">
     {{ toastMsg }}
   </div>
+  <div v-if="saving" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 backdrop-blur-sm">
+    <div class="rounded-xl bg-gray-900/90 px-6 py-5 text-center text-white shadow-xl">
+      <div class="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-white/30 border-t-white"></div>
+      <div class="mt-3 text-sm font-semibold">Création du produit…</div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
-import { Upload } from 'lucide-vue-next'
+import { Upload, GripVertical } from 'lucide-vue-next'
 definePageMeta({ layout: 'admin', alias: ['/admin/product/new'] })
 const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
@@ -208,12 +330,25 @@ function notify(msg: string) { toastMsg.value = msg; toastShow.value = true; set
 const form = reactive<any>({
   name: '',
   price: 0,
+  original_price: 0,
   sku: '',
   description: '',
   images: [] as string[],
   track_inventory: false,
   stock_quantity: 0,
   is_visible: true,
+  is_out_of_stock: false,
+  daily_capacity: 0,
+  max_order_qty: 0,
+  min_order_qty: 0,
+  tax_exempt: false,
+  tax_exempt_reason: '',
+  show_estimated_price: false,
+  track_cost: false,
+  cost_per_item: 0,
+  show_net_price: false,
+  weight: 0,
+  type: 'physical',
   category_id: null as number | null
 })
 const categories = ref<any[]>([])
@@ -221,8 +356,41 @@ const tags = ref<any[]>([])
 const selectedTags = reactive(new Set<number>())
 const newTagName = ref('')
 const newCategoryName = ref('')
+const categorySearch = ref('')
+const categoryOpen = ref(false)
+const storePhone = ref<string>('')
+const storeName = ref<string>('')
+const storeInitials = computed(() => (storeName.value || 'SB').split(/\s+/).map(s => s[0]).join('.'))
+const waLink = computed(() => {
+  const phone = String(storePhone.value || '').trim()
+  const digits = phone.replace(/[^\d+]/g, '')
+  return digits ? `https://wa.me/${digits.replace(/^0+/, '')}` : ''
+})
+const filteredCategories = computed(() => {
+  const term = String(categorySearch.value || '').toLowerCase()
+  return Array.isArray(categories.value) ? categories.value.filter((c: any) => String(c.name || '').toLowerCase().includes(term)) : []
+})
+function selectCategory(c: any) {
+  form.category_id = c ? Number(c.id) : null
+  categorySearch.value = c ? String(c.name || '') : ''
+  categoryOpen.value = false
+}
+function createCategoryFromSearch() {
+  const v = String(categorySearch.value || '').trim()
+  if (!v) return
+  const exists = filteredCategories.value.find((c: any) => String(c.name || '').toLowerCase() === v.toLowerCase())
+  if (exists) { notify('Cette catégorie existe déjà'); return }
+  newCategoryName.value = v
+  createCategory()
+  categoryOpen.value = false
+}
+function closeCategoryDropdownLater() { setTimeout(() => categoryOpen.value = false, 150) }
 const variants = ref<any[]>([])
 const options = ref<any[]>([])
+const reorderModeVariants = ref(false)
+const reorderModeOptions = ref(false)
+let dragVariantIndex: number | null = null
+let dragOptionIndex: number | null = null
 const unit = ref('PCS')
 const unitValue = ref<number | null>(null)
 const requiresShipping = ref(true)
@@ -248,15 +416,23 @@ async function createTag() {
 }
 function createCategory() {
   const name = String(newCategoryName.value || '').trim()
-  if (!name) return
+  if (!name) { notify('Nom de catégorie invalide'); return }
   const storeId = admin.selectedShopId
-  if (!storeId) return
-  supabase.from('categories').insert({ store_id: storeId, name }).select('id').maybeSingle().then(({ data }) => {
-    if (data?.id) { form.category_id = Number(data.id); loadFilters() }
+  if (!storeId) { notify('Sélectionnez une boutique'); return }
+  ;(async () => {
+    const { data, error } = await supabase.from('categories').insert({ store_id: storeId, name }).select('id').maybeSingle()
+    if (error) { notify('Erreur de création de catégorie'); newCategoryName.value = ''; return }
+    if (data?.id) {
+      form.category_id = Number(data.id)
+      notify('Catégorie créée')
+      await loadFilters()
+    }
     newCategoryName.value = ''
-  })
+  })()
 }
 const imageUrl = ref('')
+const imageFileInput = ref<HTMLInputElement | null>(null)
+const dropActive = ref(false)
 function addImageUrl() {
   const url = String(imageUrl.value || '').trim()
   if (!url) return
@@ -268,6 +444,33 @@ function onImageFile(e: any) {
   const f = e.target.files?.[0]
   if (!f) return
   uploadImage(f)
+}
+function triggerImageInput() { imageFileInput.value?.click() }
+function onImageDragEnter() { dropActive.value = true }
+function onImageDragOver() { dropActive.value = true }
+function onImageDragLeave() { dropActive.value = false }
+async function onImageDrop(e: DragEvent) {
+  dropActive.value = false
+  const files: File[] = []
+  const dt = e.dataTransfer
+  if (dt?.items && dt.items.length) {
+    for (const item of Array.from(dt.items)) {
+      if (item.kind === 'file') {
+        const f = item.getAsFile()
+        if (f) files.push(f)
+      }
+    }
+  } else if (dt?.files && dt.files.length) {
+    files.push(...Array.from(dt.files))
+  }
+  const MAX = 10 * 1024 * 1024
+  for (const f of files) {
+    if (f.size > MAX) { notify('Fichier trop volumineux (>10MB)'); continue }
+    await uploadImage(f)
+  }
+}
+function generateImage() {
+  notify('Génération d’image non activée dans cette version')
 }
 const isValid = computed(() => !!form.name && Number(form.price) >= 0)
 async function uploadImage(file: File) {
@@ -281,6 +484,14 @@ async function uploadImage(file: File) {
     const publicUrl = supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl
     form.images.push(publicUrl)
   }
+}
+let dragImageIndex: number | null = null
+function onImageTileDragStart(i: number) { dragImageIndex = i }
+function onImageTileDrop(i: number) {
+  if (dragImageIndex === null || dragImageIndex === i) return
+  const v = form.images.splice(dragImageIndex,1)[0]
+  form.images.splice(i,0,v)
+  dragImageIndex = null
 }
 function toggleDelivery(m: string) { if (deliveryMethods.has(m)) deliveryMethods.delete(m); else deliveryMethods.add(m) }
 async function uploadVariantImage(e: any, v: any) {
@@ -299,24 +510,64 @@ async function uploadVariantImage(e: any, v: any) {
 }
 function addVariant() { variants.value.push({ name: '', price: 0, original_price: 0, image_url: '' }) }
 function removeVariant(i: number) { variants.value.splice(i, 1) }
+function moveVariantUp(i: number) { if (i<=0) return; const v = variants.value.splice(i,1)[0]; variants.value.splice(i-1,0,v) }
+function moveVariantDown(i: number) { if (i>=variants.value.length-1) return; const v = variants.value.splice(i,1)[0]; variants.value.splice(i+1,0,v) }
+function onVariantDragStart(i: number) { dragVariantIndex = i }
+function onVariantDrop(i: number) {
+  if (dragVariantIndex === null || dragVariantIndex === i) return
+  const v = variants.value.splice(dragVariantIndex,1)[0]
+  variants.value.splice(i,0,v)
+  dragVariantIndex = null
+}
 function addOption() { options.value.push({ name: '', type: 'text', values: '', is_required: false }) }
 function removeOption(i: number) { options.value.splice(i, 1) }
+function moveOptionUp(i: number) { if (i<=0) return; const v = options.value.splice(i,1)[0]; options.value.splice(i-1,0,v) }
+function moveOptionDown(i: number) { if (i>=options.value.length-1) return; const v = options.value.splice(i,1)[0]; options.value.splice(i+1,0,v) }
+function onOptionDragStart(i: number) { dragOptionIndex = i }
+function onOptionDrop(i: number) {
+  if (dragOptionIndex === null || dragOptionIndex === i) return
+  const v = options.value.splice(dragOptionIndex,1)[0]
+  options.value.splice(i,0,v)
+  dragOptionIndex = null
+}
 async function save() {
   if (!isValid.value) return
   const storeId = admin.selectedShopId
   if (!storeId) return navigateTo('/admin/stores/create')
   saving.value = true
   try {
+    const hashTags = Array.from(new Set((String(form.description||'').match(/#([A-Za-z0-9_-]+)/g)||[]).map((h:string)=>h.slice(1).toLowerCase())))
+    const existingNames = new Set((Array.isArray(tags.value)?tags.value:[]).map((t:any)=>String(t.name||'').toLowerCase()))
+    const toCreate = hashTags.filter(n => !existingNames.has(n))
+    const createdTagIds: number[] = []
+    for (const name of toCreate) {
+      const { data: r } = await supabase.from('tags').insert({ store_id: storeId, name }).select('id').maybeSingle()
+      if (r?.id) { createdTagIds.push(Number(r.id)); tags.value.push({ id: r.id, name }) }
+    }
+    for (const id of createdTagIds) selectedTags.add(Number(id))
     const payload = {
       store_id: storeId,
       name: form.name,
       price: form.price,
+      original_price: form.original_price,
+      type: form.type,
       sku: form.sku,
       description: form.description,
       images: form.images,
       track_inventory: form.track_inventory,
       stock_quantity: form.stock_quantity,
       is_visible: form.is_visible,
+      is_out_of_stock: form.is_out_of_stock,
+      daily_capacity: form.daily_capacity,
+      max_order_qty: form.max_order_qty,
+      min_order_qty: form.min_order_qty,
+      tax_exempt: form.tax_exempt,
+      tax_exempt_reason: form.tax_exempt_reason || null,
+      show_estimated_price: form.show_estimated_price,
+      track_cost: form.track_cost,
+      cost_per_item: form.cost_per_item || null,
+      show_net_price: form.show_net_price,
+      weight: form.weight || null,
       category_id: form.category_id,
       unit: unit.value,
       unit_value: unitValue,
@@ -380,6 +631,11 @@ onMounted(async () => {
     if (sid) admin.selectShop(sid)
   }
   await loadFilters()
+  if (admin.selectedShopId) {
+    const { data: sone } = await supabase.from('stores').select('name,phone').eq('id', admin.selectedShopId).maybeSingle()
+    storePhone.value = String(sone?.phone || '')
+    storeName.value = String(sone?.name || '')
+  }
 })
 useHead({ title: 'Admin | Ajouter un produit' })
 </script>
