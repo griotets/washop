@@ -13,13 +13,13 @@
           <button :class="['px-2 py-1 rounded text-sm', locale==='fr' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('fr')">FR</button>
           <button :class="['px-2 py-1 rounded text-sm', locale==='en' ? 'bg-primary text-white' : 'bg-gray-100']" @click="setLocale('en')">EN</button>
         </div>
-        <button class="flex items-center gap-1 text-gray-700 hover:text-primary">
+        <button class="flex items-center gap-1 text-gray-700 hover:text-primary" aria-label="Recherche">
           <Search class="h-5 w-5" />
-          <span class="hidden sm:inline">Recherche</span>
+          <span class="inline text-xs sm:text-sm">Recherche</span>
         </button>
         <NuxtLink :to="`/${slug}/cart`" class="relative flex items-center gap-1 text-gray-700 hover:text-primary">
           <ShoppingCart class="h-5 w-5" />
-          <span class="hidden sm:inline">Panier</span>
+          <span class="inline text-xs sm:text-sm">Panier</span>
           <span v-if="count>0" class="absolute -right-2 -top-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs text-white">{{ count }}</span>
         </NuxtLink>
       </div>

@@ -30,7 +30,11 @@
               <span class="text-gray-400">/</span>
               <input v-model.trim="form.slug" type="text" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none" />
             </div>
-            <p class="mt-1 text-xs text-gray-500">{{ t('create.slugHint') }}</p>
+            <p class="mt-1 text-xs" :class="[slugCheckLoading ? 'text-gray-500' : (slugAvailable ? 'text-gray-500' : 'text-red-600')]">
+              <span v-if="slugCheckLoading">Vérification...</span>
+              <span v-else-if="slugAvailable">{{ t('create.slugHint') }}</span>
+              <span v-else>Lien déjà utilisé. Choisissez un autre lien.</span>
+            </p>
           </div>
 
           <div>
@@ -40,7 +44,9 @@
             </div>
           </div>
 
-          <button :disabled="!isValid" type="submit" class="rounded-lg bg-primary px-5 py-2 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">{{ t('create.create') }}</button>
+          <button :disabled="!isValid || creating" type="submit" class="rounded-lg bg-primary px-5 py-2 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">
+            {{ creating ? t('common.sending') : t('create.create') }}
+          </button>
         </form>
       </div>
 
@@ -98,7 +104,9 @@ const prevSlugBase = ref('')
 function slugify(s) {
   return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
 }
-const isValid = computed(() => !!form.name && !!form.phoneFull && !!form.slug)
+const slugCheckLoading = ref(false)
+const slugAvailable = ref(true)
+const isValid = computed(() => !!form.name && !!form.phoneFull && !!form.slug && slugAvailable.value)
 function onLogoChange(e) {
   const f = e.target.files?.[0]
   if (!f) return
@@ -106,6 +114,22 @@ function onLogoChange(e) {
   r.onload = () => { form.logoUrl = String(r.result || '') }
   r.readAsDataURL(f)
 }
+let slugTimer: any = null
+watch(() => form.slug, (n) => {
+  if (slugTimer) clearTimeout(slugTimer)
+  const val = (n || '').trim()
+  if (!val) { slugAvailable.value = true; slugCheckLoading.value = false; return }
+  slugCheckLoading.value = true
+  slugTimer = setTimeout(async () => {
+    const nuxt = useNuxtApp()
+    const supabase = nuxt.$supabase as any
+    const { data } = await supabase.from('stores').select('id').eq('slug', val).maybeSingle()
+    slugAvailable.value = !data
+    slugCheckLoading.value = false
+  }, 300)
+})
+const creating = ref(false)
+const createError = ref<string | null>(null)
 async function submit() {
   const nuxt = useNuxtApp()
   const supabase = nuxt.$supabase as SupabaseClient
@@ -122,22 +146,36 @@ async function submit() {
   }
   const enterprise_id = ent?.id
   if (!enterprise_id) return navigateTo('/admin/dashboard')
-  const payload = {
-    enterprise_id,
-    name: form.name,
-    phone: `${String(form.phoneFull || '').replace(/\s+/g, '')}`,
-    slug: form.slug,
-    color: form.color,
-    image_url: form.logoUrl
+  creating.value = true
+  createError.value = null
+  try {
+    const payload = {
+      enterprise_id,
+      name: form.name,
+      slug: form.slug,
+      color: form.color,
+      phone: String(form.phoneFull || '').replace(/\s+/g, ''),
+      image_url: form.logoUrl
+    }
+    const { data: created, error } = await supabase.from('stores').insert(payload).select('id').maybeSingle()
+    if (error) {
+      createError.value = error.message
+      console.error(error.message)
+      return
+    }
+    if (created?.id) admin.selectShop(String(created.id))
+    try {
+      localStorage.setItem(`store:${form.slug}`, JSON.stringify({
+        name: form.name,
+        logoUrl: form.logoUrl,
+        color: form.color,
+        phone: form.phoneFull
+      }))
+    } catch {}
+    navigateTo('/admin/dashboard')
+  } finally {
+    creating.value = false
   }
-  const { data: created, error } = await supabase.from('stores').insert(payload).select('id').maybeSingle()
-  if (error) {
-    console.error(error.message)
-    return
-  }
-  if (created?.id) admin.selectShop(String(created.id))
-  try { localStorage.setItem(`store:${form.slug}`, JSON.stringify({ name: form.name, logoUrl: form.logoUrl, color: form.color })) } catch {}
-  navigateTo('/admin/dashboard')
 }
 useHead({ title: `Admin | ${t('create.title')}` })
 </script>

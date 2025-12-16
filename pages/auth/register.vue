@@ -9,44 +9,50 @@
           </div>
         </div>
 
-        
 
-        <div v-if="step===1" class="space-y-6">
+
+        <div v-if="step === 1" class="space-y-6">
           <div class="space-y-3">
             <label class="block text-sm font-medium">{{ t('register.emailLabel') }}</label>
-            <input v-model.trim="email" type="email" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none" placeholder="vous@exemple.com" />
+            <input v-model.trim="email" type="email"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none"
+              placeholder="vous@exemple.com" />
           </div>
-          <button :disabled="!emailValid || authLoading" class="w-full rounded-lg bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50" @click="submitEmail">{{ authLoading ? t('common.sending') : t('register.continueEmail') }}</button>
+          <button :disabled="!mountedReady || !emailValid || authLoading" class="w-full rounded-lg bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50" @click="submitEmail">{{ authLoading ? t('common.sending') : t('register.continueEmail') }}</button>
           <p v-if="authError" class="text-sm text-red-600">{{ authError }}</p>
           <p v-if="otpSent" class="text-sm text-green-700">{{ t('register.codeSent') }}</p>
         </div>
 
-        <div v-else-if="step===2" class="space-y-6">
+        <div v-else-if="step === 2" class="space-y-6">
           <h2 class="text-lg font-semibold">{{ t('register.codeTitle') }}</h2>
           <p class="text-gray-600">{{ t('register.codeMessage', { email }) }}</p>
           <div class="space-y-3">
             <label class="block text-sm font-medium">{{ t('register.codeLabel') }}</label>
-            <input v-model.trim="enteredCode" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="123456" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none tracking-widest text-center" />
+            <input v-model.trim="enteredCode" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="12345678"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none tracking-widest text-center" />
             <p v-if="codeError" class="text-sm text-red-600">{{ t('register.codeInvalid') }}</p>
             <p v-if="authError" class="text-sm text-red-600">{{ authError }}</p>
           </div>
-          <button :disabled="!codeValid || authLoading" class="w-full rounded-lg bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50" @click="verifyCode">{{ authLoading ? t('common.verifying') : t('register.verifyContinue') }}</button>
-          <button :disabled="authLoading || resendCooldown>0" class="w-full rounded-lg border border-gray-300 px-5 py-3 font-semibold disabled:opacity-50" @click="resendCode">
+          <button :disabled="!codeValid || authLoading || verifying" class="w-full rounded-lg bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50" @click="verifyCode">{{ (verifying || authLoading) ? t('common.verifying') : t('register.verifyContinue') }}</button>
+          <button :disabled="authLoading || verifying || resendCooldown>0" class="w-full rounded-lg border border-gray-300 px-5 py-3 font-semibold disabled:opacity-50" @click="resendCode">
             <span v-if="resendCooldown>0">{{ t('register.resendIn', { s: resendCooldown }) }}</span>
             <span v-else>{{ t('register.resendCode') }}</span>
           </button>
         </div>
 
-        <div v-else-if="step===3" class="space-y-6">
+        <div v-else-if="step === 3" class="space-y-6">
           <label class="block text-sm font-medium">{{ t('register.industryQuestion') }}</label>
-          <select v-model="industry" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none">
+          <select v-model="industry"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none">
             <option value="" disabled>{{ t('register.selectIndustry') }}</option>
             <option v-for="opt in industries" :key="opt" :value="opt">{{ opt }}</option>
           </select>
-          <button :disabled="!industry" class="w-full rounded-lg bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50" @click="goStep(4)">{{ t('common.continue') }}</button>
+          <button :disabled="!industry"
+            class="w-full rounded-lg bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50"
+            @click="goStep(4)">{{ t('common.continue') }}</button>
         </div>
 
-        <div v-else-if="step===4" class="space-y-6">
+        <div v-else-if="step === 4" class="space-y-6">
           <h2 class="text-lg font-semibold">{{ t('register.goalsTitle') }}</h2>
           <div class="space-y-3">
             <label v-for="g in goalsList" :key="g" class="flex items-center gap-3">
@@ -54,60 +60,89 @@
               <span>{{ g }}</span>
             </label>
           </div>
-          <button :disabled="goals.length===0" class="w-full rounded-lg bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50" @click="goStep(5)">{{ t('common.continue') }}</button>
+          <button :disabled="goals.length === 0"
+            class="w-full rounded-lg bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50"
+            @click="goStep(5)">{{ t('common.continue') }}</button>
         </div>
 
-        <div v-else-if="step===5" class="space-y-6">
+        <div v-else-if="step === 5" class="space-y-6">
           <h2 class="text-xl font-bold">{{ t('register.offerTitle') }}</h2>
           <div class="rounded-xl border border-gray-200 p-4 space-y-3">
-            <div class="flex items-start gap-3"><Lock class="w-4 h-4" /><div><div class="font-semibold">{{ t('register.offerTodayTitle') }}</div><div class="text-sm text-gray-600">{{ t('register.offerTodayDesc') }}</div></div></div>
-            <div class="flex items-start gap-3"><Clock class="w-4 h-4" /><div><div class="font-semibold">{{ t('register.offerRemindTitle') }}</div><div class="text-sm text-gray-600">{{ t('register.offerRemindDesc') }}</div></div></div>
-            <div class="flex items-start gap-3"><CreditCard class="w-4 h-4" /><div><div class="font-semibold">{{ t('register.offerStartTitle') }}</div><div class="text-sm text-gray-600">{{ t('register.offerStartDesc') }}</div></div></div>
+            <div class="flex items-start gap-3">
+              <Lock class="w-4 h-4" />
+              <div>
+                <div class="font-semibold">{{ t('register.offerTodayTitle') }}</div>
+                <div class="text-sm text-gray-600">{{ t('register.offerTodayDesc') }}</div>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <Clock class="w-4 h-4" />
+              <div>
+                <div class="font-semibold">{{ t('register.offerRemindTitle') }}</div>
+                <div class="text-sm text-gray-600">{{ t('register.offerRemindDesc') }}</div>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <CreditCard class="w-4 h-4" />
+              <div>
+                <div class="font-semibold">{{ t('register.offerStartTitle') }}</div>
+                <div class="text-sm text-gray-600">{{ t('register.offerStartDesc') }}</div>
+              </div>
+            </div>
           </div>
-          <button class="w-full rounded-lg bg-gray-900 text-white px-5 py-3 font-semibold" @click="subscribe">{{ t('register.subscribeButton') }}</button>
-          <button class="w-full rounded-lg border border-gray-300 px-5 py-3 font-semibold" @click="skip">{{ t('register.skip') }}</button>
+          <button class="w-full rounded-lg bg-gray-900 text-white px-5 py-3 font-semibold" @click="subscribe">{{
+            t('register.subscribeButton') }}</button>
+          <button class="w-full rounded-lg border border-gray-300 px-5 py-3 font-semibold" @click="skip">{{
+            t('register.skip') }}</button>
         </div>
       </div>
 
       <div class="rounded-2xl bg-indigo-50 p-6">
         <div class="mx-auto max-w-sm">
-          <div class="relative aspect-[9/18] rounded-[2rem] border-8 border-gray-900 bg-white shadow-xl overflow-hidden">
-            <div v-if="step===1" class="p-6 space-y-4">
+          <div
+            class="relative aspect-[9/18] rounded-[2rem] border-8 border-gray-900 bg-white shadow-xl overflow-hidden">
+            <div v-if="step === 1" class="p-6 space-y-4">
               <div class="h-4 w-1/2 bg-gray-100 rounded"></div>
               <div class="h-3 w-full bg-gray-200 rounded"></div>
               <div class="h-3 w-5/6 bg-gray-200 rounded"></div>
               <div class="h-10 w-full bg-primary/10 rounded animate-pulse"></div>
             </div>
-            <div v-else-if="step===2" class="p-6 space-y-5">
+            <div v-else-if="step === 2" class="p-6 space-y-5">
               <div class="h-4 w-2/3 bg-gray-100 rounded"></div>
               <div class="grid grid-cols-6 gap-2">
-                <div v-for="i in 6" :key="i" :class="['h-10 rounded-md border', i===6 ? 'border-primary' : 'border-gray-300']"></div>
+                <div v-for="i in 6" :key="i"
+                  :class="['h-10 rounded-md border', i === 6 ? 'border-primary' : 'border-gray-300']"></div>
               </div>
               <div class="text-center text-xs text-gray-500">{{ t('register.codeHint') }}</div>
             </div>
-            <div v-else-if="step===3" class="p-4">
+            <div v-else-if="step === 3" class="p-4">
               <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-2">
                   <div class="h-8 w-8 rounded-full bg-gray-200"></div>
                   <div class="font-bold">{{ t('preview.store') }}</div>
                 </div>
-                <div class="px-2 py-1 text-xs rounded bg-gray-100 text-gray-600">{{ industry || t('preview.sector') }}</div>
+                <div class="px-2 py-1 text-xs rounded bg-gray-100 text-gray-600">{{ industry || t('preview.sector') }}
+                </div>
               </div>
               <div class="grid grid-cols-2 gap-2">
-                <div v-for="(p,idx) in 6" :key="idx" :class="['rounded-xl border p-2 space-y-2', animTick===idx ? 'border-primary animate-pulse' : 'border-gray-200']">
+                <div v-for="(p, idx) in 6" :key="idx"
+                  :class="['rounded-xl border p-2 space-y-2', animTick === idx ? 'border-primary animate-pulse' : 'border-gray-200']">
                   <div class="h-20 bg-gray-100 rounded"></div>
                   <div class="h-3 w-2/3 bg-gray-200 rounded"></div>
                   <div class="flex items-center justify-between">
                     <div class="h-3 w-12 bg-gray-200 rounded"></div>
-                    <div class="h-6 w-12 rounded bg-green-100 text-green-700 text-xs flex items-center justify-center">Add +</div>
+                    <div class="h-6 w-12 rounded bg-green-100 text-green-700 text-xs flex items-center justify-center">
+                      Add +</div>
                   </div>
                 </div>
               </div>
             </div>
-            <div v-else-if="step===4" class="p-5 space-y-3">
+            <div v-else-if="step === 4" class="p-5 space-y-3">
               <div class="flex items-center justify-between border-b pb-2">
                 <span class="font-bold text-sm">{{ t('preview.order') }}</span>
-                <span :class="['px-2 py-1 text-xs rounded', animTick%2===0 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800']">{{ animTick%2===0 ? t('preview.pending') : t('preview.accepted') }}</span>
+                <span
+                  :class="['px-2 py-1 text-xs rounded', animTick % 2 === 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800']">{{
+                    animTick % 2 === 0 ? t('preview.pending') : t('preview.accepted') }}</span>
               </div>
               <div class="space-y-2">
                 <div class="h-2 bg-gray-200 rounded w-3/4"></div>
@@ -115,7 +150,8 @@
               </div>
               <div class="mt-2 flex gap-2">
                 <button class="flex-1 bg-primary text-white text-xs py-2 rounded">{{ t('preview.accept') }}</button>
-                <button class="flex-1 bg-gray-200 text-gray-700 text-xs py-2 rounded">{{ t('preview.decline') }}</button>
+                <button class="flex-1 bg-gray-200 text-gray-700 text-xs py-2 rounded">{{ t('preview.decline')
+                  }}</button>
               </div>
             </div>
             <div v-else class="p-6 space-y-3">
@@ -124,7 +160,9 @@
                 <div class="h-5 w-5 rounded bg-gray-200"></div>
               </div>
               <div class="flex flex-col items-center pt-2">
-                <div class="h-20 w-20 rounded-full bg-primary/20 flex items-center justify-center"><div class="h-10 w-10 rounded-full bg-white"></div></div>
+                <div class="h-20 w-20 rounded-full bg-primary/20 flex items-center justify-center">
+                  <div class="h-10 w-10 rounded-full bg-white"></div>
+                </div>
                 <div class="mt-3 h-3 w-24 bg-gray-200 rounded"></div>
               </div>
               <div class="grid grid-cols-2 gap-2">
@@ -143,7 +181,7 @@
       </div>
     </div>
   </main>
-  
+
 </template>
 
 <script setup lang="ts">
@@ -161,7 +199,7 @@ const emailValid = computed(() => /.+@.+\..+/.test(String(email.value || '')))
 const industry = ref(store.onboarding.industry)
 const goals = ref([...store.onboarding.goals])
 const enteredCode = ref('')
-const codeValid = computed(() => /^\d{6}$/.test(enteredCode.value))
+const codeValid = computed(() => /^\d{8}$/.test(enteredCode.value))
 const codeError = ref(false)
 const animTick = ref(0)
 let animTimer: any
@@ -220,6 +258,9 @@ const { sendOtp, verifyOtp, error: authError, loading: authLoading } = useAuth()
 const otpSent = ref(false)
 const resendCooldown = ref(0)
 let resendTimer: any = null
+const verifying = ref(false)
+const mountedReady = ref(false)
+onMounted(() => { mountedReady.value = true })
 
 async function submitEmail() {
   store.setEmail(email.value)
@@ -232,9 +273,19 @@ async function submitEmail() {
   }
 }
 async function verifyCode() {
-  const res = await verifyOtp(email.value, enteredCode.value)
-  codeError.value = !!res.error
-  if (!codeError.value) { store.verifyEmail(); store.persist(); step.value = 3 }
+  verifying.value = true
+  try {
+    const res = await verifyOtp(email.value, enteredCode.value)
+    codeError.value = !!res.error
+    if (!codeError.value) {
+      store.verifyEmail()
+      store.persist()
+      await ensureEnterprise()
+      await navigateTo('/admin/stores/create')
+    }
+  } finally {
+    verifying.value = false
+  }
 }
 async function resendCode() {
   const res = await sendOtp(email.value)

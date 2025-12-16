@@ -1,7 +1,5 @@
 export function useI18n() {
-  const locale = useState<string>('locale', () => {
-    try { return localStorage.getItem('locale') || 'fr' } catch { return 'fr' }
-  })
+  const locale = useState<string>('locale', () => 'fr')
 
   const dict: Record<string, Record<string, string>> = {
     fr: {
@@ -180,6 +178,15 @@ export function useI18n() {
   function setLocale(l: string) {
     locale.value = l
     try { localStorage.setItem('locale', l) } catch {}
+  }
+
+  if (process.client) {
+    onMounted(() => {
+      try {
+        const saved = localStorage.getItem('locale')
+        if (saved) locale.value = saved
+      } catch {}
+    })
   }
 
   return { locale, t, setLocale }

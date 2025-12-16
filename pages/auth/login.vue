@@ -1,20 +1,28 @@
 <template>
   <main class="mx-auto max-w-md px-6 py-12">
     <h1 class="text-2xl font-semibold">Connexion</h1>
-    <form class="mt-6 space-y-4" @submit.prevent="onSubmit">
-      <div>
+    <div class="mt-6 space-y-4">
+      <div v-if="!otpSent" class="space-y-2">
         <label class="block text-sm">Email</label>
-        <input v-model="email" type="email" class="mt-1 w-full rounded border px-3 py-2" required />
+        <input v-model.trim="email" type="email" class="mt-1 w-full rounded border px-3 py-2" />
+        <button :disabled="!emailValid || loading" class="w-full rounded bg-primary px-4 py-2 text-white" @click="sendEmailOtp">
+          {{ loading ? 'Envoi...' : 'Continuer avec l’e‑mail' }}
+        </button>
+        <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
       </div>
-      <div>
-        <label class="block text-sm">Mot de passe</label>
-        <input v-model="password" type="password" class="mt-1 w-full rounded border px-3 py-2" required />
+      <div v-else class="space-y-2">
+        <label class="block text-sm">Code reçu par e‑mail</label>
+        <input v-model.trim="code" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="12345678" class="mt-1 w-full rounded border px-3 py-2 tracking-widest text-center" />
+        <button :disabled="!codeValid || loading" class="w-full rounded bg-primary px-4 py-2 text-white" @click="verifyEmailOtp">
+          {{ loading ? 'Vérification...' : 'Se connecter' }}
+        </button>
+        <button :disabled="loading || resendCooldown>0" class="w-full rounded border px-4 py-2" @click="resend">
+          <span v-if="resendCooldown>0">Renvoyer dans {{ resendCooldown }}s</span>
+          <span v-else>Renvoyer le code</span>
+        </button>
+        <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
       </div>
-      <button :disabled="loading" class="w-full rounded bg-primary px-4 py-2 text-white">
-        {{ loading ? 'Connexion...' : 'Se connecter' }}
-      </button>
-      <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
-    </form>
+    </div>
   </main>
 </template>
 
@@ -23,16 +31,30 @@ import { useAuth } from '~/composables/auth'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
 
-const { signIn, loading, error } = useAuth()
+const { sendOtp, verifyOtp, loading, error } = useAuth()
 const email = ref('')
-const password = ref('')
+const emailValid = computed(() => /.+@.+\..+/.test(String(email.value || '')))
+const code = ref('')
+const codeValid = computed(() => /^\d{8}$/.test(code.value))
+const otpSent = ref(false)
+const resendCooldown = ref(0)
+let resendTimer: any = null
 const router = useRouter()
 const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
 const admin = useAdminStore()
+const cfg = useRuntimeConfig()
+const otpDelay = Number((cfg.public as any)?.otpResendDelay || 30)
 
-async function onSubmit() {
-  const res = await signIn(String(email.value || ''), password.value)
+async function sendEmailOtp() {
+  const res = await sendOtp(String(email.value || ''))
+  if (!res.error) {
+    otpSent.value = true
+    startCooldown()
+  }
+}
+async function verifyEmailOtp() {
+  const res = await verifyOtp(String(email.value || ''), String(code.value || ''))
   if (!res.error) {
     const { data } = await supabase.auth.getUser()
     const uid = data?.user?.id
@@ -54,5 +76,20 @@ async function onSubmit() {
       router.push('/admin/stores/switch')
     }
   }
+}
+async function resend() {
+  const res = await sendOtp(String(email.value || ''))
+  if (!res.error) {
+    code.value = ''
+    startCooldown()
+  }
+}
+function startCooldown() {
+  resendCooldown.value = otpDelay
+  if (resendTimer) clearInterval(resendTimer)
+  resendTimer = setInterval(() => {
+    if (resendCooldown.value > 0) resendCooldown.value--
+    else { clearInterval(resendTimer); resendTimer = null }
+  }, 1000)
 }
 </script>

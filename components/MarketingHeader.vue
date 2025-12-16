@@ -19,12 +19,12 @@
           </div>
         </div>
         <div class="relative" @mouseenter="inOpen=true" @mouseleave="inOpen=false">
-          <button class="inline-flex items-center gap-1 text-gray-700 hover:text-primary">
+          <button class="inline-flex items-center gap-1 text-gray-700 hover:text-primary" :aria-expanded="inOpen">
             <span>Industry</span>
             <ChevronDown class="h-4 w-4" />
           </button>
-          <div v-if="inOpen" class="absolute left-0 mt-2 w-[700px] rounded-2xl border bg-white p-4 shadow-xl">
-            <div class="grid grid-cols-3 gap-6">
+          <div v-if="inOpen" class="absolute left-0 mt-2 w-[90vw] max-w-md md:max-w-2xl lg:max-w-3xl rounded-2xl border bg-white p-4 shadow-xl">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
               <div>
                 <div class="text-sm font-semibold text-gray-500">F&B</div>
                 <div class="mt-2 flex flex-col">
