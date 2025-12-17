@@ -362,7 +362,7 @@ async function submitOrder() {
       }
       if (form.note) deliveryDetails += `\n📝 *Note:* ${form.note}`
       
-      const message = `*Nouvelle Commande Wa-Shop*\n\n${lines}\n\n*Total : ${cart.total.toLocaleString('fr-FR')} XAF*\n\n----------------\n${deliveryDetails}\n\n📄 Facture: ${billUrl}\n🏪 Boutique: ${storeUrl}`
+      const message = `${baseUrl}\n\n*Nouvelle Commande Wa-Shop #${order.id.slice(0, 8)}*\n\n${lines}\n\n*Total : ${cart.total.toLocaleString('fr-FR')} XAF*\n\n----------------\n${deliveryDetails}\n\n📄 Facture: ${billUrl}\n🏪 Boutique: ${storeUrl}`
       
       const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
       window.open(whatsappUrl, '_blank')
