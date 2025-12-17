@@ -335,6 +335,7 @@ onMounted(async () => {
   }, 50000)
 
   try {
+    cart.load(slug.value)
     // Load local design override first (optional)
     const raw = localStorage.getItem(`design:${slug.value}`)
     if (raw) {

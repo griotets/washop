@@ -575,36 +575,10 @@ async function save() {
     }
     for (const id of createdTagIds) selectedTags.add(Number(id))
 
-    // Process main images
-    const uploadedImages = []
-    for (const img of form.images) {
-      if (pendingUploads.value.has(img)) {
-        const file = pendingUploads.value.get(img)!
-        const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
-        const path = `stores/${storeId}/products/new/${Date.now()}-${sanitizedName}`
-        const publicUrl = await uploadFileToStorage(file, path)
-        uploadedImages.push(publicUrl)
-      } else {
-        uploadedImages.push(img)
-      }
-    }
-    form.images = uploadedImages
-
-    // Process variant images
-    for (const v of variants.value) {
-      if (v._pendingFile) {
-        const file = v._pendingFile
-        const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
-        const path = `stores/${storeId}/products/new/variant-${Date.now()}-${sanitizedName}`
-        const publicUrl = await uploadFileToStorage(file, path)
-        if (v.image_url && v.image_url.startsWith('blob:')) {
-            URL.revokeObjectURL(v.image_url)
-        }
-        v.image_url = publicUrl
-        delete v._pendingFile
-      }
-    }
-
+    // Process main images: prepare initial payload
+    // Filter out blob URLs from form.images for the initial insert
+    const initialImages = form.images.filter((img: string) => !pendingUploads.value.has(img))
+    
     const payload = {
       store_id: storeId,
       name: form.name,
@@ -613,7 +587,7 @@ async function save() {
       type: form.type,
       sku: form.sku,
       description: form.description,
-      images: form.images,
+      images: initialImages,
       track_inventory: form.track_inventory,
       stock_quantity: form.stock_quantity,
       is_visible: form.is_visible,
@@ -644,6 +618,45 @@ async function save() {
       throw new Error('No ID returned from insert')
     }
     const pid = String(data.id)
+
+    // Now upload pending images using the pid
+    const newImagesList = []
+    let hasNewUploads = false
+    for (const img of form.images) {
+      if (pendingUploads.value.has(img)) {
+        const file = pendingUploads.value.get(img)!
+        const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
+        // Use pid in path
+        const path = `stores/${storeId}/products/${pid}/${Date.now()}-${sanitizedName}`
+        const publicUrl = await uploadFileToStorage(file, path)
+        newImagesList.push(publicUrl)
+        URL.revokeObjectURL(img)
+        hasNewUploads = true
+      } else {
+        newImagesList.push(img)
+      }
+    }
+
+    if (hasNewUploads) {
+      await supabase.from('products').update({ images: newImagesList }).eq('id', pid)
+      form.images = newImagesList
+    }
+
+    // Process variant images using pid
+    for (const v of variants.value) {
+      if (v._pendingFile) {
+        const file = v._pendingFile
+        const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
+        const path = `stores/${storeId}/products/${pid}/variants/${Date.now()}-${sanitizedName}`
+        const publicUrl = await uploadFileToStorage(file, path)
+        if (v.image_url && v.image_url.startsWith('blob:')) {
+            URL.revokeObjectURL(v.image_url)
+        }
+        v.image_url = publicUrl
+        delete v._pendingFile
+      }
+    }
+
     // Ensure created tags exist and associate them
     const tagIds: number[] = []
     for (const t of tags.value) {
@@ -674,11 +687,13 @@ async function save() {
         is_required: !!o.is_required
       })
     }
-    notify('Produit créé')
+    const toast = useToast()
+    toast.success('Produit créé')
     setTimeout(() => navigateTo(`/admin/products/${pid}`), 600)
   } catch (e: any) {
     console.error('Error saving product:', e)
-    notify(e.message || 'Erreur lors de la création du produit')
+    const toast = useToast()
+    toast.error(e.message || 'Erreur lors de la création du produit')
   } finally { saving.value = false }
 }
 async function loadFilters() {

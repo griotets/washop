@@ -77,6 +77,7 @@
 <script setup lang="ts">
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useCartStore } from '~/stores/cart'
+import { useToast } from '~/composables/useToast'
 const route = useRoute()
 const cart = useCartStore()
 const nuxt = useNuxtApp()
@@ -130,6 +131,7 @@ function getCartQuantity() {
 }
 
 function handleUpdateQuantity(delta: number) {
+  console.log('handleUpdateQuantity', delta)
   const currentQty = getCartQuantity()
   const newQty = currentQty + delta
   
@@ -150,6 +152,7 @@ function handleUpdateQuantity(delta: number) {
   }
   
   if (currentQty === 0 && delta > 0) {
+    console.log('Adding to cart:', productId.value)
     cart.add({
       id: productId.value,
       name: product.name || 'Produit',
@@ -157,11 +160,13 @@ function handleUpdateQuantity(delta: number) {
       image: images.value[0]
     })
   } else {
+    console.log('Updating quantity:', productId.value, newQty)
     cart.setQuantity(productId.value, newQty)
   }
 }
 
 function addToCart() {
+  console.log('addToCart clicked')
   handleUpdateQuantity(1)
 }
 
@@ -171,6 +176,7 @@ function buyNow() {
 }
 onMounted(async () => {
   if (!supabase) return
+  cart.load(slug.value)
   try {
     const raw = localStorage.getItem(`design:${slug.value}`)
     const d = raw ? JSON.parse(raw) : null

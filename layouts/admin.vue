@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <div class="flex">
-      <aside class="hidden lg:block w-64 border-r bg-white">
+      <aside class="hidden lg:block w-64 border-r bg-white sticky top-0 h-screen overflow-y-auto">
         <div class="p-4">
           <div class="flex items-center gap-3">
             <img src="/logo.svg" alt="Wa-Shop" class="h-10 w-10" />

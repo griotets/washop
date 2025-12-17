@@ -197,6 +197,16 @@ const tagLoading = ref<Set<number>>(new Set())
 const imageUrl = ref('')
 const imageFileInput = ref<HTMLInputElement | null>(null)
 const dropActive = ref(false)
+const pendingUploads = ref(new Map<string, File>())
+
+async function uploadFileToStorage(file: File, path: string) {
+  const cfg = useRuntimeConfig()
+  const bucket = String((cfg.public as any)?.supabaseStorageBucket || 'product-images')
+  const { error } = await supabase.storage.from(bucket).upload(path, file, { upsert: true })
+  if (error) throw error
+  return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl
+}
+
 function addImageUrl() {
   const url = String(imageUrl.value || '').trim()
   if (!url) return
@@ -276,6 +286,15 @@ onMounted(async () => {
   const { data: pt } = await supabase.from('product_tags').select('tag_id').eq('product_id', id.value)
   productTagIds.value = new Set(Array.isArray(pt) ? pt.map((x: any) => Number(x.tag_id)) : [])
 })
+
+onUnmounted(() => {
+  form.images.forEach((url: string) => {
+    if (url && url.startsWith('blob:')) URL.revokeObjectURL(url)
+  })
+  variants.value.forEach((v: any) => {
+    if (v.image_url && v.image_url.startsWith('blob:')) URL.revokeObjectURL(v.image_url)
+  })
+})
 async function save() {
   if (!isValid.value) return
   const storeId = admin.selectedShopId
@@ -337,16 +356,6 @@ async function remove() {
 }
 useHead({ title: 'Admin | Modifier le produit' })
 
-const imageUploadLoading = ref(false)
-const pendingUploads = ref(new Map<string, File>())
-
-async function uploadFileToStorage(file: File, path: string) {
-  const cfg = useRuntimeConfig()
-  const bucket = String((cfg.public as any)?.supabaseStorageBucket || 'product-images')
-  const { error } = await supabase.storage.from(bucket).upload(path, file, { upsert: true })
-  if (error) throw error
-  return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl
-}
 
 async function uploadImage(file: File) {
   const previewUrl = URL.createObjectURL(file)

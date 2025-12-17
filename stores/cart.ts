@@ -11,17 +11,22 @@ export const useCartStore = defineStore('cart', {
   },
   actions: {
     add(item: { id: string; name: string; price: number; image?: string }) {
+      console.log('Cart add:', item)
       try {
         const x = this.items.find((i) => i.id === item.id)
         if (x) x.quantity += 1
         else this.items.push({ ...item, quantity: 1 })
         this.persist()
-        const toast = useToast()
-        toast.success(`${item.name} ajouté au panier`)
+        try {
+            const toast = useToast()
+            toast.success(`${item.name} ajouté au panier`)
+        } catch (err) { console.error('Toast error:', err) }
       } catch (e) {
         console.error('Cart add error:', e)
-        const toast = useToast()
-        toast.error('Erreur lors de l\'ajout au panier')
+        try {
+            const toast = useToast()
+            toast.error('Erreur lors de l\'ajout au panier')
+        } catch (err) { console.error('Toast error in catch:', err) }
       }
     },
     remove(id: string) {
