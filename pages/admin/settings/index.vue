@@ -152,13 +152,13 @@
                    <input id="map-osm" name="map-provider" type="radio" value="osm" v-model="form.mapProvider" class="h-4 w-4 border-gray-300 text-green-600 focus:ring-green-500" />
                    <label for="map-osm" class="ml-3 block text-sm font-medium text-gray-700">OpenStreetMap</label>
                  </div>
-                 <div class="flex items-center opacity-50 cursor-not-allowed">
-                   <input id="map-google" name="map-provider" type="radio" value="google" disabled class="h-4 w-4 border-gray-300 text-green-600 focus:ring-green-500" />
+                 <div class="flex items-center" :class="{ 'opacity-50 cursor-not-allowed': isFreePlan }">
+                   <input id="map-google" name="map-provider" type="radio" value="google" :disabled="isFreePlan" v-model="form.mapProvider" class="h-4 w-4 border-gray-300 text-green-600 focus:ring-green-500" />
                    <label for="map-google" class="ml-3 block text-sm font-medium text-gray-700">Google</label>
                  </div>
                </div>
                
-               <div class="mt-2 rounded-md bg-blue-50 p-2 flex items-center justify-between">
+               <div v-if="isFreePlan" class="mt-2 rounded-md bg-blue-50 p-2 flex items-center justify-between">
                  <div class="flex items-center gap-2">
                    <div class="text-blue-500">⚡</div>
                    <span class="text-sm text-blue-700 font-medium">Mise à niveau nécessaire pour utiliser Business</span>
@@ -275,7 +275,7 @@
                 </div>
 
                 <!-- Business Banner -->
-                <div class="bg-blue-50 border-l-4 border-blue-400 p-4 flex items-center justify-between">
+                <div v-if="isFreePlan" class="bg-blue-50 border-l-4 border-blue-400 p-4 flex items-center justify-between">
                    <div class="flex items-center">
                       <div class="flex-shrink-0">
                          <!-- Lightning Icon -->
@@ -651,6 +651,10 @@ const enterpriseId = ref('')
 const subscription = ref<any>(null)
 const plans = ref<any[]>([])
 const productCount = ref(0)
+
+const isFreePlan = computed(() => {
+  return !subscription.value || subscription.value.plan_id === 'free'
+})
 
 const disableCheckoutComputed = computed({
   get: () => !form.checkoutEnabled,
