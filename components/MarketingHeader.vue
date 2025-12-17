@@ -71,8 +71,7 @@
           </div>
         </div>
         <NuxtLink to="/pricing" class="text-gray-700 hover:text-primary">Pricing</NuxtLink>
-        <NuxtLink to="/changelog" class="text-gray-700 hover:text-primary">Changelog</NuxtLink>
-        <NuxtLink to="/resources" class="text-gray-700 hover:text-primary">Resources</NuxtLink>
+        <NuxtLink to="/about_us" class="text-gray-700 hover:text-primary">About Us</NuxtLink>
       </nav>
       <div class="hidden items-center gap-3 md:flex">
         <NuxtLink to="/auth/login" class="text-gray-700 hover:text-primary">Login</NuxtLink>

@@ -9,8 +9,8 @@
         <div>
           <div class="font-semibold">Company</div>
           <ul class="mt-2 space-y-2 text-gray-600">
-            <li><NuxtLink to="/resources">About</NuxtLink></li>
-            <li><NuxtLink to="/resources">Contact</NuxtLink></li>
+            <li><NuxtLink to="/about_us">About</NuxtLink></li>
+            <li><a href="mailto:contact@wa-shop.cm">Contact</a></li>
           </ul>
         </div>
         <div>
@@ -23,8 +23,8 @@
         <div>
           <div class="font-semibold">Legal</div>
           <ul class="mt-2 space-y-2 text-gray-600">
-            <li><NuxtLink to="/resources">Terms</NuxtLink></li>
-            <li><NuxtLink to="/resources">Privacy</NuxtLink></li>
+            <li><NuxtLink to="/">Terms</NuxtLink></li>
+            <li><NuxtLink to="/">Privacy</NuxtLink></li>
           </ul>
         </div>
       </div>
