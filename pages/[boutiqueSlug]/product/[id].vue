@@ -43,7 +43,12 @@
                 <button class="block w-full rounded bg-primary px-4 py-3 text-sm font-bold text-white shadow hover:brightness-110" @click="buyNow">
                   Acheter maintenant
                 </button>
-                <button class="block w-full rounded border border-primary px-4 py-3 text-sm font-bold text-primary hover:bg-primary/5" @click="addToCart">
+                <div v-if="getCartQuantity() > 0" class="flex items-center gap-3 rounded-lg border border-primary p-1">
+                  <button class="flex h-10 w-12 items-center justify-center rounded-md bg-gray-100 font-bold hover:bg-gray-200" @click="handleUpdateQuantity(-1)">-</button>
+                  <div class="flex-1 text-center font-bold text-lg">{{ getCartQuantity() }}</div>
+                  <button class="flex h-10 w-12 items-center justify-center rounded-md bg-primary font-bold text-white hover:brightness-110" @click="handleUpdateQuantity(1)">+</button>
+                </div>
+                <button v-else class="block w-full rounded border border-primary px-4 py-3 text-sm font-bold text-primary hover:bg-primary/5" @click="addToCart">
                   Ajouter au panier
                 </button>
               </div>
@@ -85,7 +90,16 @@ function closePopup() {
   try { localStorage.setItem(`popupShown:${slug.value}`, '1') } catch {}
 }
 const store = reactive<{ name?: string; logoUrl?: string; color?: string; phone?: string }>({})
-const product = reactive<{ name?: string; description?: string; price?: number }>({})
+const product = reactive<{ 
+  id?: string;
+  name?: string; 
+  description?: string; 
+  price?: number;
+  track_inventory?: boolean;
+  stock_quantity?: number;
+  max_order_quantity?: number;
+  is_out_of_stock?: boolean;
+}>({})
 const images = ref<string[]>([])
 const currentIndex = ref(0)
 const dragging = ref(false)
@@ -110,17 +124,49 @@ const waLink = computed(() => {
   return `https://wa.me/${phone.replace(/\D/g, '')}?text=${text}`
 })
 
+function getCartQuantity() {
+  const item = cart.items.find(i => i.id === productId.value)
+  return item ? item.quantity : 0
+}
+
+function handleUpdateQuantity(delta: number) {
+  const currentQty = getCartQuantity()
+  const newQty = currentQty + delta
+  
+  if (newQty < 0) return
+
+  // Check Max Order Qty
+  if ((product.max_order_quantity || 0) > 0 && newQty > (product.max_order_quantity || 0)) {
+    const toast = useToast()
+    toast.error(`Maximum ${product.max_order_quantity} unités pour ce produit`)
+    return
+  }
+
+  // Check Stock
+  if (product.track_inventory && newQty > (product.stock_quantity || 0)) {
+    const toast = useToast()
+    toast.error(`Stock insuffisant (Max: ${product.stock_quantity})`)
+    return
+  }
+  
+  if (currentQty === 0 && delta > 0) {
+    cart.add({
+      id: productId.value,
+      name: product.name || 'Produit',
+      price: product.price || 0,
+      image: images.value[0]
+    })
+  } else {
+    cart.setQuantity(productId.value, newQty)
+  }
+}
+
 function addToCart() {
-  cart.add({
-    id: productId.value,
-    name: product.name || 'Produit',
-    price: product.price || 0,
-    image: images.value[0]
-  })
+  handleUpdateQuantity(1)
 }
 
 function buyNow() {
-  addToCart()
+  if (getCartQuantity() === 0) addToCart()
   navigateTo(`/${slug.value}/cart`)
 }
 onMounted(async () => {
@@ -145,15 +191,24 @@ onMounted(async () => {
   store.color = String(sone?.color || '#111827')
   store.phone = String(sone?.phone || '')
   if (storeId) {
-    const { data: p, error: pErr } = await supabase.from('products').select('name,description,price,images').eq('id', productId.value).eq('store_id', storeId).maybeSingle()
+    const { data: p, error: pErr } = await supabase.from('products')
+      .select('id,name,description,price,images,track_inventory,stock_quantity,max_order_quantity,is_out_of_stock')
+      .eq('id', productId.value)
+      .eq('store_id', storeId)
+      .maybeSingle()
     if (pErr) {
       console.error(pErr)
       const toast = useToast()
       toast.error('Erreur chargement produit: ' + pErr.message)
     }
+    product.id = String(p?.id || '')
     product.name = String(p?.name || '')
     product.description = String(p?.description || '')
     product.price = Number(p?.price || 0)
+    product.track_inventory = !!p?.track_inventory
+    product.stock_quantity = Number(p?.stock_quantity || 0)
+    product.max_order_quantity = Number(p?.max_order_quantity || 0)
+    product.is_out_of_stock = !!p?.is_out_of_stock
     images.value = Array.isArray(p?.images) ? p?.images : (typeof p?.images === 'string' ? JSON.parse(p?.images || '[]') : [])
   }
 })

@@ -75,8 +75,13 @@
                   :alt="product.name" 
                   class="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
                 />
-                <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button @click.prevent="addToCart(product)" class="p-2 rounded-full bg-white shadow text-gray-900 hover:text-primary transition-colors" title="Ajouter au panier">
+                <div class="absolute top-2 right-2 transition-opacity" :class="getCartQuantity(product.id) > 0 ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'">
+                  <div v-if="getCartQuantity(product.id) > 0" class="flex items-center gap-2 rounded-full bg-white p-1 shadow">
+                    <button @click.prevent="handleUpdateQuantity(product, -1)" class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200">-</button>
+                    <span class="text-sm font-semibold">{{ getCartQuantity(product.id) }}</span>
+                    <button @click.prevent="handleUpdateQuantity(product, 1)" class="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white hover:brightness-110" :style="{ backgroundColor: appearance.primary }">+</button>
+                  </div>
+                  <button v-else @click.prevent="addToCart(product)" class="p-2 rounded-full bg-white shadow text-gray-900 hover:text-primary transition-colors" title="Ajouter au panier">
                     <ShoppingCart class="h-5 w-5" />
                   </button>
                 </div>
@@ -238,6 +243,11 @@ function formatPrice(price: number) {
   return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF' }).format(price)
 }
 
+function getCartQuantity(productId: string | number) {
+  const item = cart.items.find(i => i.id === String(productId))
+  return item ? item.quantity : 0
+}
+
 function getProductImage(product: any) {
   if (Array.isArray(product.images) && product.images.length > 0) {
     return product.images[0]
@@ -266,16 +276,40 @@ function scrollToCategory(catId: string) {
   }
 }
 
+function handleUpdateQuantity(product: any, delta: number) {
+  const currentQty = getCartQuantity(product.id)
+  const newQty = currentQty + delta
+  
+  if (newQty < 0) return
+
+  // Check Max Order Qty
+  if (product.max_order_qty > 0 && newQty > product.max_order_qty) {
+    const toast = useToast()
+    toast.error(`Maximum ${product.max_order_qty} unités pour ce produit`)
+    return
+  }
+
+  // Check Stock
+  if (product.track_inventory && newQty > product.stock_quantity) {
+    const toast = useToast()
+    toast.error(`Stock insuffisant (Max: ${product.stock_quantity})`)
+    return
+  }
+  
+  if (currentQty === 0 && delta > 0) {
+    cart.add({
+      id: String(product.id),
+      name: product.name,
+      price: product.price,
+      image: getProductImage(product)
+    })
+  } else {
+    cart.setQuantity(String(product.id), newQty)
+  }
+}
+
 function addToCart(product: any) {
-  cart.add({
-    id: String(product.id),
-    name: product.name,
-    price: product.price,
-    image: getProductImage(product)
-  })
-  // Optional: show toast
-  // Handled by store, but if we want to show it here explicitly:
-  // useCartStore().add() handles it now.
+  handleUpdateQuantity(product, 1)
 }
 
 function closePopup() {

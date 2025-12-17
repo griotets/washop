@@ -84,7 +84,7 @@
               </div>
               <div class="mt-2 flex items-center gap-2">
                 <input v-model.trim="newTagName" placeholder="Ajouter une étiquette" class="flex-1 rounded-lg border px-3 py-2 text-sm" />
-                <button class="rounded-lg border bg-white px-3 py-2 text-sm" @click="createTag">Créer</button>
+                <button class="rounded-lg border bg-white px-3 py-2 text-sm" @click="createTag" :disabled="tagCreating">{{ tagCreating ? '...' : 'Créer' }}</button>
               </div>
             </div>
           </div>
@@ -93,9 +93,12 @@
         <div class="rounded-xl border bg-white p-6">
           <div class="flex items-center justify-between">
             <div class="font-semibold">Images</div>
-            <input ref="imageFileInput" type="file" accept="image/*" class="hidden" @change="onImageFile" />
+            <input ref="imageFileInput" type="file" accept="image/*" class="hidden" multiple @change="onImageFile" />
           </div>
-          <div class="mt-3">
+          <div class="mt-3 relative">
+            <div v-if="imageUploadLoading" class="absolute inset-0 flex items-center justify-center bg-white/80 z-10 rounded-lg">
+               <div class="h-8 w-8 animate-spin rounded-full border-4 border-gray-900 border-t-transparent"></div>
+            </div>
             <div class="flex items-center justify-center rounded-lg border-2 border-dashed px-4 py-10 text-center cursor-pointer" :class="dropActive?'border-green-400 bg-green-50':'border-gray-300 bg-gray-50'" @click="triggerImageInput" @dragenter.prevent="onImageDragEnter" @dragover.prevent="onImageDragOver" @dragleave.prevent="onImageDragLeave" @drop.prevent="onImageDrop">
               <div>
                 <Upload class="mx-auto h-8 w-8 text-gray-400" />
@@ -220,7 +223,10 @@
               <input v-model.number="v.price" type="number" min="0" step="0.01" placeholder="Prix" class="rounded border px-2 py-1 text-sm" />
               <input v-model.number="v.original_price" type="number" min="0" step="0.01" placeholder="Prix original" class="rounded border px-2 py-1 text-sm" />
               <div class="flex items-center gap-2">
-                <img :src="v.image_url||''" class="h-10 w-10 rounded object-cover bg-gray-100" />
+                <div class="relative">
+                   <img :src="v.image_url||''" class="h-10 w-10 rounded object-cover bg-gray-100" />
+                   <div v-if="v._imgLoading" class="absolute inset-0 flex items-center justify-center bg-black/50 rounded"><div class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div></div>
+                </div>
                 <input type="file" accept="image/*" @change="(e:any)=>uploadVariantImage(e,v)" />
               </div>
               <div class="flex items-center gap-2">
@@ -304,9 +310,6 @@
       </div>
     </div>
   </div>
-  <div v-if="toastShow" class="fixed bottom-4 right-4 rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow-lg">
-    {{ toastMsg }}
-  </div>
   <div v-if="saving" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 backdrop-blur-sm">
     <div class="rounded-xl bg-gray-900/90 px-6 py-5 text-center text-white shadow-xl">
       <div class="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-white/30 border-t-white"></div>
@@ -324,9 +327,8 @@ const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
 const admin = useAdminStore()
 const saving = ref(false)
-const toastShow = ref(false)
-const toastMsg = ref('')
-function notify(msg: string) { toastMsg.value = msg; toastShow.value = true; setTimeout(() => toastShow.value = false, 1500) }
+const toast = useToast()
+
 const form = reactive<any>({
   name: '',
   price: 0,
@@ -379,7 +381,7 @@ function createCategoryFromSearch() {
   const v = String(categorySearch.value || '').trim()
   if (!v) return
   const exists = filteredCategories.value.find((c: any) => String(c.name || '').toLowerCase() === v.toLowerCase())
-  if (exists) { notify('Cette catégorie existe déjà'); return }
+  if (exists) { toast.error('Cette catégorie existe déjà'); return }
   newCategoryName.value = v
   createCategory()
   categoryOpen.value = false
@@ -407,29 +409,34 @@ async function createTag() {
   if (!name) return
   const storeId = admin.selectedShopId
   if (!storeId) return
-  const { data } = await supabase.from('tags').insert({ store_id: storeId, name }).select('id,name').maybeSingle()
-  if (data?.id) {
-    tags.value.push({ id: data.id, name: data.name })
-    selectedTags.add(Number(data.id))
-    newTagName.value = ''
-  }
+  tagCreating.value = true
+  try {
+    const { data } = await supabase.from('tags').insert({ store_id: storeId, name }).select('id,name').maybeSingle()
+    if (data?.id) {
+      tags.value.push({ id: data.id, name: data.name })
+      selectedTags.add(Number(data.id))
+      newTagName.value = ''
+    }
+  } finally { tagCreating.value = false }
 }
 function createCategory() {
   const name = String(newCategoryName.value || '').trim()
-  if (!name) { notify('Nom de catégorie invalide'); return }
+  if (!name) { toast.error('Nom de catégorie invalide'); return }
   const storeId = admin.selectedShopId
-  if (!storeId) { notify('Sélectionnez une boutique'); return }
+  if (!storeId) { toast.error('Sélectionnez une boutique'); return }
   ;(async () => {
     const { data, error } = await supabase.from('categories').insert({ store_id: storeId, name }).select('id').maybeSingle()
-    if (error) { notify('Erreur de création de catégorie'); newCategoryName.value = ''; return }
+    if (error) { toast.error('Erreur de création de catégorie'); newCategoryName.value = ''; return }
     if (data?.id) {
       form.category_id = Number(data.id)
-      notify('Catégorie créée')
+      toast.success('Catégorie créée')
       await loadFilters()
     }
     newCategoryName.value = ''
   })()
 }
+const imageUploadLoading = ref(false)
+const tagCreating = ref(false)
 const imageUrl = ref('')
 const imageFileInput = ref<HTMLInputElement | null>(null)
 const dropActive = ref(false)
@@ -439,11 +446,23 @@ function addImageUrl() {
   form.images.push(url)
   imageUrl.value = ''
 }
-function removeImage(i: number) { form.images.splice(i, 1) }
-function onImageFile(e: any) {
-  const f = e.target.files?.[0]
-  if (!f) return
-  uploadImage(f)
+function removeImage(i: number) {
+  const url = form.images[i]
+  if (pendingUploads.value.has(url)) {
+    URL.revokeObjectURL(url)
+    pendingUploads.value.delete(url)
+  }
+  form.images.splice(i, 1)
+}
+
+async function onImageFile(e: any) {
+  const files = e.target.files
+  if (!files || files.length === 0) return
+  const MAX = 10 * 1024 * 1024
+  for (const f of Array.from(files) as File[]) {
+    if (f.size > MAX) { toast.error(`Fichier trop volumineux: ${f.name} (>10MB)`); continue }
+    await uploadImage(f)
+  }
 }
 function triggerImageInput() { imageFileInput.value?.click() }
 function onImageDragEnter() { dropActive.value = true }
@@ -465,25 +484,28 @@ async function onImageDrop(e: DragEvent) {
   }
   const MAX = 10 * 1024 * 1024
   for (const f of files) {
-    if (f.size > MAX) { notify('Fichier trop volumineux (>10MB)'); continue }
+    if (f.size > MAX) { toast.error('Fichier trop volumineux (>10MB)'); continue }
     await uploadImage(f)
   }
 }
 function generateImage() {
-  notify('Génération d’image non activée dans cette version')
+  toast.info('Génération d’image non activée dans cette version')
 }
 const isValid = computed(() => !!form.name && Number(form.price) >= 0)
-async function uploadImage(file: File) {
-  const storeId = admin.selectedShopId
-  if (!storeId) return
+const pendingUploads = ref(new Map<string, File>())
+
+async function uploadFileToStorage(file: File, path: string) {
   const cfg = useRuntimeConfig()
   const bucket = String((cfg.public as any)?.supabaseStorageBucket || 'product-images')
-  const path = `stores/${storeId}/products/new/${Date.now()}-${file.name}`
-  const r = await supabase.storage.from(bucket).upload(path, file, { upsert: true })
-  if (!r.error) {
-    const publicUrl = supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl
-    form.images.push(publicUrl)
-  }
+  const { error } = await supabase.storage.from(bucket).upload(path, file, { upsert: true })
+  if (error) throw error
+  return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl
+}
+
+async function uploadImage(file: File) {
+  const previewUrl = URL.createObjectURL(file)
+  form.images.push(previewUrl)
+  pendingUploads.value.set(previewUrl, file)
 }
 let dragImageIndex: number | null = null
 function onImageTileDragStart(i: number) { dragImageIndex = i }
@@ -497,19 +519,26 @@ function toggleDelivery(m: string) { if (deliveryMethods.has(m)) deliveryMethods
 async function uploadVariantImage(e: any, v: any) {
   const file = e.target.files?.[0]
   if (!file) return
-  const storeId = admin.selectedShopId
-  if (!storeId) return
-  const cfg = useRuntimeConfig()
-  const bucket = String((cfg.public as any)?.supabaseStorageBucket || 'product-images')
-  const path = `stores/${storeId}/products/new/variant-${Date.now()}-${file.name}`
-  const r = await supabase.storage.from(bucket).upload(path, file, { upsert: true })
-  if (!r.error) {
-    const publicUrl = supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl
-    v.image_url = publicUrl
+  const MAX = 10 * 1024 * 1024
+  if (file.size > MAX) { toast.error('Fichier trop volumineux (>10MB)'); return }
+  
+  // Optimistic preview
+  const previewUrl = URL.createObjectURL(file)
+  if (v.image_url && v.image_url.startsWith('blob:')) {
+     URL.revokeObjectURL(v.image_url)
   }
+  v.image_url = previewUrl
+  v._pendingFile = file
 }
 function addVariant() { variants.value.push({ name: '', price: 0, original_price: 0, image_url: '' }) }
-function removeVariant(i: number) { variants.value.splice(i, 1) }
+function removeVariant(i: number) {
+  const v = variants.value[i]
+  if (v.image_url && v.image_url.startsWith('blob:')) {
+    URL.revokeObjectURL(v.image_url)
+  }
+  variants.value.splice(i, 1)
+}
+
 function moveVariantUp(i: number) { if (i<=0) return; const v = variants.value.splice(i,1)[0]; variants.value.splice(i-1,0,v) }
 function moveVariantDown(i: number) { if (i>=variants.value.length-1) return; const v = variants.value.splice(i,1)[0]; variants.value.splice(i+1,0,v) }
 function onVariantDragStart(i: number) { dragVariantIndex = i }
@@ -545,6 +574,37 @@ async function save() {
       if (r?.id) { createdTagIds.push(Number(r.id)); tags.value.push({ id: r.id, name }) }
     }
     for (const id of createdTagIds) selectedTags.add(Number(id))
+
+    // Process main images
+    const uploadedImages = []
+    for (const img of form.images) {
+      if (pendingUploads.value.has(img)) {
+        const file = pendingUploads.value.get(img)!
+        const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
+        const path = `stores/${storeId}/products/new/${Date.now()}-${sanitizedName}`
+        const publicUrl = await uploadFileToStorage(file, path)
+        uploadedImages.push(publicUrl)
+      } else {
+        uploadedImages.push(img)
+      }
+    }
+    form.images = uploadedImages
+
+    // Process variant images
+    for (const v of variants.value) {
+      if (v._pendingFile) {
+        const file = v._pendingFile
+        const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
+        const path = `stores/${storeId}/products/new/variant-${Date.now()}-${sanitizedName}`
+        const publicUrl = await uploadFileToStorage(file, path)
+        if (v.image_url && v.image_url.startsWith('blob:')) {
+            URL.revokeObjectURL(v.image_url)
+        }
+        v.image_url = publicUrl
+        delete v._pendingFile
+      }
+    }
+
     const payload = {
       store_id: storeId,
       name: form.name,
@@ -647,6 +707,15 @@ onMounted(async () => {
     storePhone.value = String(sone?.phone || '')
     storeName.value = String(sone?.name || '')
   }
+})
+
+onUnmounted(() => {
+  form.images.forEach((url: string) => {
+    if (url && url.startsWith('blob:')) URL.revokeObjectURL(url)
+  })
+  variants.value.forEach((v: any) => {
+    if (v.image_url && v.image_url.startsWith('blob:')) URL.revokeObjectURL(v.image_url)
+  })
 })
 useHead({ title: 'Admin | Ajouter un produit' })
 </script>

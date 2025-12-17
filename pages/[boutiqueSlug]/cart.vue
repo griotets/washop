@@ -37,11 +37,8 @@
 
         <div v-else class="mt-6 space-y-4">
           <div v-for="item in cart.items" :key="item.id" class="flex items-center gap-4 rounded-xl border bg-white p-4 shadow-sm">
-            <div class="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
-              <img v-if="item.image" :src="item.image" class="h-full w-full object-cover" />
-              <div v-else class="flex h-full w-full items-center justify-center text-gray-400">
-                <Package class="h-6 w-6" />
-              </div>
+            <div v-if="item.image && item.image.length > 0" class="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+              <img :src="item.image" class="h-full w-full object-cover" />
             </div>
             <div class="flex-1">
               <div class="font-semibold">{{ item.name }}</div>
@@ -191,9 +188,13 @@
           Continuer
         </button>
         
-        <button v-else-if="step === 3" @click="submitOrder" class="ml-auto flex items-center gap-2 rounded-lg bg-[#25D366] px-6 py-3 font-semibold text-white shadow-sm hover:brightness-110">
-          <MessageCircle class="h-5 w-5" />
-          Envoyer sur WhatsApp
+        <button v-else-if="step === 3" @click="submitOrder" :disabled="loading" class="ml-auto flex items-center gap-2 rounded-lg bg-[#25D366] px-6 py-3 font-semibold text-white shadow-sm hover:brightness-110 disabled:opacity-75 disabled:cursor-not-allowed">
+          <svg v-if="loading" class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <MessageCircle v-else class="h-5 w-5" />
+          {{ loading ? 'Envoi...' : 'Envoyer sur WhatsApp' }}
         </button>
       </div>
     </div>
@@ -218,6 +219,7 @@ useHead({ title: `Panier | ${slug.value}` })
 const step = ref(1)
 const storeConfig = ref<any>({})
 const storeData = ref<any>(null)
+const loading = ref(false)
 const form = reactive({
   name: '',
   phone: '',
@@ -287,8 +289,7 @@ async function submitOrder() {
   const toast = useToast()
   if (!storeData.value?.id) return toast.error('Erreur: Boutique non identifiée')
   
-  const loading = ref(true) // Local loading state if needed, or use a global one
-  // But since we navigate away, toast is enough feedback initially or a button spinner
+  loading.value = true
 
   try {
     // 1. Create Order
@@ -304,7 +305,7 @@ async function submitOrder() {
       customer_name: form.name,
       customer_phone: form.phone,
       total_amount: cart.total,
-      status: 'new',
+      status: 'sent_to_whatsapp',
       // detailed info
       delivery_method: form.method,
       delivery_address: form.address,
@@ -377,6 +378,8 @@ async function submitOrder() {
   } catch (e: any) {
     console.error('Order submit error:', e)
     toast.error('Erreur lors de la commande: ' + e.message)
+  } finally {
+    loading.value = false
   }
 }
 

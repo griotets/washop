@@ -33,9 +33,12 @@
         <div class="rounded-xl border bg-white p-6">
           <div class="flex items-center justify-between">
             <div class="font-semibold">Images</div>
-            <input ref="imageFileInput" type="file" accept="image/*" class="hidden" @change="onImageFile" />
+            <input ref="imageFileInput" type="file" accept="image/*" class="hidden" multiple @change="onImageFile" />
           </div>
-          <div class="mt-3">
+          <div class="mt-3 relative">
+            <div v-if="imageUploadLoading" class="absolute inset-0 flex items-center justify-center bg-white/80 z-10 rounded-lg">
+               <div class="h-8 w-8 animate-spin rounded-full border-4 border-gray-900 border-t-transparent"></div>
+            </div>
             <div class="flex items-center justify-center rounded-lg border-2 border-dashed px-4 py-10 text-center cursor-pointer" :class="dropActive?'border-green-400 bg-green-50':'border-gray-300 bg-gray-50'" @click="triggerImageInput" @dragenter.prevent="onImageDragEnter" @dragover.prevent="onImageDragOver" @dragleave.prevent="onImageDragLeave" @drop.prevent="onImageDrop">
               <div>
                 <span class="inline-block rounded bg-white px-3 py-2 text-sm font-medium text-gray-800">Faites glisser un fichier ou cliquez</span>
@@ -83,7 +86,7 @@
         <div class="rounded-xl border bg-white p-6">
           <div class="font-semibold mb-3">Tags</div>
           <div class="flex flex-wrap gap-2">
-            <button v-for="t in tags" :key="t.id" class="rounded-full border px-3 py-1 text-xs" :class="tagActive(t.id)?'bg-green-100 border-green-300':'bg-white'" @click="toggleTag(t.id)">{{ t.name }}</button>
+            <button v-for="t in tags" :key="t.id" class="rounded-full border px-3 py-1 text-xs" :class="[tagActive(t.id)?'bg-green-100 border-green-300':'bg-white', tagLoading.has(t.id) ? 'opacity-50 cursor-not-allowed' : '']" @click="toggleTag(t.id)" :disabled="tagLoading.has(t.id)">{{ t.name }}</button>
           </div>
         </div>
 
@@ -98,12 +101,15 @@
               <input v-model.number="v.price" type="number" min="0" step="0.01" placeholder="Prix" class="rounded border px-2 py-1 text-sm" />
               <input v-model.number="v.original_price" type="number" min="0" step="0.01" placeholder="Prix original" class="rounded border px-2 py-1 text-sm" />
               <div class="flex items-center gap-2">
-                <img :src="v.image_url||''" class="h-10 w-10 rounded object-cover bg-gray-100" />
+                <div class="relative">
+                  <img :src="v.image_url||''" class="h-10 w-10 rounded object-cover bg-gray-100" />
+                  <div v-if="v._imgLoading" class="absolute inset-0 flex items-center justify-center bg-black/50 rounded"><div class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div></div>
+                </div>
                 <input type="file" accept="image/*" @change="(e:any)=>uploadVariantImage(e,v)" />
               </div>
               <div class="flex items-center gap-2">
-                <button class="rounded border px-2 py-1 text-xs" @click="saveVariant(v,i)">Sauvegarder</button>
-                <button class="rounded border px-2 py-1 text-xs" @click="deleteVariant(v,i)">Supprimer</button>
+                <button class="rounded border px-2 py-1 text-xs" @click="saveVariant(v,i)" :disabled="v._loading">{{ v._loading ? '...' : 'Sauvegarder' }}</button>
+                <button class="rounded border px-2 py-1 text-xs" @click="deleteVariant(v,i)" :disabled="v._loading">Supprimer</button>
               </div>
             </div>
           </div>
@@ -130,8 +136,8 @@
                 <span class="text-sm">Obligatoire</span>
               </label>
               <div class="flex items-center gap-2">
-                <button class="rounded border px-2 py-1 text-xs" @click="saveOption(o,i)">Sauvegarder</button>
-                <button class="rounded border px-2 py-1 text-xs" @click="deleteOption(o,i)">Supprimer</button>
+                <button class="rounded border px-2 py-1 text-xs" @click="saveOption(o,i)" :disabled="o._loading">{{ o._loading ? '...' : 'Sauvegarder' }}</button>
+                <button class="rounded border px-2 py-1 text-xs" @click="deleteOption(o,i)" :disabled="o._loading">Supprimer</button>
               </div>
             </div>
           </div>
@@ -150,6 +156,12 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+  <div v-if="saving || deleting" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 backdrop-blur-sm">
+    <div class="rounded-xl bg-gray-900/90 px-6 py-5 text-center text-white shadow-xl">
+      <div class="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-white/30 border-t-white"></div>
+      <div class="mt-3 text-sm font-semibold">{{ deleting ? 'Suppression...' : 'Sauvegarde...' }}</div>
     </div>
   </div>
 </template>
@@ -181,6 +193,7 @@ const options = ref<any[]>([])
 const categories = ref<any[]>([])
 const tags = ref<any[]>([])
 const productTagIds = ref<Set<number>>(new Set())
+const tagLoading = ref<Set<number>>(new Set())
 const imageUrl = ref('')
 const imageFileInput = ref<HTMLInputElement | null>(null)
 const dropActive = ref(false)
@@ -190,11 +203,27 @@ function addImageUrl() {
   form.images.push(url)
   imageUrl.value = ''
 }
-function removeImage(i: number) { form.images.splice(i, 1) }
-function onImageFile(e: any) {
-  const f = e.target.files?.[0]
-  if (!f) return
-  uploadImage(f)
+function removeImage(i: number) {
+  const url = form.images[i]
+  if (pendingUploads.value.has(url)) {
+    URL.revokeObjectURL(url)
+    pendingUploads.value.delete(url)
+  }
+  form.images.splice(i, 1)
+}
+
+async function onImageFile(e: any) {
+  const files = e.target.files
+  if (!files || files.length === 0) return
+  const MAX = 10 * 1024 * 1024
+  for (const f of Array.from(files) as File[]) {
+    if (f.size > MAX) {
+      const toast = useToast()
+      toast.error(`Fichier trop volumineux: ${f.name} (>10MB)`)
+      continue
+    }
+    await uploadImage(f)
+  }
 }
 function triggerImageInput() { imageFileInput.value?.click() }
 function onImageDragEnter() { dropActive.value = true }
@@ -253,6 +282,24 @@ async function save() {
   if (!storeId) return
   saving.value = true
   try {
+    // Process pending uploads
+    const uploadedImages = []
+    for (const img of form.images) {
+      if (pendingUploads.value.has(img)) {
+        const file = pendingUploads.value.get(img)!
+        const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
+        const path = `stores/${storeId}/products/${id.value}/${Date.now()}-${sanitizedName}`
+        const publicUrl = await uploadFileToStorage(file, path)
+        uploadedImages.push(publicUrl)
+        // Cleanup
+        URL.revokeObjectURL(img)
+        pendingUploads.value.delete(img)
+      } else {
+        uploadedImages.push(img)
+      }
+    }
+    form.images = uploadedImages
+
     const payload = {
       name: form.name,
       price: form.price,
@@ -263,7 +310,13 @@ async function save() {
       stock_quantity: form.stock_quantity,
       is_visible: form.is_visible
     }
-    await supabase.from('products').update(payload).eq('id', id.value).eq('store_id', storeId)
+    const { error } = await supabase.from('products').update(payload).eq('id', id.value).eq('store_id', storeId)
+    if (error) throw error
+    const toast = useToast()
+    toast.success('Produit mis à jour')
+  } catch (e: any) {
+    const toast = useToast()
+    toast.error('Erreur: ' + e.message)
   } finally { saving.value = false }
 }
 async function remove() {
@@ -272,25 +325,33 @@ async function remove() {
   if (!storeId) return
   deleting.value = true
   try {
-    await supabase.from('products').delete().eq('id', id.value).eq('store_id', storeId)
+    const { error } = await supabase.from('products').delete().eq('id', id.value).eq('store_id', storeId)
+    if (error) throw error
+    const toast = useToast()
+    toast.success('Produit supprimé')
     navigateTo('/admin/products')
+  } catch (e: any) {
+    const toast = useToast()
+    toast.error('Erreur: ' + e.message)
   } finally { deleting.value = false }
 }
 useHead({ title: 'Admin | Modifier le produit' })
 
 const imageUploadLoading = ref(false)
-async function uploadImage(file: File) {
+const pendingUploads = ref(new Map<string, File>())
+
+async function uploadFileToStorage(file: File, path: string) {
   const cfg = useRuntimeConfig()
   const bucket = String((cfg.public as any)?.supabaseStorageBucket || 'product-images')
-  const storeId = admin.selectedShopId
-  const path = `stores/${storeId}/products/${id.value}/${Date.now()}-${file.name}`
-  imageUploadLoading.value = true
-  const r = await supabase.storage.from(bucket).upload(path, file, { upsert: true })
-  imageUploadLoading.value = false
-  if (!r.error) {
-    const publicUrl = supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl
-    form.images.push(publicUrl)
-  }
+  const { error } = await supabase.storage.from(bucket).upload(path, file, { upsert: true })
+  if (error) throw error
+  return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl
+}
+
+async function uploadImage(file: File) {
+  const previewUrl = URL.createObjectURL(file)
+  form.images.push(previewUrl)
+  pendingUploads.value.set(previewUrl, file)
 }
 let dragImageIndex: number | null = null
 function onImageTileDragStart(i: number) { dragImageIndex = i }
@@ -306,45 +367,86 @@ async function addVariant() {
 }
 async function saveVariant(v: any, index: number) {
   if (!v.name) return
-  if (!v.id) {
-    const { data } = await supabase.from('variants').insert({ product_id: id.value, name: v.name, price: v.price, original_price: v.original_price, image_url: v.image_url }).select('id').maybeSingle()
-    v.id = data?.id
-  } else {
-    await supabase.from('variants').update({ name: v.name, price: v.price, original_price: v.original_price, image_url: v.image_url }).eq('id', v.id)
-  }
-  variants.value[index] = { ...v }
+  v._loading = true
+  try {
+    if (v._pendingFile) {
+        const file = v._pendingFile
+        const storeId = admin.selectedShopId
+        const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
+        const path = `stores/${storeId}/products/${id.value}/variants/${Date.now()}-${sanitizedName}`
+        const publicUrl = await uploadFileToStorage(file, path)
+        if (v.image_url && v.image_url.startsWith('blob:')) {
+           URL.revokeObjectURL(v.image_url)
+        }
+        v.image_url = publicUrl
+        delete v._pendingFile
+    }
+
+    if (!v.id) {
+      const { data } = await supabase.from('variants').insert({ product_id: id.value, name: v.name, price: v.price, original_price: v.original_price, image_url: v.image_url }).select('id').maybeSingle()
+      v.id = data?.id
+    } else {
+      await supabase.from('variants').update({ name: v.name, price: v.price, original_price: v.original_price, image_url: v.image_url }).eq('id', v.id)
+    }
+    variants.value[index] = { ...v }
+  } finally { v._loading = false }
 }
 async function deleteVariant(v: any, index: number) {
-  if (v.id) await supabase.from('variants').delete().eq('id', v.id)
+  if (v.id) {
+    v._loading = true
+    try {
+      await supabase.from('variants').delete().eq('id', v.id)
+    } catch {
+      v._loading = false; return
+    }
+  }
+  if (v.image_url && v.image_url.startsWith('blob:')) {
+    URL.revokeObjectURL(v.image_url)
+  }
   variants.value.splice(index, 1)
 }
 async function uploadVariantImage(e: any, v: any) {
   const f = e.target.files?.[0]
   if (!f) return
-  const cfg = useRuntimeConfig()
-  const bucket = String((cfg.public as any)?.supabaseStorageBucket || 'product-images')
-  const storeId = admin.selectedShopId
-  const path = `stores/${storeId}/products/${id.value}/variants/${Date.now()}-${f.name}`
-  const r = await supabase.storage.from(bucket).upload(path, f, { upsert: true })
-  if (!r.error) {
-    const publicUrl = supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl
-    v.image_url = publicUrl
+  const MAX = 10 * 1024 * 1024
+  if (f.size > MAX) {
+      const toast = useToast()
+      toast.error(`Fichier trop volumineux (>10MB)`)
+      return
   }
+
+  // Optimistic preview
+  const previewUrl = URL.createObjectURL(f)
+  if (v.image_url && v.image_url.startsWith('blob:')) {
+     URL.revokeObjectURL(v.image_url)
+  }
+  v.image_url = previewUrl
+  v._pendingFile = f
 }
 async function addOption() { options.value.push({ id: null, name: '', type: 'text', values: [], is_required: false }) }
 async function saveOption(o: any, index: number) {
   if (!o.name) return
   const vals = Array.isArray(o.values) ? o.values : String(o.values || '').split(',').map((s: string) => s.trim()).filter(Boolean)
-  if (!o.id) {
-    const { data } = await supabase.from('options').insert({ product_id: id.value, name: o.name, type: o.type, values: vals, is_required: o.is_required }).select('id').maybeSingle()
-    o.id = data?.id
-  } else {
-    await supabase.from('options').update({ name: o.name, type: o.type, values: vals, is_required: o.is_required }).eq('id', o.id)
-  }
-  options.value[index] = { ...o, values: vals }
+  o._loading = true
+  try {
+    if (!o.id) {
+      const { data } = await supabase.from('options').insert({ product_id: id.value, name: o.name, type: o.type, values: vals, is_required: o.is_required }).select('id').maybeSingle()
+      o.id = data?.id
+    } else {
+      await supabase.from('options').update({ name: o.name, type: o.type, values: vals, is_required: o.is_required }).eq('id', o.id)
+    }
+    options.value[index] = { ...o, values: vals }
+  } finally { o._loading = false }
 }
 async function deleteOption(o: any, index: number) {
-  if (o.id) await supabase.from('options').delete().eq('id', o.id)
+  if (o.id) {
+    o._loading = true
+    try {
+      await supabase.from('options').delete().eq('id', o.id)
+    } catch {
+      o._loading = false; return
+    }
+  }
   options.value.splice(index, 1)
 }
 async function setCategory(categoryId: number | null) {
@@ -353,12 +455,16 @@ async function setCategory(categoryId: number | null) {
 function tagActive(tagId: number) { return productTagIds.value.has(Number(tagId)) }
 async function toggleTag(tagId: number) {
   const tid = Number(tagId)
-  if (productTagIds.value.has(tid)) {
-    await supabase.from('product_tags').delete().eq('product_id', id.value).eq('tag_id', tid)
-    productTagIds.value.delete(tid)
-  } else {
-    await supabase.from('product_tags').insert({ product_id: id.value, tag_id: tid })
-    productTagIds.value.add(tid)
-  }
+  if (tagLoading.value.has(tid)) return
+  tagLoading.value.add(tid)
+  try {
+    if (productTagIds.value.has(tid)) {
+      await supabase.from('product_tags').delete().eq('product_id', id.value).eq('tag_id', tid)
+      productTagIds.value.delete(tid)
+    } else {
+      await supabase.from('product_tags').insert({ product_id: id.value, tag_id: tid })
+      productTagIds.value.add(tid)
+    }
+  } finally { tagLoading.value.delete(tid) }
 }
 </script>

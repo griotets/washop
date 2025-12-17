@@ -7,6 +7,7 @@ export default defineNuxtConfig({
     public: {
       supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
       supabaseAnonKey: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY,
+      supabaseStorageBucket: process.env.NUXT_PUBLIC_SUPABASE_STORAGE_BUCKET,
       otpResendDelay: process.env.NUXT_PUBLIC_OTP_RESEND_DELAY || 30
     }
   },
