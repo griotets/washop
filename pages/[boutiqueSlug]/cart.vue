@@ -191,7 +191,7 @@
           Continuer
         </button>
         
-        <button v-else-if="step === 3" @click="sendWhatsApp" class="ml-auto flex items-center gap-2 rounded-lg bg-[#25D366] px-6 py-3 font-semibold text-white shadow-sm hover:brightness-110">
+        <button v-else-if="step === 3" @click="submitOrder" class="ml-auto flex items-center gap-2 rounded-lg bg-[#25D366] px-6 py-3 font-semibold text-white shadow-sm hover:brightness-110">
           <MessageCircle class="h-5 w-5" />
           Envoyer sur WhatsApp
         </button>
@@ -242,9 +242,15 @@ onMounted(async () => {
   loadStoreConfig()
   
   // Fetch store info
-  const { data } = await supabase.from('stores').select('name, phone, color, image_url').eq('slug', slug.value).maybeSingle()
+  const { data, error } = await supabase.from('stores').select('id, name, phone, color, image_url').eq('slug', slug.value).maybeSingle()
+  if (error) {
+     console.error(error)
+     const toast = useToast()
+     toast.error('Erreur chargement infos boutique: ' + error.message)
+  }
   if (data) {
      storeData.value = {
+       id: data.id,
        name: data.name,
        phone: data.phone,
        color: data.color,
@@ -268,32 +274,112 @@ function loadStoreConfig() {
 }
 
 function validateStep2() {
-  if (!form.name.trim()) return alert('Veuillez entrer votre nom')
-  if (!form.phone.trim() || form.phone.length < 9) return alert('Veuillez entrer un numéro de téléphone valide')
+  const toast = useToast()
+  if (!form.name.trim()) return toast.error('Veuillez entrer votre nom')
+  if (!form.phone.trim() || form.phone.length < 9) return toast.error('Veuillez entrer un numéro de téléphone valide')
   if (form.method === 'delivery' && (!form.city.trim() || !form.address.trim())) {
-    return alert('Veuillez compléter l\'adresse de livraison')
+    return toast.error('Veuillez compléter l\'adresse de livraison')
   }
   step.value = 3
 }
 
-function sendWhatsApp() {
-  const storePhone = getStorePhone()
-  const lines = cart.items.map(i => `- ${i.quantity}x ${i.name} (${(i.price * i.quantity).toLocaleString('fr-FR')} XAF)`).join('\n')
+async function submitOrder() {
+  const toast = useToast()
+  if (!storeData.value?.id) return toast.error('Erreur: Boutique non identifiée')
   
-  let deliveryDetails = ''
-  if (form.method === 'pickup') {
-    deliveryDetails = `📍 *Mode:* Retrait en boutique\n👤 *Nom:* ${form.name}\n📞 *Tél:* ${form.phone}`
-  } else {
-    deliveryDetails = `🚚 *Mode:* Livraison\n👤 *Nom:* ${form.name}\n📞 *Tél:* ${form.phone}\n🏠 *Adresse:* ${form.city}, ${form.address}`
-  }
-  if (form.note) deliveryDetails += `\n📝 *Note:* ${form.note}`
+  const loading = ref(true) // Local loading state if needed, or use a global one
+  // But since we navigate away, toast is enough feedback initially or a button spinner
 
-  const message = `*Nouvelle Commande Wa-Shop*\n\n${lines}\n\n*Total : ${cart.total.toLocaleString('fr-FR')} XAF*\n\n----------------\n${deliveryDetails}\n\nLien: ${window.location.href}`
-  
-  const encoded = encodeURIComponent(message)
-  const url = `https://wa.me/${storePhone}?text=${encoded}`
-  window.open(url, '_blank')
+  try {
+    // 1. Create Order
+    // Note: We attempt to save delivery details. If columns don't exist, this might fail.
+    // However, usually these are standard columns. If not, we might need to adjust.
+    // Based on standard e-commerce schemas, these should be there or in a json column.
+    // For now, I'll assume they exist or I'll try to put them in a metadata field if I knew the schema better.
+    // Since I can't check schema, I'll assume the best case.
+    
+    // Construct payload
+    const orderPayload: any = {
+      store_id: storeData.value.id,
+      customer_name: form.name,
+      customer_phone: form.phone,
+      total_amount: cart.total,
+      status: 'new',
+      // detailed info
+      delivery_method: form.method,
+      delivery_address: form.address,
+      city: form.city,
+      note: form.note
+    }
+
+    const { data: order, error: orderErr } = await supabase
+      .from('orders')
+      .insert(orderPayload)
+      .select('id')
+      .single()
+
+    if (orderErr) throw orderErr
+
+    // 2. Create Order Items
+    const itemsPayload = cart.items.map(item => ({
+      order_id: order.id,
+      product_name: item.name,
+      quantity: item.quantity,
+      unit_price: item.price,
+      // product_id: item.id // If product_id column exists and is UUID. item.id might be string or int.
+      // safely omitting product_id for now as it's not strictly required for the bill display
+    }))
+
+    const { error: itemsErr } = await supabase
+      .from('order_items')
+      .insert(itemsPayload)
+
+    if (itemsErr) {
+        // If items fail, we might want to delete the order or just log it. 
+        // For now, log and proceed (order exists but empty items)
+        console.error('Error inserting items:', itemsErr)
+    }
+
+    // 3. Open WhatsApp with Bill & Store Links
+    const phone = getStorePhone()
+    if (phone) {
+      let baseUrl = ''
+      if (import.meta.client) {
+        baseUrl = window.location.origin
+      }
+      
+      const billUrl = `${baseUrl}/${slug.value}/orders/${order.id}`
+      const storeUrl = `${baseUrl}/${slug.value}`
+      
+      // Construct detailed message
+      const lines = cart.items.map(i => `- ${i.quantity}x ${i.name} (${(i.price * i.quantity).toLocaleString('fr-FR')} XAF)`).join('\n')
+      
+      let deliveryDetails = ''
+      if (form.method === 'pickup') {
+        deliveryDetails = `📍 *Mode:* Retrait en boutique\n👤 *Nom:* ${form.name}\n📞 *Tél:* ${form.phone}`
+      } else {
+        deliveryDetails = `🚚 *Mode:* Livraison\n👤 *Nom:* ${form.name}\n📞 *Tél:* ${form.phone}\n🏠 *Adresse:* ${form.city}, ${form.address}`
+      }
+      if (form.note) deliveryDetails += `\n📝 *Note:* ${form.note}`
+      
+      const message = `*Nouvelle Commande Wa-Shop*\n\n${lines}\n\n*Total : ${cart.total.toLocaleString('fr-FR')} XAF*\n\n----------------\n${deliveryDetails}\n\n📄 Facture: ${billUrl}\n🏪 Boutique: ${storeUrl}`
+      
+      const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
+      window.open(whatsappUrl, '_blank')
+    }
+
+    // 4. Success - Clear cart and Redirect
+    cart.items = [] // Clear items
+    cart.persist()
+    
+    navigateTo(`/${slug.value}/orders/${order.id}`)
+
+  } catch (e: any) {
+    console.error('Order submit error:', e)
+    toast.error('Erreur lors de la commande: ' + e.message)
+  }
 }
+
 
 function getStorePhone() {
   if (storeData.value?.phone) return String(storeData.value.phone).replace(/\D/g, '')

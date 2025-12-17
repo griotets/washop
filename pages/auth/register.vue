@@ -350,11 +350,20 @@ async function ensureEnterprise() {
   const { data } = await supabase.auth.getUser()
   const uid = data?.user?.id
   if (!uid) return
-  let { data: ent } = await supabase.from('enterprises').select('id,name').eq('owner_id', uid).maybeSingle()
+  let { data: ent, error: entErr } = await supabase.from('enterprises').select('id,name').eq('owner_id', uid).maybeSingle()
+  if (entErr) {
+    console.error(entErr)
+    useToast().error('Erreur récupération entreprise: ' + entErr.message)
+  }
   if (!ent) {
     const name = String(data?.user?.email || 'My Business').split('@')[0]
-    const ins = await supabase.from('enterprises').insert({ owner_id: uid, name }).select('id').maybeSingle()
-    ent = ins.data as any
+    const { data: insData, error: insErr } = await supabase.from('enterprises').insert({ owner_id: uid, name }).select('id').maybeSingle()
+    if (insErr) {
+      console.error(insErr)
+      useToast().error('Erreur création entreprise: ' + insErr.message)
+    } else {
+      ent = insData as any
+    }
   }
   return ent?.id as string | undefined
 }

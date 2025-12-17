@@ -133,14 +133,24 @@ onMounted(async () => {
     const shown = localStorage.getItem(`popupShown:${slug.value}`)
     showPopup.value = !!popupBlock.value && !shown
   } catch {}
-  const { data: sone } = await supabase.from('stores').select('id,name,image_url,color,phone').eq('slug', slug.value).maybeSingle()
+  const { data: sone, error: sErr } = await supabase.from('stores').select('id,name,image_url,color,phone').eq('slug', slug.value).maybeSingle()
+  if (sErr) {
+    console.error(sErr)
+    const toast = useToast()
+    toast.error('Erreur chargement boutique: ' + sErr.message)
+  }
   const storeId = sone?.id
   store.name = String(sone?.name || '')
   store.logoUrl = String(sone?.image_url || '')
   store.color = String(sone?.color || '#111827')
   store.phone = String(sone?.phone || '')
   if (storeId) {
-    const { data: p } = await supabase.from('products').select('name,description,price,images').eq('id', productId.value).eq('store_id', storeId).maybeSingle()
+    const { data: p, error: pErr } = await supabase.from('products').select('name,description,price,images').eq('id', productId.value).eq('store_id', storeId).maybeSingle()
+    if (pErr) {
+      console.error(pErr)
+      const toast = useToast()
+      toast.error('Erreur chargement produit: ' + pErr.message)
+    }
     product.name = String(p?.name || '')
     product.description = String(p?.description || '')
     product.price = Number(p?.price || 0)

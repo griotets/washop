@@ -77,11 +77,20 @@ async function verifyEmailOtp() {
     const { data } = await supabase.auth.getUser()
     const uid = data?.user?.id
     if (!uid) return router.push('/auth/login')
-    let { data: ent } = await supabase.from('enterprises').select('id,name').eq('owner_id', uid).maybeSingle()
+    let { data: ent, error: entErr } = await supabase.from('enterprises').select('id,name').eq('owner_id', uid).maybeSingle()
+    if (entErr) {
+      console.error(entErr)
+      useToast().error(entErr.message)
+    }
     if (!ent) {
       const name = String(data?.user?.email || 'My Business').split('@')[0]
-      const ins = await supabase.from('enterprises').insert({ owner_id: uid, name }).select('id').maybeSingle()
-      ent = ins.data as any
+      const { data: insData, error: insErr } = await supabase.from('enterprises').insert({ owner_id: uid, name }).select('id').maybeSingle()
+      if (insErr) {
+         console.error(insErr)
+         useToast().error(insErr.message)
+      } else {
+         ent = insData as any
+      }
     }
     if (!ent?.id) return router.push('/admin/stores/create')
     const { data: stores } = await supabase.from('stores').select('id,name,slug').eq('enterprise_id', ent.id)

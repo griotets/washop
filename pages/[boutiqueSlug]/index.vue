@@ -43,9 +43,21 @@
         </div>
       </div>
 
-      <!-- Products Grid -->
+      <!-- Loading State -->
       <div v-if="loading" class="flex justify-center py-20">
         <div class="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-primary" :style="{ borderTopColor: appearance.primary }"></div>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="error" class="flex flex-col items-center justify-center py-20 text-center">
+        <div class="rounded-full bg-red-100 p-3 text-red-600 mb-4">
+          <AlertCircle class="h-8 w-8" />
+        </div>
+        <h3 class="text-lg font-medium text-gray-900">Une erreur est survenue</h3>
+        <p class="mt-2 text-gray-500">{{ error }}</p>
+        <button @click="reloadPage" class="mt-6 rounded-lg px-6 py-2 text-white hover:opacity-90 transition-opacity" :style="{ backgroundColor: appearance.primary }">
+          Réactualiser la page
+        </button>
       </div>
 
       <div v-else class="space-y-16">
@@ -129,7 +141,7 @@
 </template>
 <script setup lang="ts">
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { ShoppingCart, PackageSearch, X } from 'lucide-vue-next'
+import { ShoppingCart, PackageSearch, X, AlertCircle } from 'lucide-vue-next'
 import { useCartStore } from '~/stores/cart'
 
 const route = useRoute()
@@ -262,6 +274,8 @@ function addToCart(product: any) {
     image: getProductImage(product)
   })
   // Optional: show toast
+  // Handled by store, but if we want to show it here explicitly:
+  // useCartStore().add() handles it now.
 }
 
 function closePopup() {
@@ -269,14 +283,37 @@ function closePopup() {
   try { localStorage.setItem(`popupShown:${slug.value}`, '1') } catch {}
 }
 
+function reloadPage() {
+  window.location.reload()
+}
+
+const error = ref<string | null>(null)
+
 // Lifecycle
 onMounted(async () => {
+  // Safety timeout
+  const timeout = setTimeout(() => {
+    if (loading.value) {
+      console.warn('Loading timed out')
+      loading.value = false
+      error.value = 'Le chargement prend trop de temps. Veuillez rafraîchir la page.'
+    }
+  }, 50000)
+
   try {
     // Load local design override first (optional)
     const raw = localStorage.getItem(`design:${slug.value}`)
     if (raw) {
       const d = JSON.parse(raw)
       if (d.appearance) Object.assign(appearance, d.appearance)
+    }
+
+    // Check if slug is reserved or matches a known route (prevent catching /login, /register, etc if they slip through)
+    const reserved = ['login', 'register', 'auth', 'admin', 'pricing', 'products', 'resources', 'changelog']
+    if (reserved.includes(slug.value)) {
+      console.warn('Reserved slug detected, ignoring store fetch:', slug.value)
+      loading.value = false
+      return
     }
 
     // Fetch Store
@@ -289,20 +326,22 @@ onMounted(async () => {
 
     if (storeError) {
       console.error('Error fetching store:', storeError)
-      alert('Erreur chargement boutique: ' + storeError.message)
+      const toast = useToast()
+      toast.error('Erreur chargement boutique: ' + storeError.message)
+      error.value = storeError.message
       loading.value = false
       return
     }
 
     if (!store) {
       console.error('Store not found')
-      loading.value = false
+      error.value = 'Boutique introuvable'
       return
     }
 
     storeInfo.id = store.id
     storeInfo.name = store.name
-    storeInfo.description = '' // store.description doesn't exist yet
+    storeInfo.description = '' 
     storeInfo.logoUrl = store.image_url
     storeInfo.phone = store.phone
     if (store.color) {
@@ -314,22 +353,24 @@ onMounted(async () => {
     localStorage.setItem(`store:${slug.value}`, JSON.stringify(storeInfo))
 
     // Fetch Categories
-    const { data: cats } = await supabase
+    const { data: cats, error: catError } = await supabase
       .from('categories')
       .select('*')
       .eq('store_id', store.id)
       .order('name')
     
+    if (catError) console.error('Error fetching categories:', catError)
     categories.value = cats || []
 
     // Fetch Products
-    const { data: prods } = await supabase
+    const { data: prods, error: prodError } = await supabase
       .from('products')
       .select('*')
       .eq('store_id', store.id)
       .eq('is_visible', true)
       .order('created_at', { ascending: false })
     
+    if (prodError) console.error('Error fetching products:', prodError)
     products.value = prods || []
 
     // Handle Popup
@@ -340,7 +381,9 @@ onMounted(async () => {
 
   } catch (e) {
     console.error(e)
+    error.value = 'Une erreur inattendue est survenue'
   } finally {
+    clearTimeout(timeout)
     loading.value = false
   }
 })
