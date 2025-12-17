@@ -274,7 +274,21 @@ const resendCooldown = ref(0)
 let resendTimer: any = null
 const verifying = ref(false)
 const mountedReady = ref(false)
-onMounted(() => { mountedReady.value = true })
+onMounted(async () => {
+  // Clear any stale session on mount to prevent confusion
+  const { data } = await supabase.auth.getSession()
+  if (data?.session) {
+    console.log('[Register] Clearing stale session on mount')
+    await supabase.auth.signOut()
+  }
+
+  if (store.onboarding.email) {
+    email.value = store.onboarding.email
+  }
+      console.log('[Register] Clearing stale session on mount')
+
+  mountedReady.value = true
+})
 
 async function submitEmail() {
   store.setEmail(email.value)
@@ -297,9 +311,20 @@ async function verifyCode() {
       console.log('[Register] Success! Moving to step 3')
       store.verifyEmail()
       store.persist()
-      step.value = 3 // Now correctly moves to the next step
+      step.value = 3 
     } else {
       console.error('[Register] Verification failed:', res.error)
+      // If error mentions timeout, we can try to check if user is actually logged in
+      if (String(res.error).includes('timed out')) {
+        const { data } = await supabase.auth.getUser()
+        if (data?.user) {
+             console.log('[Register] Recovered from timeout - user is logged in')
+             codeError.value = false
+             store.verifyEmail()
+             store.persist()
+             step.value = 3
+        }
+      }
     }
   } catch (e) {
     console.error('[Register] Exception during verification:', e)

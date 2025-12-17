@@ -53,6 +53,15 @@ const admin = useAdminStore()
 const cfg = useRuntimeConfig()
 const otpDelay = Number((cfg.public as any)?.otpResendDelay || 30)
 
+onMounted(async () => {
+  // Ensure we start with a clean session state
+  const { data } = await supabase.auth.getSession()
+  if (data?.session) {
+    console.log('[Login] Clearing existing session')
+    await supabase.auth.signOut()
+  }
+})
+
 async function sendEmailOtp() {
   const res = await sendOtp(String(email.value || ''))
   if (!res.error) {

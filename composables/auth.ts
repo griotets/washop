@@ -25,6 +25,14 @@ export function useAuth() {
         error.value = 'Supabase client not initialized'
         return { error: error.value }
       }
+
+      // Ensure clean state before sending OTP
+      const { data: currentSession } = await supabase.auth.getSession()
+      if (currentSession?.session) {
+         console.log('[Auth] Cleaning up existing session before sending OTP')
+         await supabase.auth.signOut()
+      }
+
       if (!isEmail(identifier)) {
         error.value = 'Email required'
         return { error: error.value }
@@ -51,10 +59,11 @@ export function useAuth() {
         error.value = 'Email required'
         return { user: null, error: error.value }
       }
-      console.log('[Auth] Calling supabase.auth.verifyOtp...')
-      // Create a timeout promise to detect hanging requests
-      const verifyPromise = supabase.auth.verifyOtp({ token, type: 'email', email: identifier } as any)
-      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out after 10s')), 10000))
+      console.log('[Auth] Calling supabase.auth.verifyOtp with:', { email: identifier, tokenLength: token.length, type: 'email' })
+      
+      // Re-introducing a safety timeout (30s) to prevent infinite spinner
+      const verifyPromise = supabase.auth.verifyOtp({ token: token.trim(), type: 'email', email: identifier } as any)
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Verification timed out after 30s')), 30000))
       
       const { data, error: e } = await Promise.race([verifyPromise, timeoutPromise]) as any
       

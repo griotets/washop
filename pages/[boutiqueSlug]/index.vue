@@ -280,21 +280,29 @@ onMounted(async () => {
     }
 
     // Fetch Store
+    console.log('Fetching store for slug:', slug.value)
     const { data: store, error: storeError } = await supabase
       .from('stores')
-      .select('id,name,description,image_url,phone,color')
+      .select('id,name,image_url,phone,color') // removed description
       .eq('slug', slug.value)
-      .single()
+      .maybeSingle()
 
-    if (storeError || !store) {
-      // Handle 404 or error
+    if (storeError) {
+      console.error('Error fetching store:', storeError)
+      alert('Erreur chargement boutique: ' + storeError.message)
+      loading.value = false
+      return
+    }
+
+    if (!store) {
+      console.error('Store not found')
       loading.value = false
       return
     }
 
     storeInfo.id = store.id
     storeInfo.name = store.name
-    storeInfo.description = store.description || ''
+    storeInfo.description = '' // store.description doesn't exist yet
     storeInfo.logoUrl = store.image_url
     storeInfo.phone = store.phone
     if (store.color) {
