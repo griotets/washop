@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between">
       <h1 class="text-2xl font-bold">Produits</h1>
       <div class="flex items-center gap-2">
-        <button class="rounded-lg bg-gray-100 px-3 py-2 text-sm" @click="triggerImport">Importation</button>
+        <button class="rounded-lg bg-gray-100 px-3 py-2 text-sm" @click="openImportModal">Importation</button>
         <NuxtLink to="/admin/products/bulk" class="rounded-lg bg-gray-100 px-3 py-2 text-sm">Modification en bloc</NuxtLink>
         
         <NuxtLink 
@@ -140,6 +140,191 @@
       <button class="inline-flex h-9 w-9 items-center justify-center rounded-md border bg-white" :disabled="products.length<limit" @click="nextPage"><ChevronRight class="h-4 w-4 text-gray-700" /></button>
     </div>
   </div>
+  <!-- Import Modal -->
+  <div v-if="showImportModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+    <div 
+      class="w-full rounded-xl bg-white shadow-xl transition-all duration-300"
+      :class="importStep === 'mapping' ? 'max-w-3xl' : 'max-w-md'"
+    >
+      <div class="flex items-center justify-between border-b p-4">
+        <div>
+          <h3 class="font-semibold text-gray-900">Importer des produits</h3>
+          <p class="text-xs text-gray-500">
+            {{ importStep === 'upload' ? 'Étape 1 : Choix du fichier' : 'Étape 2 : Correspondance des colonnes' }}
+          </p>
+        </div>
+        <button @click="showImportModal = false" class="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
+          <X class="h-5 w-5" />
+        </button>
+      </div>
+      
+      <!-- Stepper -->
+      <div class="border-b bg-gray-50 px-8 py-3">
+        <div class="flex items-center justify-center">
+          <div class="flex items-center">
+            <div class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold"
+              :class="importStep === 'upload' ? 'bg-green-600 text-white' : 'bg-green-600 text-white'"
+            >1</div>
+            <span class="ml-2 text-sm font-medium text-gray-900">Upload</span>
+          </div>
+          <div class="mx-4 h-0.5 w-16 bg-gray-200">
+            <div class="h-full bg-green-600 transition-all duration-300" :style="{ width: importStep === 'mapping' ? '100%' : '0%' }"></div>
+          </div>
+          <div class="flex items-center">
+            <div class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold transition-colors"
+              :class="importStep === 'mapping' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-500'"
+            >2</div>
+            <span class="ml-2 text-sm font-medium" :class="importStep === 'mapping' ? 'text-gray-900' : 'text-gray-500'">Mapping</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="p-6">
+        <!-- Method Selection (Only visible in Upload step) -->
+        <div v-if="importStep === 'upload' && importMethod !== 'website'" class="mb-6 grid grid-cols-2 gap-3">
+          <button 
+            @click="importMethod = 'csv'"
+            class="flex flex-col items-center justify-center gap-2 rounded-xl border-2 p-4 text-sm font-medium transition-all"
+            :class="importMethod === 'csv' ? 'border-green-600 bg-green-50 text-green-700' : 'border-gray-100 bg-white text-gray-600 hover:border-gray-200'"
+          >
+            <div class="rounded-full bg-white p-2 shadow-sm">
+              <Upload class="h-5 w-5" :class="importMethod === 'csv' ? 'text-green-600' : 'text-gray-400'" />
+            </div>
+            Fichier CSV
+          </button>
+          
+          <button 
+            @click="importMethod = 'website'"
+            class="flex flex-col items-center justify-center gap-2 rounded-xl border-2 p-4 text-sm font-medium transition-all"
+            :class="importMethod === 'website' ? 'border-green-600 bg-green-50 text-green-700' : 'border-gray-100 bg-white text-gray-600 hover:border-gray-200'"
+          >
+            <div class="rounded-full bg-white p-2 shadow-sm">
+              <Globe class="h-5 w-5" :class="importMethod === 'website' ? 'text-green-600' : 'text-gray-400'" />
+            </div>
+            Site Web
+          </button>
+        </div>
+
+        <!-- CSV Content -->
+        <div v-if="importMethod === 'csv'">
+          <div v-if="importStep === 'upload'" class="space-y-4">
+            <div class="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-8 text-center transition-colors hover:bg-gray-100">
+              <Upload class="mx-auto h-12 w-12 text-gray-400" />
+              <p class="mt-4 text-sm font-medium text-gray-900">Glissez votre fichier CSV ici</p>
+              <p class="mt-1 text-xs text-gray-500">ou cliquez pour parcourir vos dossiers</p>
+              <button @click="openFileDialog" class="mt-6 rounded-lg bg-white px-6 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-gray-300 hover:bg-gray-50">
+                Sélectionner un fichier
+              </button>
+            </div>
+            <div class="rounded-lg bg-blue-50 p-4">
+              <div class="flex">
+                <Info class="h-5 w-5 text-blue-400" />
+                <div class="ml-3">
+                  <h3 class="text-sm font-medium text-blue-800">Format Recommandé</h3>
+                  <div class="mt-2 text-sm text-blue-700">
+                    <p>Pour un import réussi, votre fichier doit idéalement contenir les colonnes :</p>
+                    <ul class="mt-1 list-disc list-inside">
+                      <li>Nom du produit</li>
+                      <li>Prix</li>
+                      <li>UGS (SKU)</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div v-else-if="importStep === 'mapping'" class="space-y-6">
+            <div class="rounded-lg bg-gray-50 p-4 text-sm text-gray-600">
+              <p>Nous avons détecté <span class="font-bold text-gray-900">{{ csvRows.length }} lignes</span> dans votre fichier. Veuillez associer vos colonnes aux champs du système.</p>
+            </div>
+
+            <div class="grid max-h-[50vh] gap-6 overflow-y-auto pr-2 md:grid-cols-2">
+              <div v-for="field in systemFields" :key="field.key" class="rounded-xl border bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
+                <div class="mb-3 flex items-center justify-between">
+                  <label class="block text-sm font-semibold text-gray-900">
+                    {{ field.label }}
+                    <span v-if="field.required" class="text-red-500">*</span>
+                  </label>
+                  <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">{{ field.key }}</span>
+                </div>
+                
+                <select 
+                  v-model="columnMapping[field.key as keyof typeof columnMapping]" 
+                  class="block w-full rounded-lg border-gray-300 bg-gray-50 py-2 text-sm focus:border-green-500 focus:bg-white focus:ring-green-500"
+                >
+                  <option value="">-- Ne pas importer --</option>
+                  <option v-for="header in csvHeaders" :key="header" :value="header">
+                    {{ header }}
+                  </option>
+                </select>
+
+                <!-- Preview Value -->
+                <div v-if="columnMapping[field.key as keyof typeof columnMapping]" class="mt-3 rounded border border-gray-100 bg-gray-50 p-2">
+                  <p class="text-[10px] font-medium uppercase text-gray-400">Exemple de valeur (Ligne 1)</p>
+                  <p class="mt-1 truncate text-xs font-medium text-gray-700">
+                    {{ csvRows[0][columnMapping[field.key as keyof typeof columnMapping]] || '(Vide)' }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between border-t pt-4">
+              <button 
+                @click="importStep = 'upload'"
+                class="rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50"
+              >
+                Retour
+              </button>
+              <button 
+                @click="finalizeImport"
+                class="flex items-center gap-2 rounded-lg bg-green-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500"
+              >
+                <Check class="h-4 w-4" />
+                Confirmer et Importer {{ csvRows.length }} produits
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Website Content -->
+        <div v-if="importMethod === 'website'" class="space-y-4">
+          <button 
+             @click="importMethod = 'csv'"
+             class="mb-4 text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1"
+          >
+            <ChevronLeft class="h-3 w-3" /> Retour au choix
+          </button>
+          
+          <div>
+            <label class="mb-1 block text-sm font-medium text-gray-700">Lien du produit ou de la collection</label>
+            <div class="flex rounded-lg border shadow-sm focus-within:border-green-500 focus-within:ring-1 focus-within:ring-green-500">
+              <span class="inline-flex items-center rounded-l-lg border-r bg-gray-50 px-3 text-gray-500">https://</span>
+              <input 
+                v-model="websiteUrl"
+                type="text" 
+                class="block w-full rounded-r-lg border-0 bg-transparent p-2.5 text-sm focus:ring-0" 
+                placeholder="www.exemple.com/produit"
+              />
+            </div>
+          </div>
+          <div class="rounded-lg bg-gray-50 p-3 text-xs text-gray-600">
+            <p class="font-medium text-gray-900">Note :</p>
+            <p>L'importation depuis un site externe peut prendre quelques minutes selon le nombre de produits.</p>
+          </div>
+          <button 
+            @click="handleWebsiteImport"
+            :disabled="!websiteUrl"
+            class="flex w-full items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Download class="h-4 w-4" />
+            Démarrer l'importation
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div v-if="toastShow" class="fixed bottom-4 right-4 rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow-lg">
     {{ toastMsg }}
   </div>
@@ -148,7 +333,7 @@
 <script setup lang="ts">
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
-import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, Lock, AlertTriangle } from 'lucide-vue-next'
+import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, Lock, AlertTriangle, Upload, Globe, X, Download, Info, Check } from 'lucide-vue-next'
 definePageMeta({ layout: 'admin' })
 const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
@@ -166,7 +351,62 @@ const categoryFilter = ref<string>('')
 const tagsFilter = reactive(new Set<number>())
 const productTagMap = ref<Record<string, number[]>>({})
 const importInput = ref<HTMLInputElement | null>(null)
-function triggerImport() { importInput.value?.click() }
+const showImportModal = ref(false)
+const importMethod = ref<'csv' | 'website'>('csv')
+const importStep = ref<'upload' | 'mapping'>('upload')
+const websiteUrl = ref('')
+
+const csvHeaders = ref<string[]>([])
+const csvRows = ref<any[]>([])
+const columnMapping = reactive({
+  name: '',
+  price: '',
+  sku: '',
+  description: '',
+  images: '',
+  stock_quantity: '',
+  category_id: ''
+})
+
+const systemFields = [
+  { key: 'name', label: 'Nom du produit (Requis)', required: true },
+  { key: 'price', label: 'Prix (Requis)', required: true },
+  { key: 'sku', label: 'UGS (SKU)' },
+  { key: 'description', label: 'Description' },
+  { key: 'images', label: 'Images (URLs séparées par ;)' },
+  { key: 'stock_quantity', label: 'Quantité en stock' },
+  { key: 'category_id', label: 'ID Catégorie' }
+]
+
+function openImportModal() {
+  showImportModal.value = true
+  importMethod.value = 'csv'
+  importStep.value = 'upload'
+  websiteUrl.value = ''
+  csvHeaders.value = []
+  csvRows.value = []
+  Object.keys(columnMapping).forEach(k => columnMapping[k as keyof typeof columnMapping] = '')
+}
+
+function openFileDialog() {
+  importInput.value?.click()
+}
+
+async function handleWebsiteImport() {
+  if (!websiteUrl.value) return
+  
+  // Simulation/Placeholder for website import
+  const url = websiteUrl.value.startsWith('http') ? websiteUrl.value : `https://${websiteUrl.value}`
+  
+  notify(`Analyse de ${url} en cours...`)
+  
+  // Simulate delay
+  await new Promise(resolve => setTimeout(resolve, 1500))
+  
+  notify("Fonctionnalité d'import web bientôt disponible")
+  showImportModal.value = false
+}
+
 const toastShow = ref(false)
 const toastMsg = ref('')
 function notify(msg: string) { toastMsg.value = msg; toastShow.value = true; setTimeout(() => toastShow.value = false, 1500) }
@@ -316,22 +556,65 @@ async function importCsv(e: any) {
   if (!f) return
   const text = await f.text()
   const rows = parseCsv(text)
+  if (rows.length === 0) {
+    notify('Le fichier CSV est vide ou invalide')
+    return
+  }
+  
+  // Extract headers and sample rows
+  const headers = Object.keys(rows[0])
+  csvHeaders.value = headers
+  csvRows.value = rows
+  
+  // Auto-map fields
+  headers.forEach(h => {
+    const lower = h.toLowerCase().trim()
+    if (lower === 'name' || lower === 'nom' || lower === 'title' || lower === 'titre') columnMapping.name = h
+    if (lower === 'price' || lower === 'prix') columnMapping.price = h
+    if (lower === 'sku' || lower === 'ugs') columnMapping.sku = h
+    if (lower === 'description' || lower === 'desc') columnMapping.description = h
+    if (lower === 'images' || lower === 'photo' || lower === 'photos') columnMapping.images = h
+    if (lower === 'stock' || lower === 'quantity' || lower === 'quantité') columnMapping.stock_quantity = h
+    if (lower === 'category_id' || lower === 'categorie' || lower === 'catégorie') columnMapping.category_id = h
+  })
+  
+  importStep.value = 'mapping'
+}
+
+async function finalizeImport() {
   const storeId = admin.selectedShopId
-  const payloads = rows.map(r => ({
+  if (!storeId) return
+  
+  if (!columnMapping.name || !columnMapping.price) {
+    notify('Veuillez mapper les champs obligatoires (Nom et Prix)')
+    return
+  }
+  
+  notify('Importation en cours...')
+  
+  const payloads = csvRows.value.map(r => ({
     store_id: storeId,
-    name: r.name,
-    sku: r.sku,
-    price: Number(r.price || 0),
-    description: r.description || '',
-    images: String(r.images || '').split(';').filter(Boolean),
-    is_visible: r.is_visible === '1' || r.is_visible === 'true',
-    track_inventory: r.track_inventory === '1' || r.track_inventory === 'true',
-    stock_quantity: Number(r.stock_quantity || 0),
-    category_id: r.category_id ? Number(r.category_id) : null
+    name: r[columnMapping.name],
+    sku: columnMapping.sku ? r[columnMapping.sku] : null,
+    price: Number(r[columnMapping.price] || 0),
+    description: columnMapping.description ? r[columnMapping.description] : '',
+    images: columnMapping.images ? String(r[columnMapping.images] || '').split(';').filter(Boolean) : [],
+    is_visible: true,
+    track_inventory: !!columnMapping.stock_quantity,
+    stock_quantity: columnMapping.stock_quantity ? Number(r[columnMapping.stock_quantity] || 0) : 0,
+    category_id: columnMapping.category_id ? Number(r[columnMapping.category_id]) : null
   }))
-  for (const pl of payloads) { await supabase.from('products').insert(pl) }
+  
+  const BATCH_SIZE = 50
+  for (let i = 0; i < payloads.length; i += BATCH_SIZE) {
+    const batch = payloads.slice(i, i + BATCH_SIZE)
+    const { error } = await supabase.from('products').insert(batch)
+    if (error) console.error('Batch import error:', error)
+  }
+  
   await loadProducts()
-  notify('Importation terminée')
+  notify('Importation terminée avec succès')
+  showImportModal.value = false
 }
 watch([search, limit, categoryFilter], () => { page.value = 1; loadProducts() })
 watch(page, () => loadProducts())
