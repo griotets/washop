@@ -31,9 +31,9 @@
           </p>
         </div>
         <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
-          <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-2">
+          <dl class="lg:grid lg:max-w-none lg:grid-cols-2 lg:gap-x-8 lg:gap-y-16 flex gap-6 overflow-x-auto snap-x snap-mandatory px-1">
             <!-- Product 1: WhatsApp Order -->
-            <div class="flex flex-col bg-white p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 group">
+            <div class="flex flex-col bg-white p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 group snap-center min-w-[300px]">
               <dt class="flex items-center gap-x-3 text-xl font-bold leading-7 text-gray-900">
                 <div class="h-12 w-12 flex items-center justify-center rounded-xl bg-green-100 group-hover:bg-green-600 transition-colors duration-300">
                   <ShoppingCart class="h-6 w-6 text-green-600 group-hover:text-white transition-colors duration-300" />
@@ -49,7 +49,7 @@
             </div>
 
             <!-- Product 2: WhatsApp Business API -->
-            <div class="flex flex-col bg-white p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 group">
+            <div class="flex flex-col bg-white p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 group snap-center min-w-[300px]">
               <dt class="flex items-center gap-x-3 text-xl font-bold leading-7 text-gray-900">
                 <div class="h-12 w-12 flex items-center justify-center rounded-xl bg-blue-100 group-hover:bg-blue-600 transition-colors duration-300">
                   <Share2 class="h-6 w-6 text-blue-600 group-hover:text-white transition-colors duration-300" />
@@ -65,7 +65,7 @@
             </div>
 
             <!-- Product 3: Chatbot -->
-            <div class="flex flex-col bg-white p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 group">
+            <div class="flex flex-col bg-white p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 group snap-center min-w-[300px]">
               <dt class="flex items-center gap-x-3 text-xl font-bold leading-7 text-gray-900">
                 <div class="h-12 w-12 flex items-center justify-center rounded-xl bg-purple-100 group-hover:bg-purple-600 transition-colors duration-300">
                   <Bot class="h-6 w-6 text-purple-600 group-hover:text-white transition-colors duration-300" />
@@ -81,7 +81,7 @@
             </div>
 
             <!-- Product 4: Telegram Order -->
-            <div class="flex flex-col bg-white p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 group">
+            <div class="flex flex-col bg-white p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 group snap-center min-w-[300px]">
               <dt class="flex items-center gap-x-3 text-xl font-bold leading-7 text-gray-900">
                 <div class="h-12 w-12 flex items-center justify-center rounded-xl bg-sky-100 group-hover:bg-sky-600 transition-colors duration-300">
                   <Send class="h-6 w-6 text-sky-600 group-hover:text-white transition-colors duration-300" />
@@ -100,7 +100,6 @@
       </div>
     </div>
 
-    <!-- CTA Section -->
     <div class="bg-purple-900 py-16 sm:py-24">
       <div class="mx-auto max-w-7xl px-6 lg:px-8">
         <div class="mx-auto max-w-2xl text-center">
@@ -117,6 +116,18 @@
     </div>
 
     <MarketingFooter />
+
+    <div class="fixed bottom-4 left-4 right-4 lg:hidden z-40">
+      <div class="flex items-center justify-between rounded-full bg-white/90 backdrop-blur px-3 py-2 shadow-lg border border-gray-200">
+        <div class="text-xs text-gray-700">
+          Nos solutions WhatsApp
+        </div>
+        <div class="flex gap-2">
+          <NuxtLink to="/pricing" class="rounded-full px-3 py-1.5 text-[11px] font-semibold text-gray-900 ring-1 ring-gray-200">Tarifs</NuxtLink>
+          <NuxtLink to="/auth/register" class="rounded-full px-3 py-1.5 text-[11px] font-bold text-white bg-purple-600">Créer un compte</NuxtLink>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
