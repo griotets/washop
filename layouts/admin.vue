@@ -36,6 +36,20 @@
           </NuxtLink>
           
         </nav>
+
+        <div v-if="admin.isFreePlan" class="mx-3 mb-4 rounded-xl bg-gradient-to-br from-gray-900 to-gray-800 p-4 text-white shadow-lg">
+          <div class="mb-2 flex items-center gap-2 text-yellow-400">
+            <Sparkles class="h-4 w-4" />
+            <span class="text-xs font-bold uppercase tracking-wider">Plan Gratuit</span>
+          </div>
+          <p class="mb-3 text-xs text-gray-300">
+            Débloquez toutes les fonctionnalités pour faire décoller vos ventes.
+          </p>
+          <NuxtLink to="/admin/settings?tab=billing" class="block w-full rounded-lg bg-white py-2 text-center text-xs font-bold text-gray-900 hover:bg-gray-50">
+            Mise à niveau
+          </NuxtLink>
+        </div>
+
         <div class="mt-auto p-4">
           <label class="block text-xs font-semibold text-gray-500 mb-2">Langue</label>
           <select class="w-full rounded border px-2 py-1 text-sm" v-model="locale">
@@ -89,7 +103,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
 import { useI18n } from '~/composables/i18n'
-import { Search, Share2 } from 'lucide-vue-next'
+import { Search, Share2, Sparkles, AlertCircle } from 'lucide-vue-next'
 const route = useRoute()
 const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
@@ -128,5 +142,8 @@ onMounted(async () => {
   store.name = String(sone?.name || '')
   store.slug = String(sone?.slug || '')
   store.color = String(sone?.color || '')
+
+  // Load subscription and limits
+  await admin.fetchSubscription(supabase)
 })
 </script>

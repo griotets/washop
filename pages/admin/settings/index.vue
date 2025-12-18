@@ -559,13 +559,11 @@
              <h3 class="text-lg font-medium text-gray-900">Bientôt disponible</h3>
              <p class="mt-2 text-sm text-gray-500 max-w-sm">Le module {{ menu.flatMap(g => g.items).find(i => i.id === activeTab)?.label }} est en cours de développement.</p>
           </div>
-          <div v-else class="flex flex-col items-center">
-             <div class="p-4 bg-gray-100 rounded-full mb-4">
-               <Lock class="h-8 w-8 text-gray-400" />
-             </div>
-             <h3 class="text-lg font-medium text-gray-900">Fonctionnalité Premium</h3>
-             <p class="mt-2 text-sm text-gray-500 max-w-sm">Cette section nécessite un abonnement supérieur. Mettez à niveau votre plan pour accéder à ces réglages avancés.</p>
-             <button @click="activeTab = 'billing'" class="mt-6 text-sm font-semibold text-green-600 hover:text-green-700">Voir les plans disponibles</button>
+          <div v-else class="flex flex-col items-center justify-center py-12">
+             <AdminPremiumLock 
+               title="Fonctionnalité Premium"
+               description="Cette section nécessite un abonnement supérieur. Mettez à niveau votre plan pour accéder à ces réglages avancés."
+             />
           </div>
        </div>
     </div>
@@ -584,7 +582,21 @@ const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
 const admin = useAdminStore()
 const saving = ref(false)
-const activeTab = ref('general')
+const route = useRoute()
+const router = useRouter()
+const activeTab = ref(route.query.tab ? String(route.query.tab) : 'general')
+
+// Sync tab with URL
+watch(() => route.query.tab, (newTab) => {
+  if (newTab && typeof newTab === 'string') {
+    activeTab.value = newTab
+  }
+})
+
+// Update URL when tab changes
+watch(activeTab, (newTab) => {
+  router.push({ query: { ...route.query, tab: newTab } })
+})
 
 const menu = [
   {
@@ -592,6 +604,8 @@ const menu = [
     items: [
       { id: 'general', label: 'Général' },
       { id: 'delivery', label: 'Livraison' },
+      { id: 'payments', label: 'Paiements', badge: 'Soon' },
+      { id: 'checkout', label: 'Caisse', badge: 'Soon' },
     ]
   },
   {
@@ -599,6 +613,7 @@ const menu = [
     items: [
       { id: 'details', label: 'Détails' },
       { id: 'billing', label: 'Facturation' },
+      { id: 'members', label: 'Membres', badge: 'Premium' },
     ]
   }
 ]

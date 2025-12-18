@@ -5,7 +5,47 @@
       <div class="flex items-center gap-2">
         <button class="rounded-lg bg-gray-100 px-3 py-2 text-sm" @click="triggerImport">Importation</button>
         <NuxtLink to="/admin/products/bulk" class="rounded-lg bg-gray-100 px-3 py-2 text-sm">Modification en bloc</NuxtLink>
-        <NuxtLink to="/admin/products/new" class="rounded-lg bg-gray-900 px-3 py-2 text-sm font-semibold text-white">Ajouter un produit</NuxtLink>
+        
+        <NuxtLink 
+          v-if="admin.canAddProduct"
+          to="/admin/products/new" 
+          class="rounded-lg bg-gray-900 px-3 py-2 text-sm font-semibold text-white"
+        >
+          Ajouter un produit
+        </NuxtLink>
+        <button 
+          v-else
+          @click="notify('Limite de produits atteinte. Passez au plan supérieur.')"
+          class="flex items-center gap-2 rounded-lg bg-gray-300 px-3 py-2 text-sm font-semibold text-gray-500 cursor-not-allowed"
+        >
+          <Lock class="h-4 w-4" />
+          <span>Ajouter un produit</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Limit Warning -->
+    <div v-if="!admin.canAddProduct" class="mt-4 rounded-lg bg-yellow-50 p-4 border border-yellow-200">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <AlertTriangle class="h-5 w-5 text-yellow-400" aria-hidden="true" />
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-yellow-800">Limite de produits atteinte</h3>
+          <div class="mt-2 text-sm text-yellow-700">
+            <p>
+              Vous avez atteint la limite de {{ admin.maxProducts }} produits incluse dans votre plan {{ admin.planName }}.
+              Mettez à niveau votre abonnement pour ajouter plus de produits.
+            </p>
+          </div>
+          <div class="mt-4">
+            <div class="-mx-2 -my-1.5 flex">
+              <NuxtLink to="/admin/settings?tab=billing" class="rounded-md bg-yellow-50 px-2 py-1.5 text-sm font-medium text-yellow-800 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-offset-2 focus:ring-offset-yellow-50">
+                Voir les plans
+              </NuxtLink>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -108,7 +148,7 @@
 <script setup lang="ts">
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
-import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, Lock, AlertTriangle } from 'lucide-vue-next'
 definePageMeta({ layout: 'admin' })
 const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient

@@ -1,6 +1,18 @@
 <template>
   <main class="px-6 py-10">
-    <div class="mx-auto grid max-w-6xl gap-8 lg:grid-cols-2">
+    <div v-if="!canCreate" class="mx-auto max-w-lg rounded-xl bg-white p-8 shadow-sm text-center">
+      <AdminPremiumLock 
+        title="Limite de magasins atteinte"
+        :description="limitReachedMsg"
+      />
+      <div class="mt-6">
+        <NuxtLink to="/admin/stores/switch" class="text-sm font-medium text-gray-600 hover:text-gray-900">
+          Retourner à mes magasins
+        </NuxtLink>
+      </div>
+    </div>
+
+    <div v-else class="mx-auto grid max-w-6xl gap-8 lg:grid-cols-2">
       <div class="rounded-xl bg-white p-6 shadow-sm">
         <h1 class="text-2xl font-bold">{{ t('create.title') }}</h1>
         <form class="mt-6 space-y-6" @submit.prevent="submit">
@@ -94,6 +106,33 @@ import { useAdminStore } from '~/stores/admin'
 const { t } = useI18n()
 const colors = ['#111827', '#ef4444', '#f59e0b', '#10b981', '#06b6d4', '#3b82f6', '#8b5cf6']
 const form = reactive({ name: '', phoneFull: '', slug: '', color: colors[0], logoUrl: '' })
+const canCreate = ref(true)
+const limitReachedMsg = ref('')
+
+onMounted(async () => {
+  const nuxt = useNuxtApp()
+  const supabase = nuxt.$supabase as SupabaseClient
+  const { data } = await supabase.auth.getUser()
+  const uid = data?.user?.id
+  if (!uid) return
+
+  // Get enterprise
+  const { data: ent } = await supabase.from('enterprises').select('id').eq('owner_id', uid).maybeSingle()
+  if (!ent) return
+
+  // Get stores count
+  const { count } = await supabase.from('stores').select('*', { count: 'exact', head: true }).eq('enterprise_id', ent.id)
+  
+  // Get plan
+  const { data: sub } = await supabase.from('subscriptions').select('*, plan:subscription_plans(*)').eq('enterprise_id', ent.id).maybeSingle()
+  const maxStores = sub?.plan?.max_stores || 1
+
+  if ((count || 0) >= maxStores) {
+    canCreate.value = false
+    limitReachedMsg.value = `Vous avez atteint la limite de ${maxStores} magasin(s) pour votre plan actuel.`
+  }
+})
+
 const displayName = computed(() => form.name || t('create.placeholderName'))
 const initials = computed(() => (displayName.value.split(/\s+/).map(s => s[0]).join('.')).slice(0, 12))
 watch(() => form.name, (n) => {
