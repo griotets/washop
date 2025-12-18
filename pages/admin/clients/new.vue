@@ -54,7 +54,7 @@
         </div>
       </div>
       <div class="mt-6">
-        <button class="rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white" :disabled="saving || !isValid" @click="save">Sauvegarder</button>
+        <button class="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white" :disabled="saving || !isValid" @click="save">Sauvegarder</button>
       </div>
     </div>
   </div>

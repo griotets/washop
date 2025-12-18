@@ -5,7 +5,7 @@
       <h1 class="text-2xl font-bold">Client</h1>
       <div class="ml-auto flex items-center gap-2">
         <button class="rounded-lg border bg-white px-3 py-2 text-sm" :disabled="saving" @click="deleteClient">Supprimer</button>
-        <button class="rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white" :disabled="saving || !isValid" @click="save">Mettre à jour</button>
+        <button class="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white" :disabled="saving || !isValid" @click="save">Mettre à jour</button>
       </div>
     </div>
 

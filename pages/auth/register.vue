@@ -100,7 +100,7 @@
         </div>
       </div>
 
-      <div class="rounded-2xl bg-indigo-50 p-6">
+      <div class="rounded-2xl bg-green-50 p-6">
         <div class="mx-auto max-w-sm">
           <div
             class="relative aspect-[11/18] rounded-[2rem] border-8 border-gray-900 bg-white shadow-xl overflow-hidden">

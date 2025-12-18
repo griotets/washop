@@ -16,6 +16,9 @@
           <Search class="h-4 w-4 text-gray-500" />
           <input v-model.trim="search" type="text" placeholder="Recherche client, téléphone" class="ml-2 w-full bg-transparent text-sm outline-none" />
         </div>
+        <NuxtLink to="/admin/orders/new" class="rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white whitespace-nowrap">
+          + Créer
+        </NuxtLink>
       </div>
     </div>
 
@@ -47,7 +50,12 @@
               <div>FCFA {{ Number(o.total_amount || 0).toLocaleString('fr-FR') }}</div>
             </td>
             <td class="px-4 py-3">
-              <select v-model="o.status" class="rounded border px-2 py-1 text-xs" @change="updateStatus(o)">
+              <select 
+                v-model="o.status" 
+                class="rounded border px-2 py-1 text-xs font-medium"
+                :class="statusClass(o.status)"
+                @change="updateStatus(o)"
+              >
                 <option value="new">Nouveau</option>
                 <option value="sent_to_whatsapp">Envoyé WhatsApp</option>
                 <option value="processing">En cours</option>
@@ -104,6 +112,19 @@ const orders = ref<any[]>([])
 const orderItems = reactive<Record<string, any[]>>({})
 const expanded = reactive(new Set<string>())
 const loading = ref(false)
+
+const statusColors: Record<string, string> = {
+  new: 'bg-blue-100 text-blue-800 border-blue-200',
+  sent_to_whatsapp: 'bg-green-100 text-green-800 border-green-200',
+  processing: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+  completed: 'bg-gray-100 text-gray-800 border-gray-200',
+  cancelled: 'bg-red-100 text-red-800 border-red-200'
+}
+
+function statusClass(status: string) {
+  return statusColors[status] || 'bg-white text-gray-700 border-gray-300'
+}
+
 function formatDate(d: string) {
   try { return new Date(d).toLocaleString('fr-FR') } catch { return d }
 }

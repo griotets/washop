@@ -7,7 +7,7 @@
           <Search class="h-4 w-4 text-gray-500" />
           <input v-model.trim="search" type="text" placeholder="Recherche nom, téléphone, email" class="ml-2 w-full bg-transparent text-sm outline-none" />
         </div>
-        <NuxtLink to="/admin/clients/new" class="rounded-lg bg-gray-900 px-3 py-2 text-sm font-semibold text-white">Ajouter un client</NuxtLink>
+        <NuxtLink to="/admin/clients/new" class="rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white">Ajouter un client</NuxtLink>
       </div>
     </div>
 

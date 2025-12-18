@@ -60,7 +60,7 @@
             <div>
               <label class="block text-sm font-medium text-gray-700">Lien de magasin</label>
               <div class="mt-1 flex rounded-md shadow-sm">
-                <span class="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm">take.app /</span>
+                <span class="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm">{{ domain }} /</span>
                 <input v-model="form.slug" type="text" class="block w-full min-w-0 flex-1 rounded-none rounded-r-md border-gray-300 focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
               </div>
               <p class="mt-1 text-xs text-gray-500">Lien vers votre magasin. Si vous modifiez ce paramètre, votre code QR et vos liens partagés ne seront plus valables.</p>
@@ -158,13 +158,13 @@
                  </div>
                </div>
                
-               <div v-if="isFreePlan" class="mt-2 rounded-md bg-blue-50 p-2 flex items-center justify-between">
-                 <div class="flex items-center gap-2">
-                   <div class="text-blue-500">⚡</div>
-                   <span class="text-sm text-blue-700 font-medium">Mise à niveau nécessaire pour utiliser Business</span>
-                 </div>
-                 <button class="text-sm font-semibold text-gray-900 bg-white px-3 py-1 rounded border shadow-sm hover:bg-gray-50">Mise à niveau</button>
-               </div>
+               <div v-if="isFreePlan" class="mt-2 rounded-md bg-green-50 p-2 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="text-green-500">⚡</div>
+                    <span class="text-sm text-green-700 font-medium">Mise à niveau nécessaire pour utiliser Business</span>
+                  </div>
+                  <button class="text-sm font-semibold text-gray-900 bg-white px-3 py-1 rounded border shadow-sm hover:bg-gray-50">Mise à niveau</button>
+                </div>
              </div>
 
              <div>
@@ -585,6 +585,8 @@ const saving = ref(false)
 const route = useRoute()
 const router = useRouter()
 const activeTab = ref(route.query.tab ? String(route.query.tab) : 'general')
+const url = useRequestURL()
+const domain = url.host
 
 // Sync tab with URL
 watch(() => route.query.tab, (newTab) => {
@@ -922,7 +924,7 @@ async function deleteEnterprise() {
 const formatFeature = (key: string) => {
   const map: Record<string, string> = {
     'commandes_whatsapp_illimitees': 'Commandes WhatsApp illimitées',
-    'sous_domaine': 'Sous-domaine wa-shop.cm',
+    'sous_domaine': `Sous-domaine ${domain}`,
     'produits_illimites': 'Produits illimités',
     'statistiques_avancees': 'Statistiques avancées',
     'promo_codes': 'Codes promo',

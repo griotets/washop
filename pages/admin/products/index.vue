@@ -9,7 +9,7 @@
         <NuxtLink 
           v-if="admin.canAddProduct"
           to="/admin/products/new" 
-          class="rounded-lg bg-gray-900 px-3 py-2 text-sm font-semibold text-white"
+          class="rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white"
         >
           Ajouter un produit
         </NuxtLink>

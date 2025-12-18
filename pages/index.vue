@@ -74,12 +74,12 @@
           <Reveal>
           <div class="group relative bg-white rounded-3xl p-8 lg:p-12 shadow-sm border border-gray-100 hover:shadow-xl transition-shadow flex flex-col md:flex-row items-center gap-12 overflow-hidden">
             <div class="flex-1 text-left z-10">
-              <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mb-6">
+              <div class="w-12 h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center mb-6">
                 <Package class="w-6 h-6" />
               </div>
               <h3 class="text-2xl font-bold mb-4">{{ t('home.featureOrderFormTitle') }}</h3>
               <p class="text-gray-600 mb-6">{{ t('home.featureOrderFormDesc') }}</p>
-              <NuxtLink to="/products" class="text-blue-600 font-semibold hover:underline inline-flex items-center gap-1">{{ t('common.learnMore') }} <ArrowRight class="w-4 h-4" /></NuxtLink>
+              <NuxtLink to="/products" class="text-green-600 font-semibold hover:underline inline-flex items-center gap-1">{{ t('common.learnMore') }} <ArrowRight class="w-4 h-4" /></NuxtLink>
             </div>
             <div class="flex-1 w-full max-w-md relative z-10">
               <div class="relative bg-gray-900 rounded-[2.5rem] border-8 border-gray-900 shadow-2xl overflow-hidden aspect-[9/18] mx-auto">
@@ -112,12 +112,12 @@
           <Reveal :delay="100">
           <div class="group relative bg-white rounded-3xl p-8 lg:p-12 shadow-sm border border-gray-100 hover:shadow-xl transition-shadow flex flex-col md:flex-row-reverse items-center gap-12 overflow-hidden">
             <div class="flex-1 text-left z-10">
-              <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mb-6">
+              <div class="w-12 h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center mb-6">
                 <LayoutDashboard class="w-6 h-6" />
               </div>
               <h3 class="text-2xl font-bold mb-4">{{ t('home.featureOrderMgmtTitle') }}</h3>
               <p class="text-gray-600 mb-6">{{ t('home.featureOrderMgmtDesc') }}</p>
-              <NuxtLink to="/products" class="text-indigo-600 font-semibold hover:underline inline-flex items-center gap-1">{{ t('common.learnMore') }} <ArrowRight class="w-4 h-4" /></NuxtLink>
+              <NuxtLink to="/products" class="text-green-600 font-semibold hover:underline inline-flex items-center gap-1">{{ t('common.learnMore') }} <ArrowRight class="w-4 h-4" /></NuxtLink>
             </div>
             <div class="flex-1 w-full max-w-md relative z-10">
               <div class="bg-surface-light rounded-xl shadow-lg p-6 border border-gray-200">
@@ -185,13 +185,13 @@
               </div>
             </div>
           </div>
-          <div class="bg-blue-50 rounded-2xl p-6 md:p-8 hover:bg-blue-100 transition-colors">
+          <div class="bg-green-50 rounded-2xl p-6 md:p-8 hover:bg-green-100 transition-colors">
             <h3 class="text-xl font-bold mb-2">{{ t('home.cardSeoTitle') }}</h3>
             <p class="text-sm text-gray-600 mb-6">{{ t('home.cardSeoDesc') }}</p>
             <div class="bg-white rounded-xl shadow-lg p-4 h-64 flex justify-center items-center">
               <div class="w-full space-y-3">
-                <div class="h-4 bg-blue-600 w-1/3 rounded"></div>
-                <div class="h-3 bg-green-600 w-1/2 rounded"></div>
+                <div class="h-4 bg-green-700 w-1/3 rounded"></div>
+                <div class="h-3 bg-green-500 w-1/2 rounded"></div>
                 <div class="h-2 bg-gray-200 w-full rounded"></div>
                 <div class="h-2 bg-gray-200 w-5/6 rounded"></div>
               </div>

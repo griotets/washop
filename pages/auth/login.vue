@@ -86,7 +86,7 @@
       </div>
 
       <!-- Right Column: Visual -->
-      <div class="hidden md:block rounded-2xl bg-indigo-50 p-6 h-full max-h-[600px] flex items-center justify-center">
+      <div class="hidden md:block rounded-2xl bg-green-50 p-6 h-full max-h-[600px] flex items-center justify-center">
         <div class="relative w-full max-w-sm aspect-[11/18] rounded-[2.5rem] border-[8px] border-gray-900 bg-white shadow-2xl overflow-hidden">
           <!-- Mockup Header -->
           <div class="absolute top-0 left-0 right-0 h-6 bg-gray-100 border-b z-10 flex items-center justify-center">

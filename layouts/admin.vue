@@ -1,6 +1,51 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <div class="flex">
+    <!-- Full Page Skeleton -->
+    <div v-if="isLoadingStore" class="fixed inset-0 z-50 flex bg-white">
+      <!-- Sidebar Skeleton -->
+      <div class="hidden w-64 flex-col border-r border-gray-200 bg-white lg:flex">
+        <div class="border-b border-gray-100 p-6">
+          <div class="flex items-center gap-3">
+            <div class="h-8 w-8 animate-pulse rounded-lg bg-gray-200"></div>
+            <div class="h-6 w-24 animate-pulse rounded bg-gray-200"></div>
+          </div>
+        </div>
+        <div class="flex-1 space-y-4 px-4 py-6">
+          <div v-for="i in 6" :key="i" class="flex items-center gap-3 rounded-lg px-3 py-2">
+            <div class="h-4 w-4 animate-pulse rounded bg-gray-200"></div>
+            <div class="h-4 w-32 animate-pulse rounded bg-gray-200"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content Skeleton -->
+      <div class="flex-1">
+        <div class="border-b border-gray-200 bg-white p-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <div class="h-10 w-10 animate-pulse rounded-full bg-gray-200"></div>
+              <div class="space-y-2">
+                <div class="h-4 w-32 animate-pulse rounded bg-gray-200"></div>
+                <div class="h-3 w-24 animate-pulse rounded bg-gray-200"></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="h-10 w-64 animate-pulse rounded-xl bg-gray-200"></div>
+              <div class="h-10 w-10 animate-pulse rounded-full bg-gray-200"></div>
+            </div>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="mb-6 h-8 w-48 animate-pulse rounded bg-gray-200"></div>
+          <div class="grid gap-6 lg:grid-cols-3">
+            <div v-for="i in 3" :key="i" class="h-32 animate-pulse rounded-xl bg-gray-200"></div>
+          </div>
+          <div class="mt-6 h-64 animate-pulse rounded-xl bg-gray-200"></div>
+        </div>
+      </div>
+    </div>
+
+    <div v-else class="flex">
       <aside class="hidden lg:flex flex-col w-64 border-r border-gray-200 bg-white sticky top-0 h-screen z-30">
         <!-- Logo -->
         <div class="p-6 border-b border-gray-100">
@@ -127,14 +172,13 @@
 
                 <div class="flex items-center gap-3">
                   <div class="relative group cursor-pointer">
-                    <div
+                    <img v-if="store.logoUrl" :src="store.logoUrl" alt="logo"
+                      class="h-10 w-10 rounded-full object-cover" />
+                    <div v-else
                       class="flex h-10 w-10 items-center justify-center rounded-xl text-white shadow-sm transition-transform group-hover:scale-105"
                       :style="{ backgroundColor: store.color || '#25D366' }">
                       <span class="text-sm font-bold">{{ storeInitials }}</span>
                     </div>
-                    <img v-if="store.logoUrl" :src="store.logoUrl" alt="logo"
-                      class="h-10 w-10 rounded-full object-cover" />
-
                     <!-- Status Indicator -->
                     <div class="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white bg-green-500">
                     </div>
@@ -177,11 +221,57 @@
                   </NuxtLink>
                 </div>
 
-                <!-- User Profile -->
-                <div class="flex items-center gap-3 pl-2">
-                  <div
-                    class="h-9 w-9 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-xs font-bold text-gray-700 cursor-pointer hover:border-gray-300 transition-colors">
-                    {{ userInitials }}
+                <!-- User Profile Dropdown -->
+                <div class="relative pl-2">
+                  <button @click="isUserMenuOpen = !isUserMenuOpen"
+                    class="flex items-center gap-2 rounded-full p-1 hover:bg-gray-100 transition-colors outline-none focus:ring-2 focus:ring-gray-900/5">
+                    <div
+                      class="h-9 w-9 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-xs font-bold text-white shadow-sm ring-2 ring-white">
+                      {{ userInitials }}
+                    </div>
+                    <ChevronDown class="h-4 w-4 text-gray-400 transition-transform duration-200"
+                      :class="{ 'rotate-180': isUserMenuOpen }" />
+                  </button>
+
+                  <!-- Backdrop for clicking outside -->
+                  <div v-if="isUserMenuOpen" @click="isUserMenuOpen = false" class="fixed inset-0 z-40 cursor-default">
+                  </div>
+
+                  <!-- Dropdown Menu -->
+                  <div v-if="isUserMenuOpen"
+                    class="absolute right-0 top-full mt-2 w-64 origin-top-right rounded-xl border border-gray-100 bg-white shadow-xl shadow-gray-900/5 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                    
+                    <!-- User Header -->
+                    <div class="px-4 py-4 border-b border-gray-50 bg-gray-50/50">
+                      <p class="text-sm font-semibold text-gray-900 truncate">{{ userEmail }}</p>
+                      <p class="text-xs text-gray-500 mt-0.5">Administrateur</p>
+                    </div>
+
+                    <!-- Menu Items -->
+                    <div class="p-1">
+                      <NuxtLink to="/admin/settings?tab=profile" @click="isUserMenuOpen = false"
+                        class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                        <User class="h-4 w-4" />
+                        <span>Mon Profil</span>
+                      </NuxtLink>
+                      
+                      <NuxtLink to="/admin/settings" @click="isUserMenuOpen = false"
+                        class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                        <Settings class="h-4 w-4" />
+                        <span>Paramètres</span>
+                      </NuxtLink>
+                    </div>
+
+                    <div class="h-px bg-gray-100 my-1 mx-2"></div>
+
+                    <!-- Logout -->
+                    <div class="p-1">
+                      <button @click="handleLogout"
+                        class="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 rounded-lg hover:bg-red-50 transition-colors">
+                        <LogOut class="h-4 w-4" />
+                        <span>Se déconnecter</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -194,6 +284,123 @@
           <slot />
         </div>
       </main>
+    </div>
+
+    <!-- Mobile Sidebar -->
+    <div v-if="isSidebarOpen" class="fixed inset-0 z-50 lg:hidden">
+      <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm" @click="isSidebarOpen = false"></div>
+      <aside class="fixed inset-y-0 left-0 w-64 bg-white shadow-xl flex flex-col z-50">
+        <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <img src="/logo.svg" alt="Wa-Shop" class="h-8 w-auto" />
+            <div class="text-lg font-bold text-gray-900 tracking-tight">Wa‑Shop</div>
+          </div>
+          <button @click="isSidebarOpen = false" class="text-gray-500 hover:bg-gray-100 p-1 rounded-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto px-4 py-6 space-y-8">
+          <!-- Main Group -->
+          <div class="space-y-1">
+            <NuxtLink to="/admin/dashboard"
+              class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+              :class="route.path === '/admin/dashboard' ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
+              <LayoutDashboard class="h-4 w-4" />
+              <span>Tableau de bord</span>
+            </NuxtLink>
+
+            <NuxtLink to="/admin/orders"
+              class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+              :class="route.path.startsWith('/admin/orders') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
+              <ShoppingBag class="h-4 w-4" />
+              <span>Commandes</span>
+            </NuxtLink>
+
+            <NuxtLink to="/admin/products"
+              class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+              :class="route.path.startsWith('/admin/products') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
+              <Package class="h-4 w-4" />
+              <span>Produits</span>
+            </NuxtLink>
+
+            <NuxtLink to="/admin/clients"
+              class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+              :class="route.path.startsWith('/admin/clients') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
+              <Users class="h-4 w-4" />
+              <span>Clients</span>
+            </NuxtLink>
+
+            <NuxtLink to="/admin/stats"
+              class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+              :class="route.path.startsWith('/admin/stats') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
+              <BarChart3 class="h-4 w-4" />
+              <span>Statistiques</span>
+            </NuxtLink>
+
+            <NuxtLink to="/admin/settings"
+              class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+              :class="route.path.startsWith('/admin/settings') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
+              <Settings class="h-4 w-4" />
+              <span>Réglages</span>
+            </NuxtLink>
+          </div>
+
+          <!-- Sales Channels Group -->
+          <div class="space-y-1">
+            <h3 class="px-3 text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Canaux de vente</h3>
+
+            <NuxtLink to="/admin/website"
+              class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+              :class="route.path.startsWith('/admin/website') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
+              <Palette class="h-4 w-4" />
+              <span>Site web</span>
+            </NuxtLink>
+
+            <NuxtLink to="/admin/whatsapp"
+              class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+              :class="route.path.startsWith('/admin/whatsapp') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
+              <MessageCircle class="h-4 w-4" />
+              <span>WhatsApp</span>
+            </NuxtLink>
+          </div>
+        </nav>
+
+        <!-- Footer Actions -->
+        <div class="p-4 space-y-4 border-t border-gray-100 bg-gray-50/50">
+          <!-- Free Plan Widget -->
+          <div v-if="admin.isFreePlan"
+            class="rounded-xl bg-gray-900 p-4 text-white shadow-sm relative overflow-hidden group">
+            <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+              <Sparkles class="h-12 w-12" />
+            </div>
+            <div class="relative z-10">
+              <div class="mb-2 flex items-center gap-2 text-yellow-400">
+                <Sparkles class="h-4 w-4" />
+                <span class="text-xs font-bold uppercase tracking-wider">Plan Gratuit</span>
+              </div>
+              <p class="mb-3 text-xs text-gray-300 font-medium leading-relaxed">
+                Débloquez tout le potentiel de votre boutique.
+              </p>
+              <NuxtLink to="/admin/settings?tab=billing"
+                class="block w-full rounded-lg bg-white/10 py-2 text-center text-xs font-bold text-white hover:bg-white/20 transition-colors border border-white/10">
+                Mise à niveau
+              </NuxtLink>
+            </div>
+          </div>
+
+          <!-- Language Selector -->
+          <div class="flex items-center gap-2 px-1">
+            <Globe class="h-4 w-4 text-gray-400" />
+            <select class="w-full bg-transparent text-sm text-gray-600 font-medium focus:outline-none cursor-pointer"
+              v-model="locale">
+              <option value="en">English</option>
+              <option value="fr">Français</option>
+              <option value="it">Italiano</option>
+            </select>
+          </div>
+        </div>
+      </aside>
     </div>
   </div>
 </template>
@@ -219,25 +426,38 @@ import {
   Bell,
   Menu,
   ChevronDown,
-  ExternalLink
+  ExternalLink,
+  LogOut,
+  User
 } from 'lucide-vue-next'
 const route = useRoute()
+const url = useRequestURL()
+const domain = url.host
 const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
 const admin = useAdminStore()
 const { locale } = useI18n()
 const store = reactive<{ id?: string; name?: string; slug?: string; color?: string, logoUrl?: string }>({})
+const isLoadingStore = ref(true)
 const search = ref('')
 const userEmail = ref('')
+const isUserMenuOpen = ref(false)
+
 const userInitials = computed(() => {
   const e = String(userEmail.value || '').trim()
   return e ? e[0].toUpperCase() : 'U'
 })
+
+const handleLogout = async () => {
+  await supabase.auth.signOut()
+  await navigateTo('/auth/login')
+}
+
 const storeInitials = computed(() => {
   const n = String(store.name || 'Boutique').trim()
   return n.split(/\s+/).map(s => s[0]).join('.').slice(0, 12)
 })
-const publicUrl = computed(() => store.slug ? `wa-shop.cm/${store.slug}` : '')
+const publicUrl = computed(() => store.slug ? `${domain}/${store.slug}` : '')
 const isSidebarOpen = ref(false)
 
 // Close sidebar on route change
@@ -246,6 +466,7 @@ watch(() => route.path, () => {
 })
 
 onMounted(async () => {
+  isLoadingStore.value=true
   const { data } = await supabase.auth.getUser()
   const uid = data?.user?.id
   userEmail.value = String(data?.user?.email || '')
@@ -267,6 +488,7 @@ onMounted(async () => {
   store.slug = String(sone?.slug || '')
   store.color = String(sone?.color || '')
   store.logoUrl = String(sone?.image_url || '')
+  isLoadingStore.value = false
 
   // Load subscription and limits
   await admin.fetchSubscription(supabase)

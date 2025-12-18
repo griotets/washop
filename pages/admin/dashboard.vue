@@ -63,7 +63,7 @@
         <div class="rounded-xl border bg-white p-6">
           <div class="flex items-center justify-between">
             <div class="font-semibold">Basic plan</div>
-            <button class="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white">Mise à niveau</button>
+            <button class="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-semibold text-white">Mise à niveau</button>
           </div>
           <div class="mt-4 space-y-2 text-sm">
             <NuxtLink to="/admin/products" class="flex items-center justify-between rounded border px-3 py-2">
