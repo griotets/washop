@@ -41,8 +41,9 @@
             </div>
             <div class="flex items-center justify-center rounded-lg border-2 border-dashed px-4 py-10 text-center cursor-pointer" :class="dropActive?'border-green-400 bg-green-50':'border-gray-300 bg-gray-50'" @click="triggerImageInput" @dragenter.prevent="onImageDragEnter" @dragover.prevent="onImageDragOver" @dragleave.prevent="onImageDragLeave" @drop.prevent="onImageDrop">
               <div>
-                <span class="inline-block rounded bg-white px-3 py-2 text-sm font-medium text-gray-800">Faites glisser un fichier ou cliquez</span>
-                <div class="mt-1 text-xs text-gray-500">10 MB max. Ratio recommandé 1:1.</div>
+                <Upload class="mx-auto h-8 w-8 text-gray-400" />
+                <div class="mt-2 text-sm font-medium text-gray-800">Faites glisser un fichier ici ou cliquez pour en sélectionner un</div>
+                <div class="mt-1 text-xs text-gray-500">Le fichier ne doit pas dépasser 10 mb. Le rapport recommandé est de 1:1.</div>
               </div>
             </div>
           </div>
@@ -169,7 +170,7 @@
 <script setup lang="ts">
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
-import { Plus, Trash } from 'lucide-vue-next'
+import { Plus, Trash, Upload } from 'lucide-vue-next'
 definePageMeta({ layout: 'admin', alias: ['/admin/product/:id'] })
 const route = useRoute()
 const id = computed(() => String(route.params.id || ''))

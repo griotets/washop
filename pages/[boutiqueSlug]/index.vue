@@ -19,6 +19,20 @@
         </div>
       </div>
 
+      <!-- Search Bar -->
+      <div class="relative mb-8 max-w-lg mx-auto">
+        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+          <Search class="h-5 w-5 text-gray-400" />
+        </div>
+        <input 
+          v-model="searchQuery" 
+          type="text" 
+          class="block w-full rounded-full border-gray-200 pl-11 pr-4 py-3 text-sm focus:border-primary focus:ring-primary shadow-sm transition-shadow hover:shadow-md"
+          :placeholder="`Rechercher dans ${storeInfo.name || 'la boutique'}...`"
+          :style="{ '--tw-ring-color': appearance.primary, '--tw-border-opacity': '1' }"
+        />
+      </div>
+
       <!-- Categories Navigation (Sticky) -->
       <div v-if="categories.length > 0" class="sticky top-16 z-40 -mx-4 px-4 sm:mx-0 sm:px-0 mb-8 overflow-x-auto bg-gray-50/95 backdrop-blur py-2">
         <div class="flex space-x-2 sm:space-x-4 min-w-max">
@@ -106,6 +120,17 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <div v-if="productGroups.length === 0 && searchQuery" class="text-center py-20 bg-white rounded-xl shadow-sm">
+          <div class="mx-auto h-12 w-12 text-gray-400 mb-4">
+            <Search class="h-12 w-12 opacity-50" />
+          </div>
+          <h3 class="text-lg font-medium text-gray-900">Aucun résultat</h3>
+          <p class="mt-2 text-gray-500">Aucun produit ne correspond à "{{ searchQuery }}"</p>
+          <button @click="searchQuery = ''" class="mt-4 font-medium hover:underline" :style="{ color: appearance.primary }">
+            Effacer la recherche
+          </button>
         </div>
 
         <div v-if="products.length === 0" class="text-center py-20 bg-white rounded-xl shadow-sm">

@@ -170,10 +170,21 @@ async function loadMetrics() {
   const startIso = rangeStart.value.toISOString()
   const { count: viewsCount } = await supabase.from('analytics_log').select('id', { count: 'exact', head: true }).eq('store_id', currentStoreId).eq('event_type', 'page_view').gte('created_at', startIso)
   metrics.views = Number(viewsCount || 0)
-  const { data: ordersData } = await supabase.from('orders').select('id,total_amount,created_at').eq('store_id', currentStoreId).gte('created_at', startIso)
+  const { data: ordersData } = await supabase.from('orders').select('id,total_amount,created_at,status').eq('store_id', currentStoreId).gte('created_at', startIso)
   const rows = Array.isArray(ordersData) ? ordersData : []
   metrics.orders = rows.length
-  metrics.sales = rows.reduce((sum: number, r: any) => sum + Number(r.total_amount || 0), 0)
+  metrics.sales = rows
+    .filter((r: any) => r.status !== 'cancelled')
+    .reduce((sum: number, r: any) => sum + Number(r.total_amount || 0), 0)
+
+  // Fetch recent orders
+  const { data: recent } = await supabase
+    .from('orders')
+    .select('id, created_at, total_amount, status, customer_name')
+    .eq('store_id', currentStoreId)
+    .order('created_at', { ascending: false })
+    .limit(5)
+  recentOrders.value = recent || []
 }
 
 watch(rangeStart, () => { loadMetrics() })

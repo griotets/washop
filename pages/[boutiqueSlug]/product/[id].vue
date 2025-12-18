@@ -174,6 +174,23 @@ function buyNow() {
   if (getCartQuantity() === 0) addToCart()
   navigateTo(`/${slug.value}/cart`)
 }
+
+function shareProduct() {
+  if (import.meta.server) return
+  const url = window.location.href
+  if (navigator.share) {
+    navigator.share({
+      title: product.name || 'Produit',
+      text: product.description || '',
+      url: url
+    }).catch(() => {})
+  } else {
+    navigator.clipboard.writeText(url)
+    const toast = useToast()
+    toast.success('Lien copié !')
+  }
+}
+
 onMounted(async () => {
   if (!supabase) return
   cart.load(slug.value)

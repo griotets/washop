@@ -1,5 +1,6 @@
 <template>
   <div>
+    <div class="print:hidden">
     <div class="flex items-center justify-between">
       <h1 class="text-2xl font-bold">Commandes</h1>
       <div class="flex items-center gap-2">
@@ -65,8 +66,11 @@
             </td>
             <td class="px-4 py-3">
               <div class="flex items-center gap-2">
-                <button class="rounded border px-2 py-1 text-xs" @click="toggleExpand(o.id)">Détails</button>
-                <button class="rounded border px-2 py-1 text-xs" @click="deleteOrder(o)">Supprimer</button>
+                <button class="rounded border px-2 py-1 text-xs hover:bg-gray-50" @click="toggleExpand(o.id)">Détails</button>
+                <button class="rounded border px-2 py-1 text-xs hover:bg-gray-50" @click="printReceipt(o)">
+                   <Printer class="h-3 w-3" />
+                </button>
+                <button class="rounded border px-2 py-1 text-xs text-red-600 hover:bg-red-50" @click="deleteOrder(o)">Supprimer</button>
               </div>
             </td>
           </tr>
@@ -90,13 +94,72 @@
         </tbody>
       </table>
     </div>
+    </div>
+
+    <!-- Receipt Modal -->
+    <div v-if="showReceipt" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 print:p-0 print:bg-white print:block print:static">
+      <div class="w-full max-w-sm bg-white rounded-lg shadow-xl overflow-hidden print:shadow-none print:w-full print:max-w-none">
+        <div class="flex items-center justify-between p-4 border-b print:hidden">
+          <h3 class="font-bold">Ticket de caisse</h3>
+          <button @click="showReceipt = false" class="p-1 hover:bg-gray-100 rounded"><X class="h-5 w-5" /></button>
+        </div>
+        
+        <div class="p-6 text-sm font-mono" id="receipt-content">
+          <div class="text-center mb-6">
+             <div class="font-bold text-xl mb-1">{{ storeName || 'Boutique' }}</div>
+             <div class="text-gray-500 text-xs">{{ receiptOrder?.created_at ? new Date(receiptOrder.created_at).toLocaleString('fr-FR') : '' }}</div>
+             <div class="text-xs mt-1">Commande #{{ receiptOrder?.id?.slice(0,8) }}</div>
+          </div>
+          
+          <div class="border-b border-dashed border-gray-300 my-4"></div>
+          
+          <div class="space-y-3">
+             <div v-for="item in receiptItems" :key="item.id" class="flex justify-between items-start">
+                <div>
+                  <div class="font-medium">{{ item.product_name }}</div>
+                  <div class="text-xs text-gray-500">x{{ item.quantity }} @ {{ Number(item.unit_price).toLocaleString('fr-FR') }}</div>
+                </div>
+                <div class="font-medium">{{ Number(item.unit_price * item.quantity).toLocaleString('fr-FR') }}</div>
+             </div>
+          </div>
+          
+          <div class="border-b border-dashed border-gray-300 my-4"></div>
+          
+          <div class="flex justify-between font-bold text-lg">
+             <div>Total</div>
+             <div>FCFA {{ Number(receiptOrder?.total_amount || 0).toLocaleString('fr-FR') }}</div>
+          </div>
+
+          <div class="mt-4 pt-4 border-t border-dashed border-gray-300">
+             <div class="flex justify-between text-xs text-gray-600">
+               <span>Client:</span>
+               <span>{{ receiptOrder?.customer_name }}</span>
+             </div>
+             <div class="flex justify-between text-xs text-gray-600 mt-1" v-if="receiptOrder?.customer_phone">
+               <span>Tel:</span>
+               <span>{{ receiptOrder?.customer_phone }}</span>
+             </div>
+          </div>
+          
+          <div class="mt-8 text-center text-xs text-gray-500">
+             Merci de votre visite !
+          </div>
+        </div>
+        
+        <div class="p-4 border-t bg-gray-50 print:hidden">
+          <button @click="triggerPrint" class="w-full bg-gray-900 text-white rounded-lg py-3 font-medium flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors">
+            <Printer class="h-4 w-4" /> Imprimer Ticket
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
-import { Search } from 'lucide-vue-next'
+import { Search, Printer, X } from 'lucide-vue-next'
 definePageMeta({ layout: 'admin' })
 const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
@@ -112,6 +175,10 @@ const orders = ref<any[]>([])
 const orderItems = reactive<Record<string, any[]>>({})
 const expanded = reactive(new Set<string>())
 const loading = ref(false)
+const showReceipt = ref(false)
+const receiptOrder = ref<any>(null)
+const receiptItems = ref<any[]>([])
+const storeName = ref('')
 
 const statusColors: Record<string, string> = {
   new: 'bg-blue-100 text-blue-800 border-blue-200',
@@ -137,7 +204,24 @@ function toggleExpand(id: string) {
 async function loadOrderItems(orderId: string) {
   const { data } = await supabase.from('order_items').select('id,product_name,unit_price,quantity').eq('order_id', orderId)
   orderItems[orderId] = Array.isArray(data) ? data : []
+  return orderItems[orderId]
 }
+
+async function printReceipt(o: any) {
+  receiptOrder.value = o
+  receiptItems.value = []
+  showReceipt.value = true
+  if (orderItems[o.id]) {
+    receiptItems.value = orderItems[o.id]
+  } else {
+    receiptItems.value = await loadOrderItems(o.id)
+  }
+}
+
+function triggerPrint() {
+  window.print()
+}
+
 async function loadOrders() {
   const storeId = admin.selectedShopId
   if (!storeId) return
@@ -162,6 +246,13 @@ async function deleteOrder(o: any) {
   await supabase.from('orders').delete().eq('id', o.id).eq('store_id', storeId)
   await loadOrders()
 }
+
+async function loadStoreName() {
+  if (!admin.selectedShopId) return
+  const { data } = await supabase.from('stores').select('name').eq('id', admin.selectedShopId).maybeSingle()
+  if (data) storeName.value = data.name
+}
+
 watch([search, statusFilter, startDate], () => loadOrders())
 onMounted(async () => {
   if (!admin.selectedShopId) {
@@ -175,6 +266,7 @@ onMounted(async () => {
     const sid = Array.isArray(s) && s[0]?.id ? String(s[0].id) : ''
     if (sid) admin.selectShop(sid)
   }
+  await loadStoreName()
   await loadOrders()
 })
 useHead({ title: 'Admin | Commandes' })
