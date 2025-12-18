@@ -2,9 +2,10 @@
   <div class="bg-white">
     <MarketingHeader />
 
-    <div class="relative isolate px-6 pt-14 lg:px-8 bg-gradient-to-b from-indigo-50 to-white">
+    <!-- Hero with Gradient -->
+    <div class="relative isolate px-6 pt-14 lg:px-8 bg-gradient-to-b from-green-50 to-white">
       <div class="mx-auto max-w-2xl py-24 sm:py-40 text-center">
-        <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-fuchsia-600">
+        <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl bg-clip-text text-transparent bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600">
           Secteurs d’activité
         </h1>
         <p class="mt-6 text-lg leading-8 text-gray-700">
@@ -12,13 +13,13 @@
         </p>
       </div>
       <div class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]" aria-hidden="true">
-        <div class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#c4b5fd] to-[#6366f1] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
+        <div class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#4ade80] to-[#2dd4bf] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
       </div>
     </div>
 
     <div class="mx-auto max-w-7xl px-6 lg:px-8 pb-24">
       <div class="mx-auto max-w-2xl text-center">
-        <div class="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700 ring-1 ring-inset ring-indigo-100">
+        <div class="inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-700 ring-1 ring-inset ring-green-100">
           <span>Secteurs couverts</span>
         </div>
         <p class="mt-4 text-base leading-7 text-gray-600">
@@ -55,7 +56,7 @@
               {{ groupShort(i.group) }}
             </div>
             <div>
-              <h2 class="text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">
+              <h2 class="text-lg font-semibold text-gray-900 group-hover:text-green-600 transition-colors">
                 {{ i.title }}
               </h2>
               <p class="mt-1 text-sm text-gray-600">
@@ -127,7 +128,7 @@
             </div>
           </div>
 
-          <div class="mt-5 flex items-center justify-between text-sm font-semibold text-indigo-600">
+          <div class="mt-5 flex items-center justify-between text-sm font-semibold text-green-600">
             <span>Voir le détail</span>
             <span aria-hidden="true">→</span>
           </div>
@@ -142,7 +143,7 @@
         <div class="mt-8 flex justify-center gap-4">
           <NuxtLink
             to="/auth/register"
-            class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            class="rounded-md bg-green-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
           >
             Commencer gratuitement
           </NuxtLink>
@@ -159,7 +160,7 @@
           </div>
           <div class="flex gap-2">
             <NuxtLink to="/pricing" class="rounded-full px-3 py-1.5 text-[11px] font-semibold text-gray-900 ring-1 ring-gray-200">Tarifs</NuxtLink>
-            <NuxtLink to="/auth/register" class="rounded-full px-3 py-1.5 text-[11px] font-bold text-white bg-indigo-600">Créer un compte</NuxtLink>
+            <NuxtLink to="/auth/register" class="rounded-full px-3 py-1.5 text-[11px] font-bold text-white bg-green-600">Créer un compte</NuxtLink>
           </div>
         </div>
       </div>

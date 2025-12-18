@@ -275,21 +275,21 @@
                 </div>
 
                 <!-- Business Banner -->
-                <div v-if="isFreePlan" class="bg-blue-50 border-l-4 border-blue-400 p-4 flex items-center justify-between">
+                <div v-if="isFreePlan" class="bg-green-50 border-l-4 border-green-400 p-4 flex items-center justify-between">
                    <div class="flex items-center">
                       <div class="flex-shrink-0">
                          <!-- Lightning Icon -->
-                         <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                         <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
                          </svg>
                       </div>
                       <div class="ml-3">
-                         <p class="text-sm text-blue-700">
+                         <p class="text-sm text-green-700">
                             Mise à niveau nécessaire pour utiliser Business
                          </p>
                       </div>
                    </div>
-                   <button class="bg-white text-blue-600 px-3 py-1 rounded text-sm font-medium border border-blue-200 hover:bg-blue-50">
+                   <button class="bg-white text-green-600 px-3 py-1 rounded text-sm font-medium border border-green-200 hover:bg-green-50">
                       Mise à niveau
                    </button>
                 </div>
@@ -512,15 +512,15 @@
                       <span class="text-gray-500">{{ productCount }} / {{ subscription?.plan?.max_products || 'Illimité' }}</span>
                   </div>
                   <div class="w-full bg-gray-200 rounded-full h-2.5">
-                      <div class="bg-blue-600 h-2.5 rounded-full" :style="{ width: Math.min((productCount / (subscription?.plan?.max_products || 100)) * 100, 100) + '%' }"></div>
+                      <div class="bg-green-600 h-2.5 rounded-full" :style="{ width: Math.min((productCount / (subscription?.plan?.max_products || 100)) * 100, 100) + '%' }"></div>
                   </div>
               </div>
           </div>
 
           <!-- Plans Grid -->
           <div class="grid md:grid-cols-3 gap-6">
-              <div v-for="plan in plans" :key="plan.id" class="border rounded-lg p-6 relative flex flex-col" :class="{'border-blue-500 ring-1 ring-blue-500': subscription?.plan_id === plan.id, 'bg-white': true}">
-                  <div v-if="subscription?.plan_id === plan.id" class="absolute top-0 right-0 bg-blue-500 text-white text-xs px-2 py-1 rounded-bl-lg rounded-tr-lg font-medium">
+              <div v-for="plan in plans" :key="plan.id" class="border rounded-lg p-6 relative flex flex-col" :class="{'border-green-500 ring-1 ring-green-500': subscription?.plan_id === plan.id, 'bg-white': true}">
+                  <div v-if="subscription?.plan_id === plan.id" class="absolute top-0 right-0 bg-green-500 text-white text-xs px-2 py-1 rounded-bl-lg rounded-tr-lg font-medium">
                       Actuel
                   </div>
                   <h4 class="text-lg font-semibold text-gray-900">{{ plan.name }}</h4>

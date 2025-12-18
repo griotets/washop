@@ -2,9 +2,9 @@
   <div>
     <div class="flex items-center justify-between">
       <h1 class="text-2xl font-bold">Modification en bloc</h1>
-      <button class="rounded-lg bg-gray-900 px-3 py-2 text-sm font-semibold text-white" :disabled="saving" @click="save">Sauvegarder</button>
+      <button class="rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white" :disabled="saving" @click="save">Sauvegarder</button>
     </div>
-    <div class="mt-3 rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-700">Mise à niveau nécessaire pour utiliser Premium</div>
+    <div class="mt-3 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700">Mise à niveau nécessaire pour utiliser Premium</div>
 
     <div class="mt-4 flex items-center justify-between">
       <div class="flex items-center rounded-lg border bg-white px-3 py-2 w-full max-w-xl">

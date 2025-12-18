@@ -67,7 +67,7 @@
         </div>
         <div class="mt-2 text-sm text-gray-700">{{ (popupBlock?.description) || 'Bénéficiez de 20 % de réduction sur votre premier achat.' }}</div>
         <div class="mt-3">
-          <a v-if="popupBlock?.link" :href="popupBlock?.link" target="_blank" class="rounded bg-gray-900 px-3 py-2 text-sm text-white">Découvrir</a>
+          <a v-if="popupBlock?.link" :href="popupBlock?.link" target="_blank" class="rounded bg-green-600 px-3 py-2 text-sm text-white">Découvrir</a>
           <span v-else class="rounded border bg-white px-3 py-2 text-sm">Aucun lien</span>
         </div>
       </div>

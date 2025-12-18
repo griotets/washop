@@ -62,7 +62,7 @@
         </form>
       </div>
 
-      <div class="rounded-xl bg-indigo-50 p-6">
+      <div class="rounded-xl bg-green-50 p-6">
         <div class="mx-auto w-full max-w-sm rounded-2xl bg-white shadow">
           <div class="flex items-center justify-between px-4 py-3">
             <div class="h-4 w-6 rounded bg-gray-200"></div>

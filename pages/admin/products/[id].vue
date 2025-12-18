@@ -4,7 +4,7 @@
       <h1 class="text-2xl font-bold">Modifier le produit</h1>
       <div class="flex items-center gap-2">
         <NuxtLink to="/admin/products" class="rounded-lg border bg-white px-3 py-2 text-sm">Retour à la liste</NuxtLink>
-        <button class="rounded-lg bg-gray-900 px-3 py-2 text-sm font-semibold text-white" :disabled="saving || !isValid" @click="save">Sauvegarder</button>
+        <button class="rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white" :disabled="saving || !isValid" @click="save">Sauvegarder</button>
         <button class="rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white" :disabled="deleting" @click="remove">Supprimer</button>
       </div>
     </div>

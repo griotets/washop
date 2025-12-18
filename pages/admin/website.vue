@@ -3,19 +3,19 @@
     <div class="flex items-center justify-between">
       <h1 class="text-2xl font-bold">Design</h1>
       <div class="flex items-center gap-3">
-        <button class="rounded-lg bg-gray-900 px-3 py-2 text-sm font-semibold text-white" @click="saveConfig">Mettre à jour</button>
+        <button class="rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white" @click="saveConfig">Mettre à jour</button>
       </div>
     </div>
 
     <div class="mt-4 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
       <div>
         <div class="flex items-center gap-6 border-b">
-          <button :class="tab==='vitrine'?'border-b-2 border-gray-900 font-semibold px-2 py-3':'px-2 py-3 text-gray-600'" @click="tab='vitrine'">Vitrine</button>
-          <button :class="tab==='caisse'?'border-b-2 border-gray-900 font-semibold px-2 py-3':'px-2 py-3 text-gray-600'" @click="tab='caisse'">Caisse</button>
-          <button :class="tab==='apparence'?'border-b-2 border-gray-900 font-semibold px-2 py-3':'px-2 py-3 text-gray-600'" @click="tab='apparence'">Apparence</button>
-          <button :class="tab==='menu'?'border-b-2 border-gray-900 font-semibold px-2 py-3':'px-2 py-3 text-gray-600'" @click="tab='menu'">Menu</button>
+          <button :class="tab==='vitrine'?'border-b-2 border-green-600 font-semibold px-2 py-3':'px-2 py-3 text-gray-600'" @click="tab='vitrine'">Vitrine</button>
+          <button :class="tab==='caisse'?'border-b-2 border-green-600 font-semibold px-2 py-3':'px-2 py-3 text-gray-600'" @click="tab='caisse'">Caisse</button>
+          <button :class="tab==='apparence'?'border-b-2 border-green-600 font-semibold px-2 py-3':'px-2 py-3 text-gray-600'" @click="tab='apparence'">Apparence</button>
+          <button :class="tab==='menu'?'border-b-2 border-green-600 font-semibold px-2 py-3':'px-2 py-3 text-gray-600'" @click="tab='menu'">Menu</button>
           <div class="ml-auto">
-            <button class="rounded-lg bg-gray-900 px-3 py-2 text-sm font-semibold text-white" @click="addBlock">Ajouter une carte</button>
+            <button class="rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white" @click="addBlock">Ajouter une carte</button>
           </div>
         </div>
 
@@ -49,8 +49,8 @@
               <div>
                 <label class="block text-sm font-medium">Disposition</label>
                 <div class="mt-1 flex items-center gap-2">
-                  <button :class="b.layout==='list' ? 'rounded px-3 py-1 text-xs bg-gray-900 text-white' : 'rounded px-3 py-1 text-xs border bg-white'" @click="b.layout='list'">Liste</button>
-                  <button :class="b.layout==='grid' ? 'rounded px-3 py-1 text-xs bg-gray-900 text-white' : 'rounded px-3 py-1 text-xs border bg-white'" @click="b.layout='grid'">Grille</button>
+                  <button :class="b.layout==='list' ? 'rounded px-3 py-1 text-xs bg-green-600 text-white' : 'rounded px-3 py-1 text-xs border bg-white'" @click="b.layout='list'">Liste</button>
+                  <button :class="b.layout==='grid' ? 'rounded px-3 py-1 text-xs bg-green-600 text-white' : 'rounded px-3 py-1 text-xs border bg-white'" @click="b.layout='grid'">Grille</button>
                 </div>
               </div>
               <label class="mt-3 inline-flex items-center gap-2">

@@ -4,9 +4,9 @@
     <MarketingHeader />
 
     <!-- Hero with Gradient -->
-    <div class="relative isolate px-6 pt-14 lg:px-8 bg-gradient-to-b from-blue-50 to-white">
+    <div class="relative isolate px-6 pt-14 lg:px-8 bg-gradient-to-b from-green-50 to-white">
       <div class="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56 text-center">
-        <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+        <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-emerald-600">
           À propos de Wa-Shop
         </h1>
         <p class="mt-6 text-lg leading-8 text-gray-600">
@@ -16,7 +16,7 @@
       
       <!-- Decorative Gradient Blurs -->
       <div class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]" aria-hidden="true">
-        <div class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
+        <div class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#4ade80] to-[#22c55e] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
       </div>
     </div>
 
@@ -63,13 +63,13 @@
                           
                           <!-- Chart Placeholder -->
                           <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 h-32 flex items-end justify-between px-2 pb-2">
-                             <div class="w-2 bg-blue-100 h-1/3 rounded-t"></div>
-                             <div class="w-2 bg-blue-200 h-1/2 rounded-t"></div>
-                             <div class="w-2 bg-blue-300 h-2/3 rounded-t"></div>
-                             <div class="w-2 bg-blue-400 h-1/2 rounded-t"></div>
-                             <div class="w-2 bg-blue-500 h-3/4 rounded-t"></div>
-                             <div class="w-2 bg-blue-600 h-full rounded-t"></div>
-                             <div class="w-2 bg-blue-500 h-2/3 rounded-t"></div>
+                             <div class="w-2 bg-green-100 h-1/3 rounded-t"></div>
+                             <div class="w-2 bg-green-200 h-1/2 rounded-t"></div>
+                             <div class="w-2 bg-green-300 h-2/3 rounded-t"></div>
+                             <div class="w-2 bg-green-400 h-1/2 rounded-t"></div>
+                             <div class="w-2 bg-green-500 h-3/4 rounded-t"></div>
+                             <div class="w-2 bg-green-600 h-full rounded-t"></div>
+                             <div class="w-2 bg-green-500 h-2/3 rounded-t"></div>
                           </div>
                           
                           <!-- Recent Orders -->

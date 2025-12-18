@@ -93,7 +93,7 @@
               </div>
             </div>
           </div>
-          <button class="w-full rounded-lg bg-gray-900 text-white px-5 py-3 font-semibold" @click="subscribe">{{
+          <button class="w-full rounded-lg bg-green-600 text-white px-5 py-3 font-semibold" @click="subscribe">{{
             t('register.subscribeButton') }}</button>
           <button class="w-full rounded-lg border border-gray-300 px-5 py-3 font-semibold" @click="skip">{{
             t('register.skip') }}</button>

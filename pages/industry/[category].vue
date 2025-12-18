@@ -2,9 +2,9 @@
   <div class="bg-white">
     <MarketingHeader />
 
-    <div class="relative isolate px-6 pt-14 lg:px-8 bg-gradient-to-b from-indigo-50 to-white">
+    <div class="relative isolate px-6 pt-14 lg:px-8 bg-gradient-to-b from-green-50 to-white">
       <div class="mx-auto max-w-2xl py-24 sm:py-40 text-center">
-        <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
+        <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-teal-600">
           {{ content.title }}
         </h1>
         <p class="mt-6 text-lg leading-8 text-gray-700">
@@ -15,7 +15,7 @@
         </p>
       </div>
       <div class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]" aria-hidden="true">
-        <div class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#c4b5fd] to-[#6366f1] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
+        <div class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#4ade80] to-[#2dd4bf] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
       </div>
     </div>
 
@@ -26,7 +26,7 @@
             <span
               v-for="b in content.benefits"
               :key="b"
-              class="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-sm text-indigo-700 ring-1 ring-inset ring-indigo-100"
+              class="inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1 text-sm text-green-700 ring-1 ring-inset ring-green-100"
             >
               {{ b }}
             </span>
@@ -64,22 +64,22 @@
                       <div class="bg-white p-2 rounded-lg shadow-sm">
                         <div class="bg-gray-200 h-20 rounded-md mb-2"></div>
                         <div class="h-3 w-3/4 bg-gray-300 rounded mb-1"></div>
-                        <div class="h-3 w-1/2 bg-indigo-600 rounded"></div>
+                        <div class="h-3 w-1/2 bg-green-600 rounded"></div>
                       </div>
                       <div class="bg-white p-2 rounded-lg shadow-sm">
                         <div class="bg-gray-200 h-20 rounded-md mb-2"></div>
                         <div class="h-3 w-3/4 bg-gray-300 rounded mb-1"></div>
-                        <div class="h-3 w-1/2 bg-indigo-600 rounded"></div>
+                        <div class="h-3 w-1/2 bg-green-600 rounded"></div>
                       </div>
                       <div class="bg-white p-2 rounded-lg shadow-sm">
                         <div class="bg-gray-200 h-20 rounded-md mb-2"></div>
                         <div class="h-3 w-3/4 bg-gray-300 rounded mb-1"></div>
-                        <div class="h-3 w-1/2 bg-indigo-600 rounded"></div>
+                        <div class="h-3 w-1/2 bg-green-600 rounded"></div>
                       </div>
                       <div class="bg-white p-2 rounded-lg shadow-sm">
                         <div class="bg-gray-200 h-20 rounded-md mb-2"></div>
                         <div class="h-3 w-3/4 bg-gray-300 rounded mb-1"></div>
-                        <div class="h-3 w-1/2 bg-indigo-600 rounded"></div>
+                        <div class="h-3 w-1/2 bg-green-600 rounded"></div>
                       </div>
                     </div>
                     <div class="bg-white rounded-lg p-3 border">
@@ -102,12 +102,12 @@
                       <div class="bg-white p-2 rounded-lg shadow-sm">
                         <div class="bg-gray-200 h-24 rounded-md mb-2"></div>
                         <div class="h-3 w-3/4 bg-gray-300 rounded mb-1"></div>
-                        <div class="h-3 w-1/2 bg-indigo-600 rounded"></div>
+                        <div class="h-3 w-1/2 bg-green-600 rounded"></div>
                       </div>
                       <div class="bg-white p-2 rounded-lg shadow-sm">
                         <div class="bg-gray-200 h-24 rounded-md mb-2"></div>
                         <div class="h-3 w-3/4 bg-gray-300 rounded mb-1"></div>
-                        <div class="h-3 w-1/2 bg-indigo-600 rounded"></div>
+                        <div class="h-3 w-1/2 bg-green-600 rounded"></div>
                       </div>
                     </div>
                   </div>
@@ -285,7 +285,7 @@
               <div class="text-lg font-semibold text-gray-900">{{ r.title }}</div>
             </div>
             <div class="mt-2 text-gray-600 text-sm line-clamp-2">{{ r.subtitle }}</div>
-            <div class="mt-4 text-indigo-600 text-sm font-semibold">Voir la page →</div>
+            <div class="mt-4 text-green-600 text-sm font-semibold">Voir la page →</div>
           </NuxtLink>
         </div>
       </div>
@@ -293,7 +293,7 @@
       <div class="mx-auto max-w-2xl text-center mt-16 mb-24 lg:mb-16">
         <NuxtLink
           to="/auth/register"
-          class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          class="rounded-md bg-green-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
         >
           Commencer gratuitement
         </NuxtLink>
@@ -332,14 +332,14 @@ const isEcom = computed(() => ECOM_SLUGS.has(slug.value))
 const isServices = computed(() => !isFood.value && !isEcom.value)
 
 const headerClass = computed(() => {
-  if (isFood.value) return 'bg-indigo-600'
-  if (isEcom.value) return 'bg-blue-600'
-  return 'bg-purple-600'
+  if (isFood.value) return 'bg-green-600'
+  if (isEcom.value) return 'bg-emerald-600'
+  return 'bg-teal-600'
 })
 const ctaClass = computed(() => {
-  if (isFood.value) return 'bg-indigo-600'
-  if (isEcom.value) return 'bg-blue-600'
-  return 'bg-purple-600'
+  if (isFood.value) return 'bg-green-600'
+  if (isEcom.value) return 'bg-emerald-600'
+  return 'bg-teal-600'
 })
 const groupLabel = computed(() => {
   if (isFood.value) return 'Restauration'
