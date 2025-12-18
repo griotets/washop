@@ -198,6 +198,8 @@
         </button>
       </div>
     </div>
+
+    <CatalogFooter v-if="storeData" :social="storeData.social" />
   </div>
 </template>
 
@@ -244,7 +246,7 @@ onMounted(async () => {
   loadStoreConfig()
   
   // Fetch store info
-  const { data, error } = await supabase.from('stores').select('id, name, phone, color, image_url').eq('slug', slug.value).maybeSingle()
+  const { data, error } = await supabase.from('stores').select('id, name, phone, color, image_url, social_whatsapp, social_facebook, social_instagram, social_telegram').eq('slug', slug.value).maybeSingle()
   if (error) {
      console.error(error)
      const toast = useToast()
@@ -256,7 +258,13 @@ onMounted(async () => {
        name: data.name,
        phone: data.phone,
        color: data.color,
-       logoUrl: data.image_url
+       logoUrl: data.image_url,
+       social: {
+         whatsapp: data.social_whatsapp,
+         facebook: data.social_facebook,
+         instagram: data.social_instagram,
+         telegram: data.social_telegram
+       }
      }
      localStorage.setItem(`store:${slug.value}`, JSON.stringify(storeData.value))
   }
@@ -365,6 +373,14 @@ async function submitOrder() {
       
       const message = `${baseUrl}\n\n*Nouvelle Commande Wa-Shop #${order.id.slice(0, 8)}*\n\n${lines}\n\n*Total : ${cart.total.toLocaleString('fr-FR')} XAF*\n\n----------------\n${deliveryDetails}\n\n📄 Facture: ${billUrl}\n🏪 Boutique: ${storeUrl}`
       
+      // Track WhatsApp Click
+      if (storeData.value?.id) {
+         supabase.from('analytics_log').insert({
+           store_id: storeData.value.id,
+           event_type: 'whatsapp_click'
+         }).then(() => {}) 
+      }
+
       const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
       window.open(whatsappUrl, '_blank')
     }

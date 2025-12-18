@@ -7,11 +7,25 @@
             <div class="text-sm text-gray-700">{{ rangeLabel }}</div>
             <input type="date" class="rounded border px-2 py-1 text-sm" v-model="rangeStartStr" />
           </div>
-          <div class="mt-4 grid gap-4 sm:grid-cols-3">
+          <div class="mt-4 grid gap-4 sm:grid-cols-4">
             <div class="rounded-lg border bg-white p-4">
-              <div class="text-xs text-gray-600">Points de vue</div>
+              <div class="text-xs text-gray-600">Vues de page</div>
               <div class="mt-1 text-2xl font-bold">{{ metrics.views }}</div>
             </div>
+            <div class="rounded-lg border bg-white p-4">
+              <div class="text-xs text-gray-600">Vues produit</div>
+              <div class="mt-1 text-2xl font-bold">{{ metrics.productViews }}</div>
+            </div>
+            <div class="rounded-lg border bg-white p-4">
+              <div class="text-xs text-gray-600">Ajouts au panier</div>
+              <div class="mt-1 text-2xl font-bold">{{ metrics.cartAdds }}</div>
+            </div>
+            <div class="rounded-lg border bg-white p-4">
+              <div class="text-xs text-gray-600">Clics WhatsApp</div>
+              <div class="mt-1 text-2xl font-bold">{{ metrics.whatsappClicks }}</div>
+            </div>
+          </div>
+          <div class="mt-4 grid gap-4 sm:grid-cols-2">
             <div class="rounded-lg border bg-white p-4">
               <div class="text-xs text-gray-600">Commandes</div>
               <div class="mt-1 text-2xl font-bold">{{ metrics.orders }}</div>
@@ -110,7 +124,8 @@ definePageMeta({ layout: 'admin' })
 const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
 const admin = useAdminStore()
-const metrics = reactive({ views: 0, orders: 0, sales: 0 })
+const metrics = reactive({ views: 0, orders: 0, sales: 0, productViews: 0, cartAdds: 0, whatsappClicks: 0 })
+const recentOrders = ref<any[]>([])
 const rangeStart = ref(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
 const rangeEnd = ref(new Date())
 const rangeStartStr = computed({
@@ -170,6 +185,16 @@ async function loadMetrics() {
   const startIso = rangeStart.value.toISOString()
   const { count: viewsCount } = await supabase.from('analytics_log').select('id', { count: 'exact', head: true }).eq('store_id', currentStoreId).eq('event_type', 'page_view').gte('created_at', startIso)
   metrics.views = Number(viewsCount || 0)
+  
+  const { count: productViewsCount } = await supabase.from('analytics_log').select('id', { count: 'exact', head: true }).eq('store_id', currentStoreId).eq('event_type', 'product_view').gte('created_at', startIso)
+  metrics.productViews = Number(productViewsCount || 0)
+
+  const { count: cartAddsCount } = await supabase.from('analytics_log').select('id', { count: 'exact', head: true }).eq('store_id', currentStoreId).eq('event_type', 'add_to_cart').gte('created_at', startIso)
+  metrics.cartAdds = Number(cartAddsCount || 0)
+
+  const { count: whatsappClicksCount } = await supabase.from('analytics_log').select('id', { count: 'exact', head: true }).eq('store_id', currentStoreId).eq('event_type', 'whatsapp_click').gte('created_at', startIso)
+  metrics.whatsappClicks = Number(whatsappClicksCount || 0)
+
   const { data: ordersData } = await supabase.from('orders').select('id,total_amount,created_at,status').eq('store_id', currentStoreId).gte('created_at', startIso)
   const rows = Array.isArray(ordersData) ? ordersData : []
   metrics.orders = rows.length

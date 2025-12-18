@@ -4,16 +4,17 @@
     
     <main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
       <!-- Hero Section -->
-      <div v-if="appearance.bannerText || storeInfo.name" class="relative overflow-hidden rounded-2xl bg-white shadow-sm mb-12">
+      <div class="relative overflow-hidden rounded-2xl bg-white shadow-sm mb-12">
         <div class="absolute inset-0 bg-gradient-to-r from-gray-900/10 to-gray-900/5"></div>
         <div class="relative px-6 py-12 sm:px-12 sm:py-16 text-center sm:text-left">
           <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl md:text-5xl">
             <span class="block text-primary" :style="{ color: appearance.primary }">{{ storeInfo.name || 'Bienvenue' }}</span>
-            <span class="block text-xl sm:text-2xl mt-2 font-medium text-gray-600">{{ appearance.bannerText || 'Découvrez nos produits' }}</span>
+            <span v-if="appearance.bannerEnabled && appearance.bannerText" class="block text-xl sm:text-2xl mt-2 font-medium text-gray-600">{{ appearance.bannerText }}</span>
+            <span v-else-if="!appearance.bannerEnabled" class="block text-xl sm:text-2xl mt-2 font-medium text-gray-600">Découvrez nos produits</span>
           </h1>
-          <div v-if="appearance.bannerLink" class="mt-8">
-            <a :href="appearance.bannerLink" target="_blank" class="inline-flex items-center justify-center rounded-lg border border-transparent px-6 py-3 text-base font-medium text-white shadow-sm hover:opacity-90 transition-opacity" :style="{ backgroundColor: appearance.primary }">
-              En savoir plus
+          <div v-if="appearance.bannerEnabled && (appearance.bannerBtnText || appearance.bannerLink)" class="mt-8">
+            <a :href="appearance.bannerLink || '#'" target="_blank" class="inline-flex items-center justify-center rounded-lg border border-transparent px-6 py-3 text-base font-medium text-white shadow-sm hover:opacity-90 transition-opacity" :style="{ backgroundColor: appearance.primary }">
+              {{ appearance.bannerBtnText || 'En savoir plus' }}
             </a>
           </div>
         </div>
@@ -146,6 +147,10 @@
     <CatalogFooter />
     
     <!-- Popup -->
+    <!-- Footer -->
+    <CatalogFooter :social="storeInfo.social" />
+
+    <!-- Popup -->
     <div v-if="showPopup" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
         <div class="flex items-center justify-between mb-4">
@@ -190,13 +195,21 @@ const storeInfo = reactive({
   description: '',
   logoUrl: '',
   phone: '',
-  color: '#25D366'
+  color: '#25D366',
+  social: {
+    whatsapp: '',
+    facebook: '',
+    instagram: '',
+    telegram: ''
+  }
 })
 
 const appearance = reactive({
   primary: '#25D366',
   background: '#ffffff',
+  bannerEnabled: false,
   bannerText: '',
+  bannerBtnText: '',
   bannerLink: '',
   popupEnabled: false,
   popupTitle: '',
@@ -380,7 +393,7 @@ onMounted(async () => {
     console.log('Fetching store for slug:', slug.value)
     const { data: store, error: storeError } = await supabase
       .from('stores')
-      .select('id,name,image_url,phone,color') // removed description
+      .select('id,name,image_url,phone,color,social_whatsapp,social_facebook,social_instagram,social_telegram,design_settings') 
       .eq('slug', slug.value)
       .maybeSingle()
 
@@ -404,10 +417,44 @@ onMounted(async () => {
     storeInfo.description = '' 
     storeInfo.logoUrl = store.image_url
     storeInfo.phone = store.phone
+    storeInfo.social.whatsapp = store.social_whatsapp
+    storeInfo.social.facebook = store.social_facebook
+    storeInfo.social.instagram = store.social_instagram
+    storeInfo.social.telegram = store.social_telegram
+
     if (store.color) {
       storeInfo.color = store.color
       appearance.primary = store.color
     }
+
+    // Apply Design Settings
+    if (store.design_settings) {
+      const ds = store.design_settings
+      appearance.bannerEnabled = !!ds.banner_enabled
+      appearance.bannerText = ds.banner_text || ''
+      appearance.bannerBtnText = ds.banner_btn_text || ''
+      appearance.bannerLink = ds.banner_link || ''
+      
+      appearance.popupEnabled = !!ds.popup_enabled
+      appearance.popupTitle = ds.popup_title || ''
+      appearance.popupDescription = ds.popup_description || ''
+      appearance.popupLink = ds.popup_link || ''
+
+      // Handle Popup Display Logic
+      if (appearance.popupEnabled) {
+        const seen = localStorage.getItem(`popupShown:${slug.value}`)
+        if (!seen) {
+           // Delay slightly for better UX
+           setTimeout(() => { showPopup.value = true }, 2000)
+        }
+      }
+    }
+
+    // Track Page View
+    supabase.from('analytics_log').insert({
+      store_id: store.id,
+      event_type: 'page_view'
+    }).then(({ error }) => { if(error) console.error('Track view error', error) })
 
     // Save to local storage for header usage (legacy compat)
     localStorage.setItem(`store:${slug.value}`, JSON.stringify(storeInfo))

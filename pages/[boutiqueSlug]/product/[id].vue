@@ -33,7 +33,7 @@
                 <div class="font-semibold">{{ store.name || 'Boutique' }}</div>
                 <div class="text-xs text-gray-500">en ligne</div>
               </div>
-              <a v-if="waLink" :href="waLink" target="_blank" class="rounded bg-green-500 px-3 py-2 text-xs font-semibold text-white">WhatsApp</a>
+              <a v-if="waLink" :href="waLink" target="_blank" @click="trackWaClick" class="rounded bg-green-500 px-3 py-2 text-xs font-semibold text-white">WhatsApp</a>
             </div>
             <div class="mt-3">
               <div class="text-xl font-bold">{{ product.name || 'Produit' }}</div>
@@ -90,7 +90,7 @@ function closePopup() {
   showPopup.value = false
   try { localStorage.setItem(`popupShown:${slug.value}`, '1') } catch {}
 }
-const store = reactive<{ name?: string; logoUrl?: string; color?: string; phone?: string }>({})
+const store = reactive<{ id?: string; name?: string; logoUrl?: string; color?: string; phone?: string }>({})
 const product = reactive<{ 
   id?: string;
   name?: string; 
@@ -125,6 +125,15 @@ const waLink = computed(() => {
   return `https://wa.me/${phone.replace(/\D/g, '')}?text=${text}`
 })
 
+function trackWaClick() {
+  if (store.id) {
+    supabase.from('analytics_log').insert({
+      store_id: store.id,
+      event_type: 'whatsapp_click'
+    })
+  }
+}
+
 function getCartQuantity() {
   const item = cart.items.find(i => i.id === productId.value)
   return item ? item.quantity : 0
@@ -153,6 +162,15 @@ function handleUpdateQuantity(delta: number) {
   
   if (currentQty === 0 && delta > 0) {
     console.log('Adding to cart:', productId.value)
+    
+    // Track Add to Cart
+    if (store.id) {
+       supabase.from('analytics_log').insert({
+         store_id: store.id,
+         event_type: 'add_to_cart'
+       }).then(({ error }) => { if(error) console.error('Track add_to_cart error', error) })
+    }
+
     cart.add({
       id: productId.value,
       name: product.name || 'Produit',
@@ -209,6 +227,7 @@ onMounted(async () => {
     toast.error('Erreur chargement boutique: ' + sErr.message)
   }
   const storeId = sone?.id
+  store.id = storeId
   store.name = String(sone?.name || '')
   store.logoUrl = String(sone?.image_url || '')
   store.color = String(sone?.color || '#111827')
@@ -233,6 +252,12 @@ onMounted(async () => {
     product.max_order_quantity = Number(p?.max_order_quantity || 0)
     product.is_out_of_stock = !!p?.is_out_of_stock
     images.value = Array.isArray(p?.images) ? p?.images : (typeof p?.images === 'string' ? JSON.parse(p?.images || '[]') : [])
+    
+    // Track Product View
+    supabase.from('analytics_log').insert({
+      store_id: storeId,
+      event_type: 'product_view'
+    }).then(({ error }) => { if(error) console.error('Track view error', error) })
   }
 })
 useHead({ title: `Produit ${route.params.id} | Wa-Shop` })
