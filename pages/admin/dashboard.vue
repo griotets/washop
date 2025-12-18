@@ -66,33 +66,26 @@
             <button class="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white">Mise à niveau</button>
           </div>
           <div class="mt-4 space-y-2 text-sm">
-            <NuxtLink to="/admin/settings/logo" class="flex items-center justify-between rounded border px-3 py-2">
-              <span>Changer le logo</span>
-              <ExternalLink class="h-4 w-4 text-gray-500" />
-            </NuxtLink>
             <NuxtLink to="/admin/products" class="flex items-center justify-between rounded border px-3 py-2">
               <span>Ajouter des produits</span>
               <ExternalLink class="h-4 w-4 text-gray-500" />
             </NuxtLink>
-            <NuxtLink to="/admin/settings/members" class="flex items-center justify-between rounded border px-3 py-2">
-              <span>Inviter les employés</span>
+
+            <NuxtLink to="/admin/clients/new" class="flex items-center justify-between rounded border px-3 py-2">
+              <span>Ajouter un nouveau client</span>
               <ExternalLink class="h-4 w-4 text-gray-500" />
             </NuxtLink>
-            <NuxtLink to="/admin/setup" class="flex items-center justify-between rounded border px-3 py-2">
-              <span>Assistant de configuration</span>
+
+            <NuxtLink to="/admin/orders/new" class="flex items-center justify-between rounded border px-3 py-2">
+              <span>Ajouter une commande</span>
               <ExternalLink class="h-4 w-4 text-gray-500" />
             </NuxtLink>
+
             <NuxtLink to="/support" class="flex items-center justify-between rounded border px-3 py-2">
               <span>Service d'assistance</span>
               <ExternalLink class="h-4 w-4 text-gray-500" />
             </NuxtLink>
           </div>
-        </div>
-
-        <div class="rounded-xl border bg-white p-6">
-          <div class="font-semibold">Offre Accélérée de 3 mois</div>
-          <p class="mt-2 text-sm text-gray-600">Travaillez avec nos experts et bénéficiez d'un support prioritaire sur WhatsApp.</p>
-          <button class="mt-3 rounded-lg bg-gray-900 px-3 py-2 text-sm font-semibold text-white">Commencez pour 50 $</button>
         </div>
 
         <div class="rounded-xl border bg-white p-6">
