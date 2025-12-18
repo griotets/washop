@@ -4,6 +4,7 @@ export default defineNuxtConfig({
   buildModules: [],
   extends: [],
   runtimeConfig: {
+    huggingfaceApiKey: process.env.HUGGINGFACE_API_KEY,
     public: {
       supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
       supabaseAnonKey: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY,

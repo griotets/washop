@@ -395,16 +395,48 @@ function openFileDialog() {
 async function handleWebsiteImport() {
   if (!websiteUrl.value) return
   
-  // Simulation/Placeholder for website import
   const url = websiteUrl.value.startsWith('http') ? websiteUrl.value : `https://${websiteUrl.value}`
+  notify(`Analyse de ${url} en cours (IA)...`)
   
-  notify(`Analyse de ${url} en cours...`)
-  
-  // Simulate delay
-  await new Promise(resolve => setTimeout(resolve, 1500))
-  
-  notify("Fonctionnalité d'import web bientôt disponible")
-  showImportModal.value = false
+  try {
+    const data = await $fetch('/api/ai/analyze-url', {
+      method: 'POST',
+      body: { url }
+    })
+    
+    if (data && (data.name || data.description)) {
+      const row = {
+        name: data.name || '',
+        price: data.price || 0,
+        description: data.description || '',
+        sku: data.sku || '',
+        stock_quantity: data.stock_quantity || 0,
+        images: data.images?.join(';') || '',
+        category_id: ''
+      }
+      
+      csvRows.value = [row]
+      csvHeaders.value = Object.keys(row)
+      
+      // Auto-map keys
+      columnMapping.name = 'name'
+      columnMapping.price = 'price'
+      columnMapping.description = 'description'
+      columnMapping.sku = 'sku'
+      columnMapping.stock_quantity = 'stock_quantity'
+      columnMapping.images = 'images'
+      columnMapping.category_id = 'category_id'
+      
+      importMethod.value = 'csv'
+      importStep.value = 'mapping'
+      notify('Produit analysé avec succès !')
+    } else {
+      notify('Impossible d\'extraire les informations.')
+    }
+  } catch (e: any) {
+    console.error(e)
+    notify('Erreur lors de l\'analyse : ' + (e.message || 'Inconnue'))
+  }
 }
 
 const toastShow = ref(false)

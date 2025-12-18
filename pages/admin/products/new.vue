@@ -59,7 +59,12 @@
             </div>
           </div>
           <div class="mt-4">
-            <label class="block text-sm font-medium">Description</label>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-sm font-medium">Description</label>
+              <button @click="generateDescription" :disabled="generatingDesc" class="text-xs flex items-center gap-1 text-purple-600 hover:text-purple-700 font-medium disabled:opacity-50">
+                <Sparkles class="h-3 w-3" /> {{ generatingDesc ? 'Rédaction...' : 'Générer avec IA' }}
+              </button>
+            </div>
             <textarea v-model.trim="form.description" rows="4" class="mt-1 w-full rounded-lg border px-3 py-2" placeholder='Decorate with **bold**, ~strike~, _italic_'></textarea>
           </div>
           <div class="mt-4 grid gap-4 sm:grid-cols-2">
@@ -110,7 +115,10 @@
           <div class="mt-4 flex items-center gap-3">
             <input v-model.trim="imageUrl" placeholder="https://..." class="flex-1 rounded-lg border px-3 py-2 text-sm" />
             <button class="rounded-lg border bg-white px-3 py-2 text-sm" @click="addImageUrl">Ajouter l'URL</button>
-            <button class="rounded-lg border bg-white px-3 py-2 text-sm" @click="generateImage">Générer l'image</button>
+            <button class="rounded-lg border bg-white px-3 py-2 text-sm flex items-center gap-2 hover:bg-gray-50" @click="generateImage" :disabled="generatingImage">
+              <Wand2 class="h-4 w-4 text-purple-600" /> 
+              <span>{{ generatingImage ? '...' : 'Générer IA' }}</span>
+            </button>
           </div>
           <div class="mt-4 grid gap-3 sm:grid-cols-3">
             <div v-for="(img,i) in form.images" :key="i" class="relative" draggable="true" @dragstart="onImageTileDragStart(i)" @dragover.prevent @drop="onImageTileDrop(i)">
@@ -321,12 +329,14 @@
 <script setup lang="ts">
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
-import { Upload, GripVertical } from 'lucide-vue-next'
+import { Upload, GripVertical, Sparkles, Wand2 } from 'lucide-vue-next'
 definePageMeta({ layout: 'admin', alias: ['/admin/product/new'] })
 const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
 const admin = useAdminStore()
 const saving = ref(false)
+const generatingDesc = ref(false)
+const generatingImage = ref(false)
 const toast = useToast()
 
 const form = reactive<any>({
@@ -488,9 +498,6 @@ async function onImageDrop(e: DragEvent) {
     await uploadImage(f)
   }
 }
-function generateImage() {
-  toast.info('Génération d’image non activée dans cette version')
-}
 const isValid = computed(() => !!form.name && Number(form.price) >= 0)
 const pendingUploads = ref(new Map<string, File>())
 
@@ -559,6 +566,59 @@ function onOptionDrop(i: number) {
   options.value.splice(i,0,v)
   dragOptionIndex = null
 }
+
+async function generateDescription() {
+  if (!form.name) {
+    toast.error('Veuillez entrer un nom de produit d\'abord')
+    return
+  }
+  generatingDesc.value = true
+  try {
+    const { description } = await $fetch('/api/ai/generate-description', {
+      method: 'POST',
+      body: { 
+        name: form.name,
+        keywords: [form.sku].filter(Boolean).join(', ')
+      }
+    })
+    if (description) {
+      form.description = description
+      toast.success('Description générée !')
+    }
+  } catch (e: any) {
+    toast.error(e.statusMessage || 'Erreur lors de la génération')
+  } finally {
+    generatingDesc.value = false
+  }
+}
+
+async function generateImage() {
+  if (!form.name) {
+    toast.error('Entrez un nom de produit pour guider l\'IA')
+    return
+  }
+  generatingImage.value = true
+  try {
+    const { imageUrl } = await $fetch('/api/ai/generate-image', {
+      method: 'POST',
+      body: { 
+        prompt: form.name + (form.description ? ' ' + form.description.substring(0, 50) : '')
+      }
+    })
+    if (imageUrl) {
+      const res = await fetch(imageUrl)
+      const blob = await res.blob()
+      const file = new File([blob], "ai-generated.jpg", { type: "image/jpeg" })
+      uploadImage(file)
+      toast.success('Image générée !')
+    }
+  } catch (e: any) {
+    toast.error(e.statusMessage || 'Erreur lors de la génération')
+  } finally {
+    generatingImage.value = false
+  }
+}
+
 async function save() {
   if (!isValid.value) return
   const storeId = admin.selectedShopId
