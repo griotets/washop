@@ -3,8 +3,8 @@
     <div class="mx-auto max-w-6xl px-4 py-8">
       <div class="flex flex-col md:flex-row items-center justify-between gap-6">
         <div class="text-sm text-gray-600">
-          <div>Propulsé par Wa-Shop</div>
-          <div class="mt-2"><NuxtLink to="/resources" class="text-gray-600 hover:text-primary">Conditions générales</NuxtLink></div>
+          <div>{{ t('footer.poweredBy') }}</div>
+          <div class="mt-2"><NuxtLink to="/resources" class="text-gray-600 hover:text-primary">{{ t('footer.terms') }}</NuxtLink></div>
         </div>
 
         <!-- Social Links -->
@@ -30,6 +30,7 @@
 <script setup>
 import { MessageCircle, Facebook, Instagram, Send } from 'lucide-vue-next'
 import { computed } from 'vue'
+import { useI18n } from '~/composables/i18n'
 
 const props = defineProps({
   social: {
@@ -46,4 +47,6 @@ const props = defineProps({
 const hasSocialLinks = computed(() => {
   return props.social.whatsapp || props.social.facebook || props.social.instagram || props.social.telegram
 })
+
+const { t } = useI18n()
 </script>

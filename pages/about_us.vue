@@ -7,10 +7,10 @@
     <div class="relative isolate px-6 pt-14 lg:px-8 bg-gradient-to-b from-green-50 to-white">
       <div class="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56 text-center">
         <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-emerald-600">
-          À propos de Wa-Shop
+          {{ t('about.heroTitle') }}
         </h1>
         <p class="mt-6 text-lg leading-8 text-gray-600">
-          Nous aidons les entreprises à vendre en ligne simplement via WhatsApp.
+          {{ t('about.heroSubtitle') }}
         </p>
       </div>
       
@@ -25,12 +25,12 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <!-- Mission Text -->
         <div>
-           <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-6">Notre Mission</h2>
+           <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-6">{{ t('about.missionTitle') }}</h2>
            <p class="text-lg leading-8 text-gray-600 mb-6">
-             Wa-Shop est né d'un constat simple : le commerce  se fait déjà sur WhatsApp, mais les outils manquent pour le rendre efficace. 
+             {{ t('about.missionP1') }}
            </p>
            <p class="text-lg leading-8 text-gray-600">
-             Notre mission est de fournir une plateforme simple, rapide et abordable pour permettre à chaque commerçant de créer sa boutique en ligne en quelques minutes, sans connaissances techniques.
+             {{ t('about.missionP2') }}
            </p>
         </div>
         
@@ -47,14 +47,14 @@
                     <div class="flex flex-col h-full">
                        <!-- Header -->
                        <div class="bg-white p-4 pt-8 shadow-sm border-b flex justify-between items-center">
-                          <div class="font-bold text-gray-800">Tableau de bord</div>
+                          <div class="font-bold text-gray-800">{{ t('about.phoneStoreTitle') }}</div>
                           <div class="h-8 w-8 bg-gray-200 rounded-full"></div>
                        </div>
                        
                        <div class="p-4 space-y-4">
                           <!-- Stats Card -->
                           <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                             <div class="text-xs text-gray-500 uppercase font-semibold">Ventes du jour</div>
+                             <div class="text-xs text-gray-500 uppercase font-semibold">{{ t('about.phoneSalesToday') }}</div>
                              <div class="text-2xl font-bold text-gray-900 mt-1">15,000 FCFA</div>
                              <div class="text-xs text-green-600 mt-1 flex items-center gap-1">
                                 <span>↑ 12%</span> depuis hier
@@ -74,7 +74,7 @@
                           
                           <!-- Recent Orders -->
                           <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                             <div class="px-4 py-3 border-b border-gray-50 font-semibold text-sm">Commandes récentes</div>
+                             <div class="px-4 py-3 border-b border-gray-50 font-semibold text-sm">{{ t('about.phoneRecentOrders') }}</div>
                              <div class="divide-y divide-gray-50">
                                 <div class="px-4 py-3 flex justify-between items-center">
                                    <div>
@@ -108,10 +108,10 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              Accessibilité
+              {{ t('about.card1Title') }}
             </dt>
             <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
-              <p class="flex-auto">Des tarifs adaptés au marché local, avec une version gratuite pour commencer sans risque.</p>
+              <p class="flex-auto">{{ t('about.card1Desc') }}</p>
             </dd>
           </div>
           <div class="flex flex-col bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
@@ -121,10 +121,10 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
                 </svg>
               </div>
-              Simplicité
+              {{ t('about.card2Title') }}
             </dt>
             <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
-              <p class="flex-auto">Une interface intuitive pensée pour le mobile. Gérez votre boutique depuis votre téléphone.</p>
+              <p class="flex-auto">{{ t('about.card2Desc') }}</p>
             </dd>
           </div>
           <div class="flex flex-col bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
@@ -134,10 +134,10 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.746 3.746 0 0121 12z" />
                 </svg>
               </div>
-              Fiabilité
+              {{ t('about.card3Title') }}
             </dt>
             <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
-              <p class="flex-auto">Une technologie robuste qui garantit que votre boutique est toujours accessible pour vos clients.</p>
+              <p class="flex-auto">{{ t('about.card3Desc') }}</p>
             </dd>
           </div>
         </dl>
@@ -148,44 +148,44 @@
     <div class="bg-white pb-24 sm:pb-32">
       <div class="mx-auto max-w-7xl px-6 lg:px-8">
         <div class="mx-auto max-w-2xl text-center border-t border-gray-100 pt-16">
-          <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Prêt à lancer votre boutique ?</h2>
+          <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">{{ t('about.ctaTitle') }}</h2>
           <p class="mx-auto mt-6 max-w-xl text-lg leading-8 text-gray-600">
-            Créez votre compte gratuitement en quelques secondes. Pas de carte bancaire requise.
+            {{ t('about.ctaDesc') }}
           </p>
           <div class="mt-10 flex items-center justify-center gap-x-6">
-            <NuxtLink to="/auth/register" class="rounded-md bg-green-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600">Commencer maintenant</NuxtLink>
-            <a href="mailto:contact@wa-shop.cm" class="text-sm font-semibold leading-6 text-gray-900">Nous contacter <span aria-hidden="true">→</span></a>
+            <NuxtLink to="/auth/register" class="rounded-md bg-green-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600">{{ t('about.ctaStart') }}</NuxtLink>
+            <a href="mailto:contact@wa-shop.cm" class="text-sm font-semibold leading-6 text-gray-900">{{ t('about.ctaContact') }} <span aria-hidden="true">→</span></a>
           </div>
         </div>
         
         <!-- Contact Info Grid -->
         <div class="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-8 text-base leading-7 sm:grid-cols-2 sm:gap-y-16 lg:mx-0 lg:max-w-none lg:grid-cols-4">
             <div>
-                <h3 class="border-l border-green-600 pl-6 font-semibold text-gray-900">Siège Social</h3>
+                <h3 class="border-l border-green-600 pl-6 font-semibold text-gray-900">{{ t('about.officeTitle') }}</h3>
                 <address class="border-l border-gray-200 pl-6 pt-2 not-italic text-gray-600">
                     <p>Douala, Cameroun</p>
                     <p>Akwa, Blvd de la Liberté</p>
                 </address>
             </div>
             <div>
-                <h3 class="border-l border-green-600 pl-6 font-semibold text-gray-900">Contact</h3>
+                <h3 class="border-l border-green-600 pl-6 font-semibold text-gray-900">{{ t('about.contactTitle') }}</h3>
                 <address class="border-l border-gray-200 pl-6 pt-2 not-italic text-gray-600">
                     <p>contact@wa-shop.cm</p>
                     <p>+237 699 00 00 00</p>
                 </address>
             </div>
              <div>
-                <h3 class="border-l border-green-600 pl-6 font-semibold text-gray-900">Support</h3>
+                <h3 class="border-l border-green-600 pl-6 font-semibold text-gray-900">{{ t('about.supportTitle') }}</h3>
                 <address class="border-l border-gray-200 pl-6 pt-2 not-italic text-gray-600">
                     <p>support@wa-shop.cm</p>
                     <p>24/7 via WhatsApp</p>
                 </address>
             </div>
              <div>
-                <h3 class="border-l border-green-600 pl-6 font-semibold text-gray-900">Horaires</h3>
+                <h3 class="border-l border-green-600 pl-6 font-semibold text-gray-900">{{ t('about.hoursTitle') }}</h3>
                 <address class="border-l border-gray-200 pl-6 pt-2 not-italic text-gray-600">
-                    <p>Lundi - Vendredi</p>
-                    <p>8h00 - 18h00</p>
+                    <p>{{ t('about.hoursDays') }}</p>
+                    <p>{{ t('about.hoursTime') }}</p>
                 </address>
             </div>
         </div>
@@ -197,6 +197,9 @@
 </template>
 
 <script setup>
+import { useI18n } from '~/composables/i18n'
+const { t } = useI18n()
+
 useHead({
   title: 'À propos de nous | Wa-Shop',
   meta: [

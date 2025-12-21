@@ -7,10 +7,10 @@
     <div class="relative isolate px-6 pt-14 lg:px-8 bg-gradient-to-b from-green-50 to-white">
       <div class="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56 text-center">
         <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-emerald-600">
-          Plans simples et transparents
+          {{ t('pricing.heroTitle') }}
         </h1>
         <p class="mt-6 text-lg leading-8 text-gray-600">
-          Choisissez le plan qui convient à votre entreprise. Changez ou annulez à tout moment.
+          {{ t('pricing.heroSubtitle') }}
         </p>
       </div>
       
@@ -26,18 +26,18 @@
         <div class="isolate grid max-w-md grid-cols-1 gap-8 mx-auto mt-10 lg:mx-0 lg:max-w-none lg:grid-cols-3">
           <!-- Free -->
           <div class="rounded-3xl p-8 ring-1 ring-gray-200 xl:p-10 hover:shadow-lg transition-shadow duration-300">
-            <h3 class="text-lg font-semibold leading-8 text-gray-900">Gratuit</h3>
-            <p class="mt-4 text-sm leading-6 text-gray-600">Pour démarrer votre activité en ligne.</p>
+            <h3 class="text-lg font-semibold leading-8 text-gray-900">{{ t('pricing.plan.free.name') }}</h3>
+            <p class="mt-4 text-sm leading-6 text-gray-600">{{ t('pricing.plan.free.desc') }}</p>
             <p class="mt-6 flex items-baseline gap-x-1">
               <span class="text-4xl font-bold tracking-tight text-gray-900">0</span>
               <span class="text-sm font-semibold leading-6 text-gray-600">FCFA / mois</span>
             </p>
             <ul role="list" class="mt-8 space-y-3 text-sm leading-6 text-gray-600">
-              <li class="flex gap-x-3"><Check class="h-6 w-5 flex-none text-green-600" /> Commandes WhatsApp illimitées</li>
-              <li class="flex gap-x-3"><Check class="h-6 w-5 flex-none text-green-600" /> Jusqu'à 20 produits</li>
-              <li class="flex gap-x-3"><Check class="h-6 w-5 flex-none text-green-600" /> Sous-domaine wa-shop.cm</li>
+              <li class="flex gap-x-3"><Check class="h-6 w-5 flex-none text-green-600" /> {{ t('pricing.plan.free.feature1') }}</li>
+              <li class="flex gap-x-3"><Check class="h-6 w-5 flex-none text-green-600" /> {{ t('pricing.plan.free.feature2') }}</li>
+              <li class="flex gap-x-3"><Check class="h-6 w-5 flex-none text-green-600" /> {{ t('pricing.plan.free.feature3') }}</li>
             </ul>
-            <NuxtLink to="/auth/register" class="mt-8 block rounded-md py-2 px-3 text-center text-sm font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 ring-1 ring-inset ring-green-200 hover:ring-green-300 text-green-600 hover:bg-green-50">Commencer gratuitement</NuxtLink>
+            <NuxtLink to="/auth/register" class="mt-8 block rounded-md py-2 px-3 text-center text-sm font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 ring-1 ring-inset ring-green-200 hover:ring-green-300 text-green-600 hover:bg-green-50">{{ t('pricing.plan.free.cta') }}</NuxtLink>
           </div>
 
           <!-- Premium -->
@@ -46,37 +46,37 @@
             <div class="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900 -z-10"></div>
             <div class="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-green-500 blur-2xl opacity-20 rounded-full"></div>
             
-            <h3 class="text-lg font-semibold leading-8 text-white">Premium</h3>
-            <p class="mt-4 text-sm leading-6 text-gray-300">Pour les entreprises en pleine croissance.</p>
+            <h3 class="text-lg font-semibold leading-8 text-white">{{ t('pricing.plan.premium.name') }}</h3>
+            <p class="mt-4 text-sm leading-6 text-gray-300">{{ t('pricing.plan.premium.desc') }}</p>
             <p class="mt-6 flex items-baseline gap-x-1">
               <span class="text-4xl font-bold tracking-tight text-white">5,000</span>
               <span class="text-sm font-semibold leading-6 text-gray-300">FCFA / mois</span>
             </p>
             <ul role="list" class="mt-8 space-y-3 text-sm leading-6 text-gray-300">
-              <li class="flex gap-x-3"><Check class="h-6 w-5 flex-none text-green-400" /> Produits illimités</li>
-              <li class="flex gap-x-3"><Check class="h-6 w-5 flex-none text-green-400" /> Statistiques avancées</li>
-              <li class="flex gap-x-3"><Check class="h-6 w-5 flex-none text-green-400" /> Codes promo</li>
-              <li class="flex gap-x-3"><Check class="h-6 w-5 flex-none text-green-400" /> Export CRM clients</li>
-              <li class="flex gap-x-3"><Check class="h-6 w-5 flex-none text-green-400" /> Support prioritaire</li>
+              <li class="flex gap-x-3"><Check class="h-6 w-5 flex-none text-green-400" /> {{ t('pricing.plan.premium.feature1') }}</li>
+              <li class="flex gap-x-3"><Check class="h-6 w-5 flex-none text-green-400" /> {{ t('pricing.plan.premium.feature2') }}</li>
+              <li class="flex gap-x-3"><Check class="h-6 w-5 flex-none text-green-400" /> {{ t('pricing.plan.premium.feature3') }}</li>
+              <li class="flex gap-x-3"><Check class="h-6 w-5 flex-none text-green-400" /> {{ t('pricing.plan.premium.feature4') }}</li>
+              <li class="flex gap-x-3"><Check class="h-6 w-5 flex-none text-green-400" /> {{ t('pricing.plan.premium.feature5') }}</li>
             </ul>
-            <NuxtLink to="/auth/register" class="mt-8 block rounded-md py-2 px-3 text-center text-sm font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-500 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white shadow-lg transition-all transform hover:scale-105">Essayer Premium</NuxtLink>
+            <NuxtLink to="/auth/register" class="mt-8 block rounded-md py-2 px-3 text-center text-sm font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-500 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white shadow-lg transition-all transform hover:scale-105">{{ t('pricing.plan.premium.cta') }}</NuxtLink>
           </div>
 
           <!-- Business -->
           <div class="rounded-3xl p-8 ring-1 ring-gray-200 xl:p-10 hover:shadow-lg transition-shadow duration-300">
-            <h3 class="text-lg font-semibold leading-8 text-gray-900">Business</h3>
-            <p class="mt-4 text-sm leading-6 text-gray-600">Pour les grandes structures et franchises.</p>
+            <h3 class="text-lg font-semibold leading-8 text-gray-900">{{ t('pricing.plan.business.name') }}</h3>
+            <p class="mt-4 text-sm leading-6 text-gray-600">{{ t('pricing.plan.business.desc') }}</p>
             <p class="mt-6 flex items-baseline gap-x-1">
               <span class="text-4xl font-bold tracking-tight text-gray-900">25,000</span>
               <span class="text-sm font-semibold leading-6 text-gray-600">FCFA / mois</span>
             </p>
             <ul role="list" class="mt-8 space-y-3 text-sm leading-6 text-gray-600">
-              <li class="flex gap-x-3"><Check class="h-6 w-5 flex-none text-green-600" /> Tout ce qui est dans Premium</li>
-              <li class="flex gap-x-3"><Check class="h-6 w-5 flex-none text-green-600" /> Nom de domaine personnalisé</li>
-              <li class="flex gap-x-3"><Check class="h-6 w-5 flex-none text-green-600" /> Multi-magasins (jusqu'à 3)</li>
-              <li class="flex gap-x-3"><Check class="h-6 w-5 flex-none text-green-600" /> Marque blanche (sans logo Wa-Shop)</li>
+              <li class="flex gap-x-3"><Check class="h-6 w-5 flex-none text-green-600" /> {{ t('pricing.plan.business.feature1') }}</li>
+              <li class="flex gap-x-3"><Check class="h-6 w-5 flex-none text-green-600" /> {{ t('pricing.plan.business.feature2') }}</li>
+              <li class="flex gap-x-3"><Check class="h-6 w-5 flex-none text-green-600" /> {{ t('pricing.plan.business.feature3') }}</li>
+              <li class="flex gap-x-3"><Check class="h-6 w-5 flex-none text-green-600" /> {{ t('pricing.plan.business.feature4') }}</li>
             </ul>
-            <NuxtLink to="/auth/register" class="mt-8 block rounded-md py-2 px-3 text-center text-sm font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 ring-1 ring-inset ring-green-200 hover:ring-green-300 text-green-600 hover:bg-green-50">Contacter les ventes</NuxtLink>
+            <NuxtLink to="/auth/register" class="mt-8 block rounded-md py-2 px-3 text-center text-sm font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 ring-1 ring-inset ring-green-200 hover:ring-green-300 text-green-600 hover:bg-green-50">{{ t('pricing.plan.business.cta') }}</NuxtLink>
           </div>
         </div>
       </div>
@@ -88,25 +88,25 @@
         <div class="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-2">
           <div class="lg:pr-8 lg:pt-4">
             <div class="lg:max-w-lg">
-              <h2 class="text-base font-semibold leading-7 text-green-600">Mobile First</h2>
-              <p class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Votre boutique dans la poche de vos clients</p>
+              <h2 class="text-base font-semibold leading-7 text-green-600">{{ t('pricing.mobileBadge') }}</h2>
+              <p class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">{{ t('pricing.mobileTitle') }}</p>
               <p class="mt-6 text-lg leading-8 text-gray-600">
-                Wa-Shop est conçu pour offrir une expérience d'achat fluide sur mobile. Vos clients parcourent vos produits et commandent directement sur WhatsApp.
+                {{ t('pricing.mobileDesc') }}
               </p>
               <dl class="mt-10 max-w-xl space-y-8 text-base leading-7 text-gray-600 lg:max-w-none">
                 <div class="relative pl-9">
                   <dt class="inline font-semibold text-gray-900">
                     <Check class="absolute left-1 top-1 h-5 w-5 text-green-600" />
-                    Chargement instantané
+                    {{ t('pricing.mobilePoint1Title') }}
                   </dt>
-                  <dd class="inline">. Pas d'application à télécharger pour vos clients.</dd>
+                  <dd class="inline">. {{ t('pricing.mobilePoint1Desc') }}</dd>
                 </div>
                 <div class="relative pl-9">
                   <dt class="inline font-semibold text-gray-900">
                     <Check class="absolute left-1 top-1 h-5 w-5 text-green-600" />
-                    Interface intuitive
+                    {{ t('pricing.mobilePoint2Title') }}
                   </dt>
-                  <dd class="inline">. Une navigation simple adaptée aux petits écrans.</dd>
+                  <dd class="inline">. {{ t('pricing.mobilePoint2Desc') }}</dd>
                 </div>
               </dl>
             </div>
@@ -124,8 +124,8 @@
                     <div class="flex flex-col h-full">
                        <!-- App Header -->
                        <div class="bg-green-600 text-white p-4 pt-8 shadow-sm">
-                          <div class="font-bold text-lg">Ma Boutique</div>
-                          <div class="text-xs opacity-90">En ligne</div>
+                          <div class="font-bold text-lg">{{ t('pricing.phoneStoreName') }}</div>
+                          <div class="text-xs opacity-90">{{ t('pricing.phoneOnline') }}</div>
                        </div>
                        <!-- Products Grid -->
                        <div class="flex-1 overflow-y-auto p-3 bg-gray-50">
@@ -158,8 +158,8 @@
                        </div>
                        <!-- Bottom Bar -->
                        <div class="bg-white border-t p-3 flex justify-between items-center">
-                          <div class="text-sm font-semibold">2 Articles</div>
-                          <div class="bg-green-600 text-white px-4 py-1.5 rounded-full text-xs font-bold">Commander via WhatsApp</div>
+                          <div class="text-sm font-semibold">{{ t('pricing.phoneItems') }}</div>
+                          <div class="bg-green-600 text-white px-4 py-1.5 rounded-full text-xs font-bold">{{ t('pricing.phoneCta') }}</div>
                        </div>
                     </div>
                 </div>
@@ -175,6 +175,8 @@
 
 <script setup>
 import { Check } from 'lucide-vue-next'
+import { useI18n } from '~/composables/i18n'
+const { t } = useI18n()
 
 useHead({
   title: 'Tarifs et Plans | Wa-Shop',

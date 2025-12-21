@@ -8,25 +8,25 @@
       <nav class="hidden items-center gap-6 md:flex">
         <div class="relative" @mouseenter="pdOpen=true" @mouseleave="pdOpen=false">
           <button class="inline-flex items-center gap-1 text-gray-700 hover:text-primary">
-            <span>Products</span>
+            <span>{{ t('nav.products') }}</span>
             <ChevronDown class="h-4 w-4" />
           </button>
           <div v-if="pdOpen" class="absolute left-0 mt-2 w-64 rounded-xl border bg-white p-2 shadow-lg">
-            <NuxtLink to="/products/whatsapp-order" class="flex items-center gap-2 rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="pdOpen=false">WhatsApp Order</NuxtLink>
-            <NuxtLink to="/products/whatsapp-business-api" class="flex items-center gap-2 rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="pdOpen=false">WhatsApp Business API</NuxtLink>
-            <NuxtLink to="/products/chatbot" class="flex items-center gap-2 rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="pdOpen=false">Chatbot</NuxtLink>
-            <NuxtLink to="/products/telegram-order" class="flex items-center gap-2 rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="pdOpen=false">Telegram Order</NuxtLink>
+            <NuxtLink to="/products/whatsapp-order" class="flex items-center gap-2 rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="pdOpen=false">{{ t('nav.products.whatsappOrder') }}</NuxtLink>
+            <NuxtLink to="/products/whatsapp-business-api" class="flex items-center gap-2 rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="pdOpen=false">{{ t('nav.products.whatsappBusinessApi') }}</NuxtLink>
+            <NuxtLink to="/products/chatbot" class="flex items-center gap-2 rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="pdOpen=false">{{ t('nav.products.chatbot') }}</NuxtLink>
+            <NuxtLink to="/products/telegram-order" class="flex items-center gap-2 rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="pdOpen=false">{{ t('nav.products.telegramOrder') }}</NuxtLink>
           </div>
         </div>
         <div class="relative" @mouseenter="inOpen=true" @mouseleave="inOpen=false">
           <button class="inline-flex items-center gap-1 text-gray-700 hover:text-primary" :aria-expanded="inOpen">
-            <span>Industry</span>
+            <span>{{ t('nav.industry') }}</span>
             <ChevronDown class="h-4 w-4" />
           </button>
           <div v-if="inOpen" class="absolute left-0 mt-2 w-[90vw] max-w-md md:max-w-2xl lg:max-w-3xl rounded-2xl border bg-white p-4 shadow-xl">
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
               <div>
-                <div class="text-sm font-semibold text-gray-500">F&B</div>
+                <div class="text-sm font-semibold text-gray-500">{{ t('nav.group.food') }}</div>
                 <div class="mt-2 flex flex-col">
                   <NuxtLink to="/industry/restaurants" class="rounded px-2 py-1 hover:bg-gray-100">Restaurants</NuxtLink>
                   <NuxtLink to="/industry/cafes" class="rounded px-2 py-1 hover:bg-gray-100">Cafes</NuxtLink>
@@ -39,7 +39,7 @@
                 </div>
               </div>
               <div>
-                <div class="text-sm font-semibold text-gray-500">E-commerce</div>
+                <div class="text-sm font-semibold text-gray-500">{{ t('nav.group.ecommerce') }}</div>
                 <div class="mt-2 flex flex-col">
                   <NuxtLink to="/industry/ecommerce" class="rounded px-2 py-1 hover:bg-gray-100">Ecommerce</NuxtLink>
                   <NuxtLink to="/industry/fashion-apparel" class="rounded px-2 py-1 hover:bg-gray-100">Fashion & Apparel</NuxtLink>
@@ -53,7 +53,7 @@
                 </div>
               </div>
               <div>
-                <div class="text-sm font-semibold text-gray-500">Service</div>
+                <div class="text-sm font-semibold text-gray-500">{{ t('nav.group.service') }}</div>
                 <div class="mt-2 flex flex-col">
                   <NuxtLink to="/industry/salon" class="rounded px-2 py-1 hover:bg-gray-100">Salon</NuxtLink>
                   <NuxtLink to="/industry/laundry" class="rounded px-2 py-1 hover:bg-gray-100">Laundry</NuxtLink>
@@ -70,12 +70,12 @@
             </div>
           </div>
         </div>
-        <NuxtLink to="/pricing" class="text-gray-700 hover:text-primary">Pricing</NuxtLink>
-        <NuxtLink to="/about_us" class="text-gray-700 hover:text-primary">About Us</NuxtLink>
+        <NuxtLink to="/pricing" class="text-gray-700 hover:text-primary">{{ t('nav.pricing') }}</NuxtLink>
+        <NuxtLink to="/about_us" class="text-gray-700 hover:text-primary">{{ t('nav.about') }}</NuxtLink>
       </nav>
       <div class="hidden items-center gap-3 md:flex">
-        <NuxtLink to="/auth/login" class="text-gray-700 hover:text-primary">Login</NuxtLink>
-        <NuxtLink to="/auth/register" class="rounded-lg bg-primary px-4 py-2 font-semibold text-white shadow-sm hover:brightness-95">Start Free</NuxtLink>
+        <NuxtLink to="/auth/login" class="text-gray-700 hover:text-primary">{{ t('nav.login') }}</NuxtLink>
+        <NuxtLink to="/auth/register" class="rounded-lg bg-primary px-4 py-2 font-semibold text-white shadow-sm hover:brightness-95">{{ t('nav.startFree') }}</NuxtLink>
         <select v-model="locale" class="rounded border border-gray-200 bg-gray-50 px-2 py-1 text-sm focus:border-primary focus:ring-primary">
           <option value="en">English</option>
           <option value="fr">Français</option>
@@ -99,15 +99,15 @@
         </button>
       </div>
       <nav class="flex flex-col gap-2 px-4 py-4">
-        <NuxtLink to="/products" class="rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="open=false">Products</NuxtLink>
-        <NuxtLink to="/industry" class="rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="open=false">Industry</NuxtLink>
-        <NuxtLink to="/pricing" class="rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="open=false">Pricing</NuxtLink>
-        <NuxtLink to="/changelog" class="rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="open=false">Changelog</NuxtLink>
-        <NuxtLink to="/resources" class="rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="open=false">Resources</NuxtLink>
+        <NuxtLink to="/products" class="rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="open=false">{{ t('nav.products') }}</NuxtLink>
+        <NuxtLink to="/industry" class="rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="open=false">{{ t('nav.industry') }}</NuxtLink>
+        <NuxtLink to="/pricing" class="rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="open=false">{{ t('nav.pricing') }}</NuxtLink>
+        <NuxtLink to="/changelog" class="rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="open=false">{{ t('nav.changelog') }}</NuxtLink>
+        <NuxtLink to="/resources" class="rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="open=false">{{ t('nav.resources') }}</NuxtLink>
       </nav>
       <div class="border-t px-4 py-4">
-        <NuxtLink to="/auth/login" class="block rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="open=false">Login</NuxtLink>
-        <NuxtLink to="/auth/register" class="mt-2 block rounded-lg bg-primary px-4 py-2 text-center font-semibold text-white" @click="open=false">Start Free</NuxtLink>
+        <NuxtLink to="/auth/login" class="block rounded px-3 py-2 text-gray-700 hover:bg-gray-100" @click="open=false">{{ t('nav.login') }}</NuxtLink>
+        <NuxtLink to="/auth/register" class="mt-2 block rounded-lg bg-primary px-4 py-2 text-center font-semibold text-white" @click="open=false">{{ t('nav.startFree') }}</NuxtLink>
         <div class="mt-4">
           <select v-model="locale" class="w-full rounded border border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:border-primary focus:ring-primary">
             <option value="en">English</option>
@@ -126,5 +126,5 @@ const pdOpen = ref(false)
 const inOpen = ref(false)
 import { Store, ChevronDown, Menu, X } from 'lucide-vue-next'
 import { useI18n } from '~/composables/i18n'
-const { locale, setLocale } = useI18n()
+const { locale, t } = useI18n()
 </script>

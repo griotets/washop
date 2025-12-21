@@ -6,17 +6,17 @@
           <NuxtLink to="/" class="inline-block mb-4">
             <img src="/logo.svg" alt="Wa-Shop" class="h-12 w-12" />
           </NuxtLink>
-          <h1 class="text-2xl font-bold mb-1">Nouveau mot de passe</h1>
-          <p class="text-gray-600">Choisissez un nouveau mot de passe pour votre compte.</p>
+          <h1 class="text-2xl font-bold mb-1">{{ t('auth.reset.title') }}</h1>
+          <p class="text-gray-600">{{ t('auth.reset.subtitle') }}</p>
         </div>
 
         <div class="space-y-4">
-          <div v-if="status === 'loading'" class="text-sm text-gray-600">Vérification du lien...</div>
+          <div v-if="status === 'loading'" class="text-sm text-gray-600">{{ t('auth.reset.checkingLink') }}</div>
           <div v-else-if="status === 'error'" class="text-sm text-red-600">{{ statusMessage }}</div>
 
           <div v-else class="space-y-4">
             <div class="space-y-2">
-              <label class="block text-sm font-medium">Nouveau mot de passe</label>
+              <label class="block text-sm font-medium">{{ t('auth.reset.newPassword') }}</label>
               <input
                 v-model="password"
                 type="password"
@@ -25,7 +25,7 @@
               />
             </div>
             <div class="space-y-2">
-              <label class="block text-sm font-medium">Confirmer</label>
+              <label class="block text-sm font-medium">{{ t('auth.reset.confirm') }}</label>
               <input
                 v-model="password2"
                 type="password"
@@ -41,12 +41,12 @@
               @click="save"
             >
               <span v-if="saving" class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
-              <span>{{ saving ? 'Enregistrement...' : 'Mettre à jour' }}</span>
+              <span>{{ saving ? t('auth.reset.saving') : t('auth.reset.update') }}</span>
             </button>
           </div>
 
           <div class="pt-4 border-t border-gray-100 text-center">
-            <NuxtLink to="/auth/login" class="text-sm font-semibold text-primary hover:underline">Retour à la connexion</NuxtLink>
+            <NuxtLink to="/auth/login" class="text-sm font-semibold text-primary hover:underline">{{ t('auth.forgot.backToLogin') }}</NuxtLink>
           </div>
         </div>
       </div>
@@ -56,11 +56,13 @@
 
 <script setup>
 import { useToast } from '~/composables/useToast'
+import { useI18n } from '~/composables/i18n'
 
 const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase
 const toast = useToast()
 const route = useRoute()
+const { t } = useI18n()
 
 const status = ref('loading')
 const statusMessage = ref('')
@@ -101,7 +103,7 @@ onMounted(async () => {
 
     const { data, error: e } = await supabase.auth.getSession()
     if (e) throw e
-    if (!data?.session) throw new Error('Lien invalide ou expiré. Veuillez recommencer.')
+    if (!data?.session) throw new Error(t('auth.reset.invalidLink'))
 
     status.value = 'ready'
   } catch (e) {
@@ -117,7 +119,7 @@ async function save() {
     if (!supabase?.auth) throw new Error('Supabase non initialisé')
     const { error: e } = await supabase.auth.updateUser({ password: p1 })
     if (e) throw e
-    toast.success('Mot de passe mis à jour')
+    toast.success(t('auth.reset.updated'))
     await supabase.auth.signOut()
     await navigateTo('/auth/login')
   } catch (e) {

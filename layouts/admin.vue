@@ -63,61 +63,61 @@
               class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
               :class="route.path === '/admin/dashboard' ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
               <LayoutDashboard class="h-4 w-4" />
-              <span>Tableau de bord</span>
+              <span>{{ t('admin.dashboard') }}</span>
             </NuxtLink>
 
             <NuxtLink to="/admin/orders"
               class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
               :class="route.path.startsWith('/admin/orders') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
               <ShoppingBag class="h-4 w-4" />
-              <span>Commandes</span>
+              <span>{{ t('admin.orders') }}</span>
             </NuxtLink>
 
             <NuxtLink to="/admin/products"
               class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
               :class="route.path.startsWith('/admin/products') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
               <Package class="h-4 w-4" />
-              <span>Produits</span>
+              <span>{{ t('admin.products') }}</span>
             </NuxtLink>
 
             <NuxtLink to="/admin/clients"
               class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
               :class="route.path.startsWith('/admin/clients') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
               <Users class="h-4 w-4" />
-              <span>Clients</span>
+              <span>{{ t('admin.clients') }}</span>
             </NuxtLink>
 
             <NuxtLink to="/admin/stats"
               class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
               :class="route.path.startsWith('/admin/stats') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
               <BarChart3 class="h-4 w-4" />
-              <span>Statistiques</span>
+              <span>{{ t('admin.stats') }}</span>
             </NuxtLink>
 
             <NuxtLink to="/admin/settings"
               class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
               :class="route.path.startsWith('/admin/settings') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
               <Settings class="h-4 w-4" />
-              <span>Réglages</span>
+              <span>{{ t('admin.settings') }}</span>
             </NuxtLink>
           </div>
 
           <!-- Sales Channels Group -->
           <div class="space-y-1">
-            <h3 class="px-3 text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Canaux de vente</h3>
+            <h3 class="px-3 text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">{{ t('admin.salesChannels') }}</h3>
 
             <NuxtLink to="/admin/website"
               class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
               :class="route.path.startsWith('/admin/website') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
               <Palette class="h-4 w-4" />
-              <span>Site web</span>
+              <span>{{ t('admin.website') }}</span>
             </NuxtLink>
 
             <NuxtLink to="/admin/whatsapp"
               class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
               :class="route.path.startsWith('/admin/whatsapp') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
               <MessageCircle class="h-4 w-4" />
-              <span>WhatsApp</span>
+              <span>{{ t('admin.whatsapp') }}</span>
             </NuxtLink>
           </div>
         </nav>
@@ -133,14 +133,14 @@
             <div class="relative z-10">
               <div class="mb-2 flex items-center gap-2 text-yellow-400">
                 <Sparkles class="h-4 w-4" />
-                <span class="text-xs font-bold uppercase tracking-wider">Plan Gratuit</span>
+                <span class="text-xs font-bold uppercase tracking-wider">{{ t('admin.freePlan') }}</span>
               </div>
               <p class="mb-3 text-xs text-gray-300 font-medium leading-relaxed">
-                Débloquez tout le potentiel de votre boutique.
+                {{ t('admin.unlockPotential') }}
               </p>
               <NuxtLink to="/admin/settings?tab=billing"
                 class="block w-full rounded-lg bg-white/10 py-2 text-center text-xs font-bold text-white hover:bg-white/20 transition-colors border border-white/10">
-                Mise à niveau
+                {{ t('admin.upgrade') }}
               </NuxtLink>
             </div>
           </div>
@@ -185,7 +185,7 @@
                   </div>
 
                   <div class="hidden sm:block">
-                    <h1 class="font-bold text-gray-900 leading-tight">{{ store.name || 'Ma Boutique' }}</h1>
+                    <h1 class="font-bold text-gray-900 leading-tight">{{ store.name || t('admin.storeFallback') }}</h1>
                     <a v-if="publicUrl" :href="`https://${publicUrl}`" target="_blank"
                       class="flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-green-600 transition-colors">
                       {{ publicUrl }}
@@ -202,7 +202,7 @@
                 <div
                   class="hidden md:flex items-center w-64 rounded-xl bg-gray-100 px-3 py-2.5 transition-all focus-within:bg-white focus-within:ring-2 focus-within:ring-gray-900/5 focus-within:shadow-sm">
                   <Search class="h-4 w-4 text-gray-400" />
-                  <input type="text" placeholder="Rechercher..."
+                  <input type="text" :placeholder="t('admin.search')"
                     class="ml-2 w-full bg-transparent text-sm font-medium outline-none placeholder:text-gray-400"
                     v-model="search" />
                 </div>
@@ -217,7 +217,7 @@
                   <NuxtLink :to="`/${store.slug || ''}`"
                     class="hidden sm:flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-gray-800 transition-all hover:shadow-md active:scale-95">
                     <Share2 class="h-4 w-4" />
-                    <span>Visiter</span>
+                    <span>{{ t('admin.visit') }}</span>
                   </NuxtLink>
                 </div>
 
@@ -244,7 +244,7 @@
                     <!-- User Header -->
                     <div class="px-4 py-4 border-b border-gray-50 bg-gray-50/50">
                       <p class="text-sm font-semibold text-gray-900 truncate">{{ userEmail }}</p>
-                      <p class="text-xs text-gray-500 mt-0.5">Administrateur</p>
+                      <p class="text-xs text-gray-500 mt-0.5">{{ t('admin.administrator') }}</p>
                     </div>
 
                     <!-- Menu Items -->
@@ -252,13 +252,13 @@
                       <NuxtLink to="/admin/settings?tab=profile" @click="isUserMenuOpen = false"
                         class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors">
                         <User class="h-4 w-4" />
-                        <span>Mon Profil</span>
+                        <span>{{ t('admin.myProfile') }}</span>
                       </NuxtLink>
                       
                       <NuxtLink to="/admin/settings" @click="isUserMenuOpen = false"
                         class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors">
                         <Settings class="h-4 w-4" />
-                        <span>Paramètres</span>
+                        <span>{{ t('admin.parameters') }}</span>
                       </NuxtLink>
                     </div>
 
@@ -269,7 +269,7 @@
                       <button @click="handleLogout"
                         class="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 rounded-lg hover:bg-red-50 transition-colors">
                         <LogOut class="h-4 w-4" />
-                        <span>Se déconnecter</span>
+                        <span>{{ t('admin.logout') }}</span>
                       </button>
                     </div>
                   </div>
@@ -307,61 +307,61 @@
               class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
               :class="route.path === '/admin/dashboard' ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
               <LayoutDashboard class="h-4 w-4" />
-              <span>Tableau de bord</span>
+              <span>{{ t('admin.dashboard') }}</span>
             </NuxtLink>
 
             <NuxtLink to="/admin/orders"
               class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
               :class="route.path.startsWith('/admin/orders') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
               <ShoppingBag class="h-4 w-4" />
-              <span>Commandes</span>
+              <span>{{ t('admin.orders') }}</span>
             </NuxtLink>
 
             <NuxtLink to="/admin/products"
               class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
               :class="route.path.startsWith('/admin/products') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
               <Package class="h-4 w-4" />
-              <span>Produits</span>
+              <span>{{ t('admin.products') }}</span>
             </NuxtLink>
 
             <NuxtLink to="/admin/clients"
               class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
               :class="route.path.startsWith('/admin/clients') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
               <Users class="h-4 w-4" />
-              <span>Clients</span>
+              <span>{{ t('admin.clients') }}</span>
             </NuxtLink>
 
             <NuxtLink to="/admin/stats"
               class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
               :class="route.path.startsWith('/admin/stats') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
               <BarChart3 class="h-4 w-4" />
-              <span>Statistiques</span>
+              <span>{{ t('admin.stats') }}</span>
             </NuxtLink>
 
             <NuxtLink to="/admin/settings"
               class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
               :class="route.path.startsWith('/admin/settings') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
               <Settings class="h-4 w-4" />
-              <span>Réglages</span>
+              <span>{{ t('admin.settings') }}</span>
             </NuxtLink>
           </div>
 
           <!-- Sales Channels Group -->
           <div class="space-y-1">
-            <h3 class="px-3 text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Canaux de vente</h3>
+            <h3 class="px-3 text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">{{ t('admin.salesChannels') }}</h3>
 
             <NuxtLink to="/admin/website"
               class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
               :class="route.path.startsWith('/admin/website') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
               <Palette class="h-4 w-4" />
-              <span>Site web</span>
+              <span>{{ t('admin.website') }}</span>
             </NuxtLink>
 
             <NuxtLink to="/admin/whatsapp"
               class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
               :class="route.path.startsWith('/admin/whatsapp') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
               <MessageCircle class="h-4 w-4" />
-              <span>WhatsApp</span>
+              <span>{{ t('admin.whatsapp') }}</span>
             </NuxtLink>
           </div>
         </nav>
@@ -377,14 +377,14 @@
             <div class="relative z-10">
               <div class="mb-2 flex items-center gap-2 text-yellow-400">
                 <Sparkles class="h-4 w-4" />
-                <span class="text-xs font-bold uppercase tracking-wider">Plan Gratuit</span>
+                <span class="text-xs font-bold uppercase tracking-wider">{{ t('admin.freePlan') }}</span>
               </div>
               <p class="mb-3 text-xs text-gray-300 font-medium leading-relaxed">
-                Débloquez tout le potentiel de votre boutique.
+                {{ t('admin.unlockPotential') }}
               </p>
               <NuxtLink to="/admin/settings?tab=billing"
                 class="block w-full rounded-lg bg-white/10 py-2 text-center text-xs font-bold text-white hover:bg-white/20 transition-colors border border-white/10">
-                Mise à niveau
+                {{ t('admin.upgrade') }}
               </NuxtLink>
             </div>
           </div>
@@ -436,7 +436,7 @@ const domain = url.host
 const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
 const admin = useAdminStore()
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 const store = reactive<{ id?: string; name?: string; slug?: string; color?: string, logoUrl?: string }>({})
 const isLoadingStore = ref(true)
 const search = ref('')

@@ -9,7 +9,7 @@
               <img src="/logo.svg" alt="Wa-Shop" class="h-12 w-12" />
             </a>
             <h1 class="text-2xl font-bold mb-1">{{ t('login.title') }}</h1>
-            <p class="text-gray-600">Gérez votre boutique en toute simplicité</p>
+            <p class="text-gray-600">{{ t('auth.login.manageStore') }}</p>
           </div>
         </div>
 
@@ -22,12 +22,12 @@
                 v-model.trim="email" 
                 type="email" 
                 class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none transition-colors"
-                placeholder="vous@exemple.com"
+                :placeholder="t('auth.login.placeholderEmail')"
                 @keyup.enter="emailValid && !loading ? sendEmailOtp() : null"
               />
             </div>
             <div class="flex justify-end">
-              <NuxtLink to="/auth/forgot-password" class="text-xs text-primary hover:underline">Mot de passe oublié ?</NuxtLink>
+              <NuxtLink to="/auth/forgot-password" class="text-xs text-primary hover:underline">{{ t('auth.login.forgotPassword') }}</NuxtLink>
             </div>
             <button 
               :disabled="!emailValid || loading" 
@@ -45,7 +45,7 @@
             <div class="space-y-3">
               <div class="flex justify-between items-center">
                 <label class="block text-sm font-medium">{{ t('register.codeLabel') }}</label>
-                <button @click="otpSent = false" class="text-xs text-primary hover:underline">Modifier l'email</button>
+                <button @click="otpSent = false" class="text-xs text-primary hover:underline">{{ t('auth.login.editEmail') }}</button>
               </div>
               <input 
                 v-model.trim="code" 
@@ -64,7 +64,7 @@
               @click="verifyEmailOtp"
             >
               <span v-if="loading" class="animate-spin h-4 w-4 border-white border-t-transparent rounded-full border-2"></span>
-              {{ loading ? t('common.verifying') : 'Se connecter' }}
+              {{ loading ? t('common.verifying') : t('auth.login.signIn') }}
             </button>
 
             <button 
@@ -81,8 +81,8 @@
 
           <div class="pt-4 border-t border-gray-100 text-center">
             <p class="text-sm text-gray-600">
-              Pas encore de compte ? 
-              <a href="/auth/register" class="font-semibold text-primary hover:underline">Créer un compte</a>
+              {{ t('auth.login.noAccount') }}
+              <a href="/auth/register" class="font-semibold text-primary hover:underline">{{ t('auth.login.createAccount') }}</a>
             </p>
           </div>
         </div>

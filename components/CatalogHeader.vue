@@ -6,7 +6,7 @@
           <img v-if="store.logoUrl" :src="store.logoUrl" alt="logo" class="h-10 w-10 rounded-full object-cover" />
           <span v-else class="text-xs font-semibold text-white">{{ initials }}</span>
         </div>
-        <div class="font-semibold">{{ store.name || 'Boutique' }}</div>
+        <div class="font-semibold">{{ store.name || t('catalog.storeFallback') }}</div>
       </div>
       <div class="flex items-center gap-4">
         <div class="hidden sm:flex items-center gap-2">
@@ -16,13 +16,13 @@
             <option value="it">Italiano</option>
           </select>
         </div>
-        <button class="flex items-center gap-1 text-gray-700 hover:text-primary" aria-label="Recherche">
+        <button class="flex items-center gap-1 text-gray-700 hover:text-primary" :aria-label="t('catalog.search')">
           <Search class="h-5 w-5" />
-          <span class="inline text-xs sm:text-sm">Recherche</span>
+          <span class="inline text-xs sm:text-sm">{{ t('catalog.search') }}</span>
         </button>
         <NuxtLink :to="`/${slug}/cart`" class="relative flex items-center gap-1 text-gray-700 hover:text-primary">
           <ShoppingCart class="h-5 w-5" />
-          <span class="inline text-xs sm:text-sm">Panier</span>
+          <span class="inline text-xs sm:text-sm">{{ t('catalog.cart') }}</span>
           <span v-if="count>0" class="absolute -right-2 -top-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs text-white">{{ count }}</span>
         </NuxtLink>
       </div>
@@ -57,5 +57,5 @@ onMounted(() => cart.load(slug.value))
 const count = computed(() => cart.count)
 import { ShoppingCart, Search } from 'lucide-vue-next'
 import { useI18n } from '~/composables/i18n'
-const { locale, setLocale } = useI18n()
+const { locale, t } = useI18n()
 </script>
