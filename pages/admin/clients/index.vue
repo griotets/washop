@@ -1,13 +1,13 @@
 <template>
   <div>
     <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-bold">Clients</h1>
+      <h1 class="text-2xl font-bold">{{ t('admin.clientsPage.title') }}</h1>
       <div class="flex items-center gap-2">
         <div class="flex items-center rounded-lg border bg-white px-3 py-2 w-full max-w-xl">
           <Search class="h-4 w-4 text-gray-500" />
-          <input v-model.trim="search" type="text" placeholder="Recherche nom, téléphone, email" class="ml-2 w-full bg-transparent text-sm outline-none" />
+          <input v-model.trim="search" type="text" :placeholder="t('admin.clientsPage.searchPlaceholder')" class="ml-2 w-full bg-transparent text-sm outline-none" />
         </div>
-        <NuxtLink to="/admin/clients/new" class="rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white">Ajouter un client</NuxtLink>
+        <NuxtLink to="/admin/clients/new" class="rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white">{{ t('admin.clientsPage.addClient') }}</NuxtLink>
       </div>
     </div>
 
@@ -15,11 +15,11 @@
       <table class="min-w-full bg-white">
         <thead class="bg-gray-50 text-sm text-gray-600">
           <tr>
-            <th class="px-4 py-3 text-left">Nom</th>
-            <th class="px-4 py-3 text-left">Téléphone</th>
-            <th class="px-4 py-3 text-left">Email</th>
-            <th class="px-4 py-3 text-left">Créé le</th>
-            <th class="px-4 py-3 text-left">Actions</th>
+            <th class="px-4 py-3 text-left">{{ t('admin.clientsPage.colName') }}</th>
+            <th class="px-4 py-3 text-left">{{ t('admin.clientsPage.colPhone') }}</th>
+            <th class="px-4 py-3 text-left">{{ t('admin.clientsPage.colEmail') }}</th>
+            <th class="px-4 py-3 text-left">{{ t('admin.clientsPage.colCreatedAt') }}</th>
+            <th class="px-4 py-3 text-left">{{ t('admin.clientsPage.colActions') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -33,16 +33,16 @@
             <td class="px-4 py-3">{{ formatDate(c.created_at) }}</td>
             <td class="px-4 py-3">
               <div class="flex items-center gap-2">
-                <NuxtLink :to="`/admin/clients/${c.id}`" class="rounded border px-2 py-1 text-xs">Modifier</NuxtLink>
-                <button class="rounded border px-2 py-1 text-xs" @click="deleteClient(c)">Supprimer</button>
+                <NuxtLink :to="`/admin/clients/${c.id}`" class="rounded border px-2 py-1 text-xs">{{ t('admin.clientsPage.edit') }}</NuxtLink>
+                <button class="rounded border px-2 py-1 text-xs" @click="deleteClient(c)">{{ t('admin.clientsPage.delete') }}</button>
               </div>
             </td>
           </tr>
           <tr v-if="loading">
-            <td colspan="5" class="px-4 py-6 text-center text-sm text-gray-500">Chargement...</td>
+            <td colspan="5" class="px-4 py-6 text-center text-sm text-gray-500">{{ t('admin.clientsPage.loading') }}</td>
           </tr>
           <tr v-if="!loading && clients.length===0">
-            <td colspan="5" class="px-4 py-6 text-center text-sm text-gray-500">Aucun client.</td>
+            <td colspan="5" class="px-4 py-6 text-center text-sm text-gray-500">{{ t('admin.clientsPage.empty') }}</td>
           </tr>
         </tbody>
       </table>
@@ -55,16 +55,24 @@
 <script setup lang="ts">
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
+import { useI18n } from '~/composables/i18n'
 import { Search } from 'lucide-vue-next'
 definePageMeta({ layout: 'admin' })
 const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
 const admin = useAdminStore()
+const { t, locale } = useI18n()
 const search = ref('')
 const clients = ref<any[]>([])
 const loading = ref(false)
+
+function getDateLocale() {
+  if (locale.value === 'fr') return 'fr-FR'
+  if (locale.value === 'it') return 'it-IT'
+  return 'en-US'
+}
 function formatDate(d: string) {
-  try { return new Date(d).toLocaleDateString('fr-FR') } catch { return d }
+  try { return new Date(d).toLocaleDateString(getDateLocale()) } catch { return d }
 }
 async function loadClients() {
   const storeId = admin.selectedShopId
@@ -80,7 +88,7 @@ async function loadClients() {
 async function deleteClient(c: any) {
   const storeId = admin.selectedShopId
   if (!storeId) return
-  if (!confirm('Supprimer ce client ?')) return
+  if (!confirm(t('admin.clientsPage.deleteConfirm'))) return
   await supabase.from('clients').delete().eq('id', c.id).eq('store_id', storeId)
   await loadClients()
 }
@@ -99,5 +107,5 @@ onMounted(async () => {
   }
   await loadClients()
 })
-useHead({ title: 'Admin | Clients' })
+useHead({ title: t('admin.clientsPage.headTitle') })
 </script>

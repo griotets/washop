@@ -5,7 +5,7 @@
       <div class="px-3 md:px-0">
          <NuxtLink to="/admin/dashboard" class="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-6">
            <ArrowLeft class="h-4 w-4" />
-           <span>Retour au tableau de bord</span>
+           <span>{{ t('admin.settings.backToDashboard') }}</span>
          </NuxtLink>
       </div>
 
@@ -30,22 +30,22 @@
     <div class="flex-1 bg-white rounded-xl border shadow-sm p-6 md:p-8">
       <!-- General Settings -->
       <div v-if="activeTab === 'general'">
-        <h2 class="text-xl font-bold mb-6">Magasin général</h2>
+        <h2 class="text-xl font-bold mb-6">{{ t('admin.settings.generalStoreTitle') }}</h2>
         
         <div class="space-y-10">
           <!-- Profil Section -->
           <section class="space-y-6">
-            <h3 class="font-semibold text-lg border-b pb-2">Profil</h3>
+            <h3 class="font-semibold text-lg border-b pb-2">{{ t('admin.settings.profileTitle') }}</h3>
             
             <div>
-              <label class="block text-sm font-medium text-gray-700">Nom</label>
+              <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.nameLabel') }}</label>
               <input v-model="form.name" type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700">Description</label>
+              <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.descriptionLabel') }}</label>
               <textarea v-model="form.description" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2"></textarea>
-              <p class="mt-1 text-xs text-gray-500">Une brève description de votre magasin.</p>
+              <p class="mt-1 text-xs text-gray-500">{{ t('admin.settings.descriptionHint') }}</p>
             </div>
 
             <div>
@@ -58,35 +58,35 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700">Lien de magasin</label>
+              <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.storeLinkLabel') }}</label>
               <div class="mt-1 flex rounded-md shadow-sm">
                 <span class="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm">{{ domain }} /</span>
                 <input v-model="form.slug" type="text" class="block w-full min-w-0 flex-1 rounded-none rounded-r-md border-gray-300 focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
               </div>
-              <p class="mt-1 text-xs text-gray-500">Lien vers votre magasin. Si vous modifiez ce paramètre, votre code QR et vos liens partagés ne seront plus valables.</p>
+              <p class="mt-1 text-xs text-gray-500">{{ t('admin.settings.storeLinkHint') }}</p>
             </div>
 
             <div>
-               <label class="block text-sm font-medium text-gray-700">Courriel</label>
-               <input v-model="form.email" type="email" placeholder="ex: contact@maboutique.com" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
-               <p class="mt-1 text-xs text-gray-500">Les clients recevront des courriels à partir de cette adresse</p>
+               <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.emailLabel') }}</label>
+               <input v-model="form.email" type="email" :placeholder="t('admin.settings.emailPlaceholder')" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+               <p class="mt-1 text-xs text-gray-500">{{ t('admin.settings.emailHint') }}</p>
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700">Adresse</label>
+              <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.addressLabel') }}</label>
               <div class="mt-1">
-                 <input v-model="form.address" placeholder="Entrer l'adresse" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+                 <input v-model="form.address" :placeholder="t('admin.settings.addressPlaceholder')" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
               </div>
             </div>
           </section>
 
           <!-- WhatsApp Section -->
           <section class="space-y-6">
-             <h3 class="font-semibold text-lg border-b pb-2">Numéro WhatsApp</h3>
-             <p class="text-sm text-gray-500">Les clients enverront des messages de commande à ce numéro. Pour recevoir des notifications de commande automatiques, veuillez configurer votre flux de travail.</p>
+             <h3 class="font-semibold text-lg border-b pb-2">{{ t('admin.settings.whatsAppTitle') }}</h3>
+             <p class="text-sm text-gray-500">{{ t('admin.settings.whatsAppSubtitle') }}</p>
              
              <div>
-               <label class="block text-sm font-medium text-gray-700">Numéro primaire</label>
+               <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.primaryNumberLabel') }}</label>
                <div class="mt-1 flex gap-2">
                  <select v-model="form.phoneCode" class="w-24 rounded-md border-gray-300 border p-2 bg-white">
                    <option value="+237">+237</option>
@@ -96,7 +96,7 @@
                    <option value="+225">+225</option>
                    <option value="+221">+221</option>
                  </select>
-                 <input v-model="form.phoneNumber" type="tel" placeholder="6..." class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+                <input v-model="form.phoneNumber" type="tel" :placeholder="t('admin.settings.phonePlaceholder')" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
                </div>
              </div>
           </section>
@@ -104,8 +104,8 @@
           <!-- Regional Section -->
           <section class="space-y-6">
              <div class="flex items-center gap-2 border-b pb-2">
-               <h3 class="font-semibold text-lg">Régionale</h3>
-               <div class="rounded-full border border-gray-300 w-4 h-4 flex items-center justify-center text-[10px] text-gray-500 cursor-help" title="Réglages régionaux">?</div>
+               <h3 class="font-semibold text-lg">{{ t('admin.settings.regionalTitle') }}</h3>
+               <div class="rounded-full border border-gray-300 w-4 h-4 flex items-center justify-center text-[10px] text-gray-500 cursor-help" :title="t('admin.settings.regionalTooltip')">?</div>
              </div>
              
              <div>
@@ -120,10 +120,10 @@
              </div>
 
              <div>
-               <label class="block text-sm font-medium text-gray-700">Langue</label>
-               <p class="text-xs text-gray-500 mb-1">Sélectionnez la langue de votre magasin. Cela changera la langue de l'interface de votre magasin.</p>
+               <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.languageLabel') }}</label>
+               <p class="text-xs text-gray-500 mb-1">{{ t('admin.settings.languageHint') }}</p>
                <select v-model="form.language" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2 bg-white">
-                 <option value="fr">Par défaut</option>
+                 <option value="fr">{{ t('admin.settings.languageDefault') }}</option>
                  <option value="en">English</option>
                </select>
              </div>
@@ -158,12 +158,12 @@
                  </div>
                </div>
                
-               <div v-if="isFreePlan" class="mt-2 rounded-md bg-green-50 p-2 flex items-center justify-between">
+                 <div v-if="isFreePlan" class="mt-2 rounded-md bg-green-50 p-2 flex items-center justify-between">
                   <div class="flex items-center gap-2">
                     <div class="text-green-500">⚡</div>
-                    <span class="text-sm text-green-700 font-medium">Mise à niveau nécessaire pour utiliser Business</span>
+                    <span class="text-sm text-green-700 font-medium">{{ t('admin.settings.upgradeNeededBusiness') }}</span>
                   </div>
-                  <button class="text-sm font-semibold text-gray-900 bg-white px-3 py-1 rounded border shadow-sm hover:bg-gray-50">Mise à niveau</button>
+                  <button class="text-sm font-semibold text-gray-900 bg-white px-3 py-1 rounded border shadow-sm hover:bg-gray-50">{{ t('admin.upgrade') }}</button>
                 </div>
              </div>
 
@@ -199,47 +199,47 @@
           <section class="rounded-lg border border-gray-200 bg-white p-4">
              <div class="flex items-center justify-between">
                <div class="flex items-center gap-2">
-                  <h3 class="font-semibold text-gray-900">Heures d'ouverture</h3>
-                  <div class="rounded-full border border-gray-300 w-4 h-4 flex items-center justify-center text-[10px] text-gray-500 cursor-help" title="Configurer les heures d'ouverture">?</div>
+                  <h3 class="font-semibold text-gray-900">{{ t('admin.settings.openingHoursTitle') }}</h3>
+                  <div class="rounded-full border border-gray-300 w-4 h-4 flex items-center justify-center text-[10px] text-gray-500 cursor-help" :title="t('admin.settings.openingHoursTooltip')">?</div>
                </div>
                <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
                   <input type="checkbox" name="toggle" id="toggle-hours" v-model="form.openingHoursEnabled" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
                   <label for="toggle-hours" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
                </div>
              </div>
-             <p class="mt-1 text-sm text-gray-500">Les clients peuvent voir le statut "Ouvert" ou "Fermé" de votre magasin.</p>
+             <p class="mt-1 text-sm text-gray-500">{{ t('admin.settings.openingHoursHint') }}</p>
           </section>
 
           <!-- Communities -->
           <section class="rounded-lg border border-gray-200 bg-white p-4 space-y-4">
              <div class="flex items-center gap-2">
-                <h3 class="font-semibold text-gray-900">Communautés</h3>
-                <div class="rounded-full border border-gray-300 w-4 h-4 flex items-center justify-center text-[10px] text-gray-500 cursor-help" title="Liens vers vos communautés">?</div>
+                <h3 class="font-semibold text-gray-900">{{ t('admin.settings.communitiesTitle') }}</h3>
+                <div class="rounded-full border border-gray-300 w-4 h-4 flex items-center justify-center text-[10px] text-gray-500 cursor-help" :title="t('admin.settings.communitiesTooltip')">?</div>
              </div>
-             <p class="text-sm text-gray-500">Mettez en valeur votre communauté en ligne dans votre magasin</p>
+             <p class="text-sm text-gray-500">{{ t('admin.settings.communitiesHint') }}</p>
              
              <div>
                <label class="block text-sm font-medium text-gray-700">WhatsApp</label>
-               <p class="text-xs text-gray-500 mb-1">Lien vers un groupe, une communauté ou un canal</p>
-               <input v-model="form.socialWhatsapp" placeholder="https://" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+               <p class="text-xs text-gray-500 mb-1">{{ t('admin.settings.communitiesWhatsAppHint') }}</p>
+               <input v-model="form.socialWhatsapp" :placeholder="t('common.urlPlaceholder')" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
              </div>
 
              <div>
-               <label class="block text-sm font-medium text-gray-700">Télégramme</label>
-               <p class="text-xs text-gray-500 mb-1">Lien de groupe ou de canal</p>
-               <input v-model="form.socialTelegram" placeholder="https://" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+               <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.telegramLabel') }}</label>
+               <p class="text-xs text-gray-500 mb-1">{{ t('admin.settings.communitiesTelegramHint') }}</p>
+               <input v-model="form.socialTelegram" :placeholder="t('common.urlPlaceholder')" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
              </div>
 
              <div>
                <label class="block text-sm font-medium text-gray-700">Instagram</label>
-               <p class="text-xs text-gray-500 mb-1">Lien vers un groupe, un canal ou un profil</p>
-               <input v-model="form.socialInstagram" placeholder="https://" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+               <p class="text-xs text-gray-500 mb-1">{{ t('admin.settings.communitiesInstagramHint') }}</p>
+               <input v-model="form.socialInstagram" :placeholder="t('common.urlPlaceholder')" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
              </div>
 
              <div>
                <label class="block text-sm font-medium text-gray-700">Facebook</label>
-               <p class="text-xs text-gray-500 mb-1">Lien vers un groupe ou une page</p>
-               <input v-model="form.socialFacebook" placeholder="https://" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+               <p class="text-xs text-gray-500 mb-1">{{ t('admin.settings.communitiesFacebookHint') }}</p>
+               <input v-model="form.socialFacebook" :placeholder="t('common.urlPlaceholder')" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
              </div>
           </section>
 
@@ -329,7 +329,7 @@
         <div class="mt-8 pt-6 border-t flex justify-end sticky bottom-0 bg-white py-4">
            <button @click="save" :disabled="saving" class="bg-gray-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2">
              <Loader2 v-if="saving" class="h-4 w-4 animate-spin" />
-             <span>{{ saving ? 'Enregistrement...' : 'Enregistrer' }}</span>
+             <span>{{ saving ? t('common.saving') : t('common.save') }}</span>
            </button>
         </div>
       </div>
@@ -402,10 +402,10 @@
           </div>
           
           <div class="flex justify-end sticky bottom-0 bg-white py-4 border-t">
-             <button @click="saveDelivery" :disabled="saving" class="bg-gray-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2">
-               <Loader2 v-if="saving" class="h-4 w-4 animate-spin" />
-               <span>{{ saving ? 'Enregistrement...' : 'Sauvegarder' }}</span>
-             </button>
+           <button @click="saveDelivery" :disabled="saving" class="bg-gray-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2">
+             <Loader2 v-if="saving" class="h-4 w-4 animate-spin" />
+               <span>{{ saving ? t('common.saving') : t('common.save') }}</span>
+           </button>
           </div>
       </div>
       
@@ -478,10 +478,10 @@
           </div>
           
           <div class="flex justify-end sticky bottom-0 bg-white py-4 border-t mt-8">
-             <button @click="saveEnterprise" :disabled="saving" class="bg-gray-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2">
-               <Loader2 v-if="saving" class="h-4 w-4 animate-spin" />
-               <span>{{ saving ? 'Enregistrement...' : 'Sauvegarder' }}</span>
-             </button>
+           <button @click="saveEnterprise" :disabled="saving" class="bg-gray-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2">
+             <Loader2 v-if="saving" class="h-4 w-4 animate-spin" />
+               <span>{{ saving ? t('common.saving') : t('common.save') }}</span>
+           </button>
           </div>
       </div>
 
@@ -521,15 +521,15 @@
           <div class="grid md:grid-cols-3 gap-6">
               <div v-for="plan in plans" :key="plan.id" class="border rounded-lg p-6 relative flex flex-col" :class="{'border-green-500 ring-1 ring-green-500': subscription?.plan_id === plan.id, 'bg-white': true}">
                   <div v-if="subscription?.plan_id === plan.id" class="absolute top-0 right-0 bg-green-500 text-white text-xs px-2 py-1 rounded-bl-lg rounded-tr-lg font-medium">
-                      Actuel
+                      {{ t('admin.settings.current') }}
                   </div>
                   <h4 class="text-lg font-semibold text-gray-900">{{ plan.name }}</h4>
                   <div class="mt-2 flex items-baseline text-gray-900">
                       <span class="text-3xl font-bold tracking-tight">{{ plan.price.toLocaleString() }}</span>
-                      <span class="ml-1 text-sm font-semibold text-gray-500">FCFA / mois</span>
+                      <span class="ml-1 text-sm font-semibold text-gray-500">{{ t('admin.settings.pricePerMonth') }}</span>
                   </div>
                   <p class="mt-4 text-sm text-gray-500 flex-grow">
-                     {{ plan.id === 'free' ? 'Pour démarrer votre activité' : (plan.id === 'premium' ? 'Pour les entreprises en croissance' : 'Pour les grandes structures') }}
+                     {{ planDescription(plan.id) }}
                   </p>
                   
                   <ul class="mt-6 space-y-4 mb-8">
@@ -542,7 +542,7 @@
                   </ul>
 
                   <button :disabled="subscription?.plan_id === plan.id" class="w-full mt-auto bg-gray-900 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed">
-                      {{ subscription?.plan_id === plan.id ? 'Plan actuel' : 'Choisir ce plan' }}
+                      {{ subscription?.plan_id === plan.id ? t('admin.settings.currentPlan') : t('admin.settings.choosePlan') }}
                   </button>
               </div>
           </div>
@@ -556,13 +556,13 @@
                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                </svg>
              </div>
-             <h3 class="text-lg font-medium text-gray-900">Bientôt disponible</h3>
-             <p class="mt-2 text-sm text-gray-500 max-w-sm">Le module {{ menu.flatMap(g => g.items).find(i => i.id === activeTab)?.label }} est en cours de développement.</p>
+             <h3 class="text-lg font-medium text-gray-900">{{ t('admin.settings.comingSoon') }}</h3>
+             <p class="mt-2 text-sm text-gray-500 max-w-sm">{{ t('admin.settings.moduleInProgress', { module: menu.flatMap(g => g.items).find(i => i.id === activeTab)?.label }) }}</p>
           </div>
           <div v-else class="flex flex-col items-center justify-center py-12">
              <AdminPremiumLock 
-               title="Fonctionnalité Premium"
-               description="Cette section nécessite un abonnement supérieur. Mettez à niveau votre plan pour accéder à ces réglages avancés."
+               :title="t('admin.settings.premiumTitle')"
+               :description="t('admin.settings.premiumDesc')"
              />
           </div>
        </div>
@@ -573,9 +573,12 @@
 <script setup lang="ts">
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
+import { useI18n } from '~/composables/i18n'
 import { ArrowLeft, Lock, Loader2 } from 'lucide-vue-next'
 
-useHead({ title: 'Admin | Réglages' })
+const { t } = useI18n()
+
+useHead({ title: t('admin.settings.headTitle') })
 definePageMeta({ layout: 'admin' })
 
 const nuxt = useNuxtApp()
@@ -600,25 +603,25 @@ watch(activeTab, (newTab) => {
   router.push({ query: { ...route.query, tab: newTab } })
 })
 
-const menu = [
+const menu = computed(() => [
   {
-    title: 'Magasins',
+    title: t('admin.settings.menuStoresTitle'),
     items: [
-      { id: 'general', label: 'Général' },
-      { id: 'delivery', label: 'Livraison' },
-      { id: 'payments', label: 'Paiements', badge: 'Soon' },
-      { id: 'checkout', label: 'Caisse', badge: 'Soon' },
+      { id: 'general', label: t('admin.settings.menuGeneral') },
+      { id: 'delivery', label: t('admin.settings.menuDelivery') },
+      { id: 'payments', label: t('admin.settings.menuPayments'), badge: t('admin.settings.badgeSoon') },
+      { id: 'checkout', label: t('admin.settings.menuCheckout'), badge: t('admin.settings.badgeSoon') }
     ]
   },
   {
-    title: 'Entreprise',
+    title: t('admin.settings.menuEnterpriseTitle'),
     items: [
-      { id: 'details', label: 'Détails' },
-      { id: 'billing', label: 'Facturation' },
-      { id: 'members', label: 'Membres', badge: 'Premium' },
+      { id: 'details', label: t('admin.settings.menuDetails') },
+      { id: 'billing', label: t('admin.settings.menuBilling') },
+      { id: 'members', label: t('admin.settings.menuMembers'), badge: t('admin.settings.badgePremium') }
     ]
   }
-]
+])
 
 const form = reactive({
   name: '',
@@ -819,23 +822,23 @@ async function save() {
          
          const { error: retryError } = await supabase.from('stores').update(updates).eq('id', storeId)
          if (retryError) throw retryError
-         toast.success('Réglages de base mis à jour (Certains champs ignorés - Colonnes manquantes)')
+         toast.success(t('admin.settings.basicSettingsUpdatedPartial'))
        } else {
          throw error
        }
     } else {
-       toast.success('Réglages mis à jour')
+       toast.success(t('admin.settings.settingsUpdated'))
     }
 
     if (originalSlug.value !== form.slug) {
       // Slug changed, might need to redirect or warn
       originalSlug.value = form.slug
-      toast.info('L\'URL de votre boutique a changé')
+      toast.info(t('admin.settings.storeUrlChanged'))
     }
     
   } catch (e: any) {
     console.error(e)
-    toast.error('Erreur: ' + e.message)
+    toast.error(t('admin.settings.errorWithMessage', { msg: e.message }))
   } finally {
     saving.value = false
   }
@@ -862,10 +865,10 @@ async function saveDelivery() {
      }).eq('id', storeId)
      
      if (error) throw error
-     toast.success('Options de livraison mises à jour')
+     toast.success(t('admin.settings.deliveryUpdated'))
   } catch (e: any) {
      console.error(e)
-     toast.error('Erreur: ' + e.message)
+     toast.error(t('admin.settings.errorWithMessage', { msg: e.message }))
   } finally {
      saving.value = false
   }
@@ -885,10 +888,10 @@ async function saveEnterprise() {
     }).eq('id', enterpriseId.value)
 
     if (error) throw error
-    toast.success('Détails de l\'entreprise mis à jour')
+    toast.success(t('admin.settings.enterpriseUpdated'))
   } catch (e: any) {
     console.error(e)
-    toast.error('Erreur: ' + e.message)
+    toast.error(t('admin.settings.errorWithMessage', { msg: e.message }))
   } finally {
     saving.value = false
   }
@@ -905,35 +908,39 @@ async function deleteEnterprise() {
      const { count } = await supabase.from('stores').select('*', { count: 'exact', head: true }).eq('enterprise_id', enterpriseId.value)
      
      if (count && count > 0) {
-        toast.error('Vous devez supprimer tous les magasins avant de supprimer l\'organisation.')
+        toast.error(t('admin.settings.deleteEnterpriseNeedsNoStores'))
         return
      }
      
      const { error } = await supabase.from('enterprises').delete().eq('id', enterpriseId.value)
      if (error) throw error
      
-     toast.success('Organisation supprimée')
+     toast.success(t('admin.settings.enterpriseDeleted'))
      navigateTo('/login')
   } catch (e: any) {
-     toast.error('Erreur: ' + e.message)
+     toast.error(t('admin.settings.errorWithMessage', { msg: e.message }))
   } finally {
      saving.value = false
   }
 }
 
 const formatFeature = (key: string) => {
-  const map: Record<string, string> = {
-    'commandes_whatsapp_illimitees': 'Commandes WhatsApp illimitées',
-    'sous_domaine': `Sous-domaine ${domain}`,
-    'produits_illimites': 'Produits illimités',
-    'statistiques_avancees': 'Statistiques avancées',
-    'promo_codes': 'Codes promo',
-    'crm_export': 'Export CRM clients',
-    'support_prioritaire': 'Support prioritaire',
-    'domaine_personnalise': 'Nom de domaine personnalisé',
-    'multi_magasins': 'Multi-magasins (jusqu\'à 3)',
-    'white_label': 'Marque blanche'
-  }
-  return map[key] || key.replace(/_/g, ' ')
+  if (key === 'commandes_whatsapp_illimitees') return t('admin.settings.feature.whatsAppOrdersUnlimited')
+  if (key === 'sous_domaine') return t('admin.settings.feature.subDomain', { domain })
+  if (key === 'produits_illimites') return t('admin.settings.feature.productsUnlimited')
+  if (key === 'statistiques_avancees') return t('admin.settings.feature.advancedStats')
+  if (key === 'promo_codes') return t('admin.settings.feature.promoCodes')
+  if (key === 'crm_export') return t('admin.settings.feature.crmExport')
+  if (key === 'support_prioritaire') return t('admin.settings.feature.prioritySupport')
+  if (key === 'domaine_personnalise') return t('admin.settings.feature.customDomain')
+  if (key === 'multi_magasins') return t('admin.settings.feature.multiStores')
+  if (key === 'white_label') return t('admin.settings.feature.whiteLabel')
+  return key.replace(/_/g, ' ')
+}
+
+function planDescription(planId: string) {
+  if (planId === 'free') return t('admin.settings.planDesc.free')
+  if (planId === 'premium') return t('admin.settings.planDesc.premium')
+  return t('admin.settings.planDesc.business')
 }
 </script>
