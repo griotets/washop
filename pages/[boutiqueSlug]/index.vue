@@ -143,8 +143,6 @@
         </div>
       </div>
     </main>
-
-    <CatalogFooter />
     
     <!-- Popup -->
     <!-- Footer -->

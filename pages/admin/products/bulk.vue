@@ -1,17 +1,17 @@
 <template>
   <div>
     <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-bold">Modification en bloc</h1>
+      <h1 class="text-2xl font-bold">{{ t('admin.productsBulk.title') }}</h1>
       <button v-if="!isFreePlan" class="rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-50" :disabled="saving || modifiedIds.size === 0" @click="save">
-        {{ saving ? 'Enregistrement...' : 'Sauvegarder' }}
+        {{ saving ? t('common.saving') : t('admin.productsBulk.save') }}
       </button>
     </div>
 
     <!-- Premium Lock -->
     <div v-if="isFreePlan" class="mt-8">
       <PremiumLock 
-        title="Modification en bloc" 
-        description="Gagnez du temps en modifiant tous vos produits simultanément. Cette fonctionnalité est disponible sur les plans Business." 
+        :title="t('admin.productsBulk.lockTitle')" 
+        :description="t('admin.productsBulk.lockDescription')" 
       />
       
       <!-- Blurred Preview -->
@@ -19,21 +19,21 @@
         <div class="mt-4 flex items-center justify-between">
            <div class="flex items-center rounded-lg border bg-white px-3 py-2 w-full max-w-xl">
              <Search class="h-4 w-4 text-gray-500" />
-             <input type="text" placeholder="Recherche..." class="ml-2 w-full bg-transparent text-sm outline-none" />
+             <input type="text" :placeholder="t('admin.productsBulk.searchPlaceholderShort')" class="ml-2 w-full bg-transparent text-sm outline-none" />
            </div>
         </div>
         <div class="mt-2 overflow-auto rounded-xl border">
           <table class="min-w-full bg-white">
             <thead class="bg-gray-50 text-xs text-gray-600">
               <tr>
-                <th class="px-3 py-2 text-left">Nom</th>
-                <th class="px-3 py-2 text-left">Prix</th>
-                <th class="px-3 py-2 text-left">Stock</th>
+                <th class="px-3 py-2 text-left">{{ t('admin.productsBulk.colName') }}</th>
+                <th class="px-3 py-2 text-left">{{ t('admin.productsBulk.colPrice') }}</th>
+                <th class="px-3 py-2 text-left">{{ t('admin.productsBulk.colStock') }}</th>
               </tr>
             </thead>
             <tbody>
                <tr v-for="i in 5" :key="i" class="border-t">
-                 <td class="px-3 py-2">Produit {{ i }}</td>
+                 <td class="px-3 py-2">{{ t('admin.productsBulk.previewProduct', { n: i }) }}</td>
                  <td class="px-3 py-2">10000</td>
                  <td class="px-3 py-2">10</td>
                </tr>
@@ -48,7 +48,7 @@
       <div class="mt-4 flex items-center justify-between">
         <div class="flex items-center rounded-lg border bg-white px-3 py-2 w-full max-w-xl focus-within:ring-2 focus-within:ring-green-500 focus-within:border-transparent">
           <Search class="h-4 w-4 text-gray-500" />
-          <input v-model="search" type="text" placeholder="Recherche par produit, par variante ou UGS" class="ml-2 w-full bg-transparent text-sm outline-none" />
+          <input v-model="search" type="text" :placeholder="t('admin.productsPage.searchPlaceholder')" class="ml-2 w-full bg-transparent text-sm outline-none" />
         </div>
         <div class="flex items-center gap-2">
           <!-- Additional filters could go here -->
@@ -57,25 +57,25 @@
 
       <div class="mt-3 text-sm text-gray-600">
         <span v-if="modifiedIds.size > 0" class="text-amber-600 font-medium">
-          {{ modifiedIds.size }} modification(s) en attente
+          {{ t('admin.productsBulk.pendingChanges', { n: modifiedIds.size }) }}
         </span>
-        <span v-else>Aucune modification</span>
+        <span v-else>{{ t('admin.productsBulk.noChanges') }}</span>
       </div>
 
       <div class="mt-2 overflow-auto rounded-xl border max-h-[calc(100vh-250px)] relative">
         <table class="min-w-full bg-white border-separate border-spacing-0">
           <thead class="bg-gray-50 text-xs text-gray-600 sticky top-0 z-10 shadow-sm">
             <tr>
-              <th class="px-3 py-2 text-left font-medium border-b bg-gray-50">Nom</th>
-              <th class="px-3 py-2 text-left font-medium border-b bg-gray-50 w-24">Suivre inv.</th>
-              <th class="px-3 py-2 text-left font-medium border-b bg-gray-50 w-24">Stock</th>
-              <th class="px-3 py-2 text-left font-medium border-b bg-gray-50 w-32">UGS</th>
-              <th class="px-3 py-2 text-left font-medium border-b bg-gray-50 w-28">Prix</th>
-              <th class="px-3 py-2 text-left font-medium border-b bg-gray-50 w-28">Prix barré</th>
-              <th class="px-3 py-2 text-left font-medium border-b bg-gray-50 w-24">Suivre coût</th>
-              <th class="px-3 py-2 text-left font-medium border-b bg-gray-50 w-28">Coût</th>
-              <th class="px-3 py-2 text-left font-medium border-b bg-gray-50 w-20">Visible</th>
-              <th class="px-3 py-2 text-left font-medium border-b bg-gray-50 min-w-[200px]">Description</th>
+              <th class="px-3 py-2 text-left font-medium border-b bg-gray-50">{{ t('admin.productsBulk.colName') }}</th>
+              <th class="px-3 py-2 text-left font-medium border-b bg-gray-50 w-24">{{ t('admin.productsBulk.colTrackInventoryShort') }}</th>
+              <th class="px-3 py-2 text-left font-medium border-b bg-gray-50 w-24">{{ t('admin.productsBulk.colStock') }}</th>
+              <th class="px-3 py-2 text-left font-medium border-b bg-gray-50 w-32">{{ t('admin.productsBulk.colSku') }}</th>
+              <th class="px-3 py-2 text-left font-medium border-b bg-gray-50 w-28">{{ t('admin.productsBulk.colPrice') }}</th>
+              <th class="px-3 py-2 text-left font-medium border-b bg-gray-50 w-28">{{ t('admin.productsBulk.colOriginalPrice') }}</th>
+              <th class="px-3 py-2 text-left font-medium border-b bg-gray-50 w-24">{{ t('admin.productsBulk.colTrackCostShort') }}</th>
+              <th class="px-3 py-2 text-left font-medium border-b bg-gray-50 w-28">{{ t('admin.productsBulk.colCost') }}</th>
+              <th class="px-3 py-2 text-left font-medium border-b bg-gray-50 w-20">{{ t('admin.productsBulk.colVisible') }}</th>
+              <th class="px-3 py-2 text-left font-medium border-b bg-gray-50 min-w-[200px]">{{ t('admin.productsBulk.colDescription') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -115,13 +115,13 @@
               <td colspan="10" class="px-4 py-12 text-center text-sm text-gray-500">
                 <div class="flex flex-col items-center justify-center gap-2">
                   <div class="h-6 w-6 animate-spin rounded-full border-2 border-green-600 border-t-transparent"></div>
-                  <span>Chargement des produits...</span>
+                  <span>{{ t('admin.productsBulk.loadingProducts') }}</span>
                 </div>
               </td>
             </tr>
             <tr v-if="!loading && rows.length===0">
               <td colspan="10" class="px-4 py-12 text-center text-sm text-gray-500">
-                Aucun produit trouvé.
+                {{ t('admin.productsBulk.empty') }}
               </td>
             </tr>
           </tbody>
@@ -137,9 +137,11 @@ import { useAdminStore } from '~/stores/admin'
 import { Search, Filter, ArrowUpDown } from 'lucide-vue-next'
 import PremiumLock from '~/components/admin/PremiumLock.vue'
 import { useToast } from '~/composables/useToast'
+import { useI18n } from '~/composables/i18n'
 
 definePageMeta({ layout: 'admin' })
 
+const { t } = useI18n()
 const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
 const admin = useAdminStore()
@@ -181,7 +183,7 @@ async function loadProducts() {
     rows.value = Array.isArray(data) ? data.map((d: any) => ({ ...d })) : []
   } catch (e: any) {
     console.error(e)
-    toast.error('Erreur lors du chargement: ' + e.message)
+    toast.error(t('admin.productsBulk.loadError', { msg: e.message }))
   } finally {
     loading.value = false
   }
@@ -227,13 +229,13 @@ async function save() {
     }
 
     if (errorCount === 0) {
-      toast.success(`${successCount} produit(s) mis à jour avec succès`)
+      toast.success(t('admin.productsBulk.saveSuccess', { n: successCount }))
       modifiedIds.clear()
     } else {
-      toast.warning(`${successCount} mis à jour, ${errorCount} échec(s)`)
+      toast.warning(t('admin.productsBulk.savePartial', { ok: successCount, fail: errorCount }))
     }
   } catch (e: any) {
-    toast.error('Erreur critique lors de la sauvegarde: ' + e.message)
+    toast.error(t('admin.productsBulk.saveCriticalError', { msg: e.message }))
   } finally {
     saving.value = false
   }
@@ -269,5 +271,5 @@ onMounted(async () => {
   }
 })
 
-useHead({ title: 'Admin | Modification en bloc' })
+useHead({ title: t('admin.productsBulk.headTitle') })
 </script>

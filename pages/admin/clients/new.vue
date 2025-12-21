@@ -1,19 +1,19 @@
 <template>
   <div>
     <div class="flex items-center gap-2">
-      <NuxtLink to="/admin/clients" class="rounded-lg border bg-white px-3 py-2 text-sm">Retour</NuxtLink>
-      <h1 class="text-2xl font-bold">Client</h1>
+      <NuxtLink to="/admin/clients" class="rounded-lg border bg-white px-3 py-2 text-sm">{{ t('admin.clientForm.back') }}</NuxtLink>
+      <h1 class="text-2xl font-bold">{{ t('admin.clientForm.title') }}</h1>
     </div>
 
     <div class="mt-6 rounded-2xl border bg-white p-6">
       <div class="grid gap-4">
         <div>
-          <label class="block text-sm font-medium">Nom *</label>
-          <input v-model.trim="form.name" placeholder="Nom" class="mt-1 w-full rounded-lg border px-3 py-2" />
+          <label class="block text-sm font-medium">{{ t('admin.clientForm.nameLabel') }}</label>
+          <input v-model.trim="form.name" :placeholder="t('admin.clientForm.namePlaceholder')" class="mt-1 w-full rounded-lg border px-3 py-2" />
         </div>
         <div class="grid gap-3 sm:grid-cols-[120px_1fr]">
           <div>
-            <label class="block text-sm font-medium">Indicatif</label>
+            <label class="block text-sm font-medium">{{ t('admin.clientForm.phoneCodeLabel') }}</label>
             <select v-model="phonePrefix" class="mt-1 w-full rounded-lg border px-3 py-2">
               <option value="+237">+237</option>
               <option value="+33">+33</option>
@@ -21,40 +21,40 @@
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium">Téléphone *</label>
-            <input v-model.trim="form.phone" placeholder="Numéro de téléphone" class="mt-1 w-full rounded-lg border px-3 py-2" />
+            <label class="block text-sm font-medium">{{ t('admin.clientForm.phoneLabel') }}</label>
+            <input v-model.trim="form.phone" :placeholder="t('admin.clientForm.phonePlaceholder')" class="mt-1 w-full rounded-lg border px-3 py-2" />
           </div>
         </div>
         <div>
-          <label class="block text-sm font-medium">Courriel</label>
-          <input v-model.trim="form.email" placeholder="Customer email" class="mt-1 w-full rounded-lg border px-3 py-2" />
+          <label class="block text-sm font-medium">{{ t('admin.clientForm.emailLabel') }}</label>
+          <input v-model.trim="form.email" :placeholder="t('admin.clientForm.emailPlaceholder')" class="mt-1 w-full rounded-lg border px-3 py-2" />
         </div>
         <div>
-          <label class="block text-sm font-medium">Anniversaire</label>
+          <label class="block text-sm font-medium">{{ t('admin.clientForm.birthdayLabel') }}</label>
           <input v-model="birthdayStr" type="date" class="mt-1 w-full rounded-lg border px-3 py-2" />
         </div>
         <div>
-          <label class="block text-sm font-medium">Adresse</label>
-          <textarea v-model.trim="form.address" placeholder="Entrer l'adresse" rows="2" class="mt-1 w-full rounded-lg border px-3 py-2"></textarea>
+          <label class="block text-sm font-medium">{{ t('admin.clientForm.addressLabel') }}</label>
+          <textarea v-model.trim="form.address" :placeholder="t('admin.clientForm.addressPlaceholder')" rows="2" class="mt-1 w-full rounded-lg border px-3 py-2"></textarea>
         </div>
         <div>
-          <label class="block text-sm font-medium">Tags</label>
+          <label class="block text-sm font-medium">{{ t('admin.clientForm.tagsLabel') }}</label>
           <div class="mt-1 flex flex-wrap gap-2">
             <button v-for="t in tags" :key="t.id" class="rounded-full border px-3 py-1 text-xs" :class="selectedTags.has(Number(t.id))?'bg-green-100 border-green-300':'bg-white'" @click="toggleTag(Number(t.id))">{{ t.name }}</button>
           </div>
-          <input v-model.trim="newTagName" placeholder="Ajouter une étiquette et Enter" class="mt-2 w-full rounded-lg border px-3 py-2 text-sm" @keydown.enter.prevent="addNewTagName" />
+          <input v-model.trim="newTagName" :placeholder="t('admin.clientForm.addTagPlaceholder')" class="mt-2 w-full rounded-lg border px-3 py-2 text-sm" @keydown.enter.prevent="addNewTagName" />
         </div>
         <div>
-          <label class="block text-sm font-medium">Notes</label>
+          <label class="block text-sm font-medium">{{ t('admin.clientForm.notesLabel') }}</label>
           <textarea v-model.trim="form.notes" rows="3" class="mt-1 w-full rounded-lg border px-3 py-2"></textarea>
         </div>
         <div>
-          <label class="block text-sm font-medium">Code de parrainage</label>
+          <label class="block text-sm font-medium">{{ t('admin.clientForm.referralCodeLabel') }}</label>
           <input v-model.trim="form.referral_code" class="mt-1 w-full rounded-lg border px-3 py-2" />
         </div>
       </div>
       <div class="mt-6">
-        <button class="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white" :disabled="saving || !isValid" @click="save">Sauvegarder</button>
+        <button class="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white" :disabled="saving || !isValid" @click="save">{{ saving ? t('common.saving') : t('admin.clientForm.save') }}</button>
       </div>
     </div>
   </div>
@@ -63,10 +63,12 @@
 <script setup lang="ts">
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
+import { useI18n } from '~/composables/i18n'
 definePageMeta({ layout: 'admin' })
 const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
 const admin = useAdminStore()
+const { t } = useI18n()
 const saving = ref(false)
 const phonePrefix = ref('+237')
 const form = reactive<any>({ name: '', phone: '', email: '', birthday: null as Date | null, address: '', notes: '', referral_code: '' })
@@ -144,6 +146,5 @@ onMounted(async () => {
   }
   await loadTags()
 })
-useHead({ title: 'Admin | Ajouter un client' })
+useHead({ title: t('admin.clientForm.addHeadTitle') })
 </script>
-

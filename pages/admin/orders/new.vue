@@ -4,7 +4,7 @@
       <NuxtLink to="/admin/orders" class="p-2 rounded-full hover:bg-gray-100 transition-colors">
         <ArrowLeft class="h-5 w-5 text-gray-600" />
       </NuxtLink>
-      <h1 class="text-2xl font-bold text-gray-900">Nouvelle commande</h1>
+      <h1 class="text-2xl font-bold text-gray-900">{{ t('admin.ordersNew.title') }}</h1>
     </div>
 
     <div class="grid gap-6 lg:grid-cols-3">
@@ -15,16 +15,16 @@
           <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
             <h2 class="font-semibold text-gray-800 flex items-center gap-2">
               <ShoppingBag class="h-4 w-4" />
-              Produits
+              {{ t('admin.ordersNew.productsTitle') }}
             </h2>
             <button @click="openProductModal" class="text-sm text-green-600 font-medium hover:text-green-700 hover:underline">
-              Ajouter un produit
+              {{ t('admin.ordersNew.addProduct') }}
             </button>
           </div>
           
           <div class="p-4">
             <div v-if="orderItems.length === 0" class="text-center py-8 text-gray-500 text-sm">
-              Aucun produit ajouté à la commande.
+              {{ t('admin.ordersNew.noProducts') }}
             </div>
             <ul v-else class="divide-y divide-gray-100">
               <li v-for="(item, index) in orderItems" :key="index" class="py-3 flex items-center justify-between gap-4">
@@ -57,16 +57,16 @@
            <div class="p-4 border-b border-gray-100 bg-gray-50">
             <h2 class="font-semibold text-gray-800 flex items-center gap-2">
               <CreditCard class="h-4 w-4" />
-              Paiement
+              {{ t('admin.ordersNew.paymentTitle') }}
             </h2>
           </div>
           <div class="p-4 space-y-3">
             <div class="flex justify-between text-sm">
-              <span class="text-gray-600">Sous-total</span>
+              <span class="text-gray-600">{{ t('admin.ordersNew.subtotal') }}</span>
               <span class="font-medium">{{ formatPrice(subtotal) }}</span>
             </div>
             <div class="flex justify-between items-center text-sm">
-              <span class="text-gray-600">Frais de livraison</span>
+              <span class="text-gray-600">{{ t('admin.ordersNew.deliveryFee') }}</span>
               <input 
                 type="number" 
                 v-model.number="deliveryFee" 
@@ -75,7 +75,7 @@
               />
             </div>
             <div class="pt-3 border-t border-gray-100 flex justify-between items-center">
-              <span class="font-bold text-gray-900">Total</span>
+              <span class="font-bold text-gray-900">{{ t('admin.ordersNew.total') }}</span>
               <span class="font-bold text-xl text-green-600">{{ formatPrice(total) }}</span>
             </div>
           </div>
@@ -88,17 +88,17 @@
           <div class="p-4 border-b border-gray-100 bg-gray-50">
             <h2 class="font-semibold text-gray-800 flex items-center gap-2">
               <User class="h-4 w-4" />
-              Client
+              {{ t('admin.ordersNew.clientTitle') }}
             </h2>
           </div>
           <div class="p-4 space-y-4">
             <div>
-              <label class="block text-xs font-medium text-gray-700 mb-1">Téléphone <span class="text-red-500">*</span></label>
+              <label class="block text-xs font-medium text-gray-700 mb-1">{{ t('admin.ordersNew.phoneLabel') }} <span class="text-red-500">*</span></label>
               <div class="relative">
                 <input 
                   v-model="form.phone" 
                   type="text" 
-                  placeholder="ex: 699000000"
+                  :placeholder="t('admin.ordersNew.phonePlaceholder')"
                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm pl-10"
                   @blur="checkClient"
                 />
@@ -110,15 +110,15 @@
                 </div>
               </div>
               <p v-if="clientStatus === 'found'" class="mt-1 text-xs text-green-600 font-medium flex items-center gap-1">
-                <CheckCircle class="h-3 w-3" /> Client existant
+                <CheckCircle class="h-3 w-3" /> {{ t('admin.ordersNew.clientFound') }}
               </p>
               <p v-if="clientStatus === 'new'" class="mt-1 text-xs text-blue-600 font-medium flex items-center gap-1">
-                <PlusCircle class="h-3 w-3" /> Nouveau client
+                <PlusCircle class="h-3 w-3" /> {{ t('admin.ordersNew.clientNew') }}
               </p>
             </div>
 
             <div>
-              <label class="block text-xs font-medium text-gray-700 mb-1">Nom complet <span class="text-red-500">*</span></label>
+              <label class="block text-xs font-medium text-gray-700 mb-1">{{ t('admin.ordersNew.fullNameLabel') }} <span class="text-red-500">*</span></label>
               <input 
                 v-model="form.name" 
                 type="text" 
@@ -127,7 +127,7 @@
             </div>
 
             <div>
-              <label class="block text-xs font-medium text-gray-700 mb-1">Adresse de livraison</label>
+              <label class="block text-xs font-medium text-gray-700 mb-1">{{ t('admin.ordersNew.deliveryAddressLabel') }}</label>
               <textarea 
                 v-model="form.address" 
                 rows="3" 
@@ -136,7 +136,7 @@
             </div>
              
              <div>
-              <label class="block text-xs font-medium text-gray-700 mb-1">Note (Interne)</label>
+              <label class="block text-xs font-medium text-gray-700 mb-1">{{ t('admin.ordersNew.noteLabel') }}</label>
               <textarea 
                 v-model="form.notes" 
                 rows="2" 
@@ -147,17 +147,17 @@
         </div>
 
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
-           <label class="block text-xs font-medium text-gray-700 mb-1">Statut de la commande</label>
+           <label class="block text-xs font-medium text-gray-700 mb-1">{{ t('admin.ordersNew.statusLabel') }}</label>
            <select 
              v-model="form.status" 
              class="block w-full rounded-md border shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm font-medium"
              :class="statusClass(form.status)"
            >
-             <option value="new">Nouveau</option>
-             <option value="sent_to_whatsapp">Envoyé WhatsApp</option>
-             <option value="processing">En cours</option>
-             <option value="completed">Terminé</option>
-             <option value="cancelled">Annulé</option>
+             <option value="new">{{ t('admin.ordersPage.status.new') }}</option>
+             <option value="sent_to_whatsapp">{{ t('admin.ordersPage.status.sent_to_whatsapp') }}</option>
+             <option value="processing">{{ t('admin.ordersPage.status.processing') }}</option>
+             <option value="completed">{{ t('admin.ordersPage.status.completed') }}</option>
+             <option value="cancelled">{{ t('admin.ordersPage.status.cancelled') }}</option>
            </select>
         </div>
 
@@ -167,7 +167,7 @@
           class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         >
           <Loader2 v-if="submitting" class="h-5 w-5 animate-spin mr-2" />
-          {{ submitting ? 'Création...' : 'Créer la commande' }}
+          {{ submitting ? t('admin.ordersNew.creating') : t('admin.ordersNew.create') }}
         </button>
       </div>
     </div>
@@ -180,19 +180,19 @@
         <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
           <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
             <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" id="modal-title">
-              Ajouter un produit
+              {{ t('admin.ordersNew.modalTitle') }}
             </h3>
             <div class="mb-4">
                <input 
                  v-model="productSearch" 
                  type="text" 
-                 placeholder="Rechercher un produit..." 
+                 :placeholder="t('admin.ordersNew.modalSearchPlaceholder')"
                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
                />
             </div>
             <div class="mt-2 max-h-60 overflow-y-auto space-y-2">
-               <div v-if="loadingProducts" class="text-center py-4 text-gray-500">Chargement...</div>
-               <div v-else-if="filteredProducts.length === 0" class="text-center py-4 text-gray-500">Aucun produit trouvé.</div>
+               <div v-if="loadingProducts" class="text-center py-4 text-gray-500">{{ t('admin.ordersNew.loadingProducts') }}</div>
+               <div v-else-if="filteredProducts.length === 0" class="text-center py-4 text-gray-500">{{ t('admin.ordersNew.noProductFound') }}</div>
                <div 
                  v-for="product in filteredProducts" 
                  :key="product.id" 
@@ -200,16 +200,16 @@
                  @click="selectProduct(product)"
                >
                  <div class="flex justify-between items-center">
-                   <span class="font-medium text-gray-900">{{ product.name }}</span>
-                   <span class="text-sm font-semibold text-green-600">{{ formatPrice(product.price) }}</span>
-                 </div>
-                 <div class="text-xs text-gray-500" v-if="product.sku">SKU: {{ product.sku }}</div>
+                  <span class="font-medium text-gray-900">{{ product.name }}</span>
+                  <span class="text-sm font-semibold text-green-600">{{ formatPrice(product.price) }}</span>
+                </div>
+                <div class="text-xs text-gray-500" v-if="product.sku">SKU: {{ product.sku }}</div>
                </div>
             </div>
           </div>
           <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
             <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" @click="showModal = false">
-              Fermer
+              {{ t('common.close') }}
             </button>
           </div>
         </div>
@@ -222,6 +222,7 @@
 <script setup lang="ts">
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
+import { useI18n } from '~/composables/i18n'
 import { ArrowLeft, ShoppingBag, CreditCard, User, Phone, Loader2, CheckCircle, PlusCircle, Trash2 } from 'lucide-vue-next'
 
 definePageMeta({ layout: 'admin' })
@@ -230,6 +231,7 @@ const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
 const admin = useAdminStore()
 const router = useRouter()
+const { t, locale } = useI18n()
 
 // State
 const form = reactive({
@@ -275,7 +277,13 @@ const filteredProducts = computed(() => {
 
 // Methods
 function formatPrice(amount: number) {
-  return 'FCFA ' + Number(amount || 0).toLocaleString('fr-FR')
+  return 'FCFA ' + Number(amount || 0).toLocaleString(getNumberLocale())
+}
+
+function getNumberLocale() {
+  if (locale.value === 'fr') return 'fr-FR'
+  if (locale.value === 'it') return 'it-IT'
+  return 'en-US'
 }
 
 function calculateTotals() {
@@ -397,7 +405,7 @@ async function submitOrder() {
           name: form.name,
           phone: form.phone,
           address: form.address || null,
-          notes: 'Créé automatiquement lors de la commande'
+          notes: t('admin.ordersNew.autoCreatedNote')
         })
         .select('id')
         .single()
@@ -448,7 +456,7 @@ async function submitOrder() {
     
   } catch (e: any) {
     console.error('Error submitting order:', e)
-    alert('Erreur lors de la création de la commande: ' + (e.message || e))
+    alert(t('admin.ordersNew.createError', { msg: e.message || e }))
   } finally {
     submitting.value = false
   }
@@ -458,4 +466,5 @@ async function submitOrder() {
 onMounted(() => {
   // Pre-load products maybe? No, wait for user action.
 })
+useHead({ title: t('admin.ordersNew.headTitle') })
 </script>

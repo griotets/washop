@@ -2,12 +2,12 @@
   <main class="px-6 py-10">
     <div v-if="!canCreate" class="mx-auto max-w-lg rounded-xl bg-white p-8 shadow-sm text-center">
       <AdminPremiumLock 
-        title="Limite de magasins atteinte"
+        :title="t('admin.stores.limitReachedTitle')"
         :description="limitReachedMsg"
       />
       <div class="mt-6">
         <NuxtLink to="/admin/stores/switch" class="text-sm font-medium text-gray-600 hover:text-gray-900">
-          Retourner à mes magasins
+          {{ t('admin.stores.backToStores') }}
         </NuxtLink>
       </div>
     </div>
@@ -43,9 +43,9 @@
               <input v-model.trim="form.slug" type="text" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none" />
             </div>
             <p class="mt-1 text-xs" :class="[slugCheckLoading ? 'text-gray-500' : (slugAvailable ? 'text-gray-500' : 'text-red-600')]">
-              <span v-if="slugCheckLoading">Vérification...</span>
+              <span v-if="slugCheckLoading">{{ t('create.slugChecking') }}</span>
               <span v-else-if="slugAvailable">{{ t('create.slugHint') }}</span>
-              <span v-else>Lien déjà utilisé. Choisissez un autre lien.</span>
+              <span v-else>{{ t('create.slugTaken') }}</span>
             </p>
           </div>
 
@@ -129,7 +129,7 @@ onMounted(async () => {
 
   if ((count || 0) >= maxStores) {
     canCreate.value = false
-    limitReachedMsg.value = `Vous avez atteint la limite de ${maxStores} magasin(s) pour votre plan actuel.`
+    limitReachedMsg.value = t('admin.stores.limitReachedMsg', { max: maxStores })
   }
 })
 

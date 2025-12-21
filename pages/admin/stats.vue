@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-bold">Statistiques</h1>
+      <h1 class="text-2xl font-bold">{{ t('admin.stats.title') }}</h1>
       <div class="flex items-center gap-2">
         <input type="date" v-model="startDateStr" class="rounded border px-3 py-2 text-sm" />
         <input type="date" v-model="endDateStr" class="rounded border px-3 py-2 text-sm" />
@@ -10,29 +10,29 @@
 
     <div class="mt-6 grid gap-6 sm:grid-cols-3">
       <div class="rounded-xl border bg-white p-6">
-        <div class="text-sm text-gray-500">Vues</div>
+        <div class="text-sm text-gray-500">{{ t('admin.stats.views') }}</div>
         <div class="mt-2 text-3xl font-semibold">{{ metrics.views }}</div>
       </div>
       <div class="rounded-xl border bg-white p-6">
-        <div class="text-sm text-gray-500">Commandes</div>
+        <div class="text-sm text-gray-500">{{ t('admin.stats.orders') }}</div>
         <div class="mt-2 text-3xl font-semibold">{{ metrics.orders }}</div>
       </div>
       <div class="rounded-xl border bg-white p-6">
-        <div class="text-sm text-gray-500">Ventes</div>
+        <div class="text-sm text-gray-500">{{ t('admin.stats.sales') }}</div>
         <div class="mt-2 text-3xl font-semibold">FCFA {{ Number(metrics.sales || 0).toLocaleString('fr-FR') }}</div>
       </div>
     </div>
 
     <div class="mt-6 grid gap-6 lg:grid-cols-2">
       <div class="rounded-xl border bg-white p-6">
-        <div class="font-semibold">Produits les plus vendus</div>
+        <div class="font-semibold">{{ t('admin.stats.topProducts') }}</div>
         <div class="mt-3">
           <table class="min-w-full">
             <thead class="bg-gray-50 text-sm text-gray-600">
               <tr>
-                <th class="px-4 py-3 text-left">Produit</th>
-                <th class="px-4 py-3 text-left">Quantité</th>
-                <th class="px-4 py-3 text-left">Revenu</th>
+                <th class="px-4 py-3 text-left">{{ t('admin.stats.colProduct') }}</th>
+                <th class="px-4 py-3 text-left">{{ t('admin.stats.colQuantity') }}</th>
+                <th class="px-4 py-3 text-left">{{ t('admin.stats.colRevenue') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -42,29 +42,29 @@
                 <td class="px-4 py-3">FCFA {{ Number(p.revenue || 0).toLocaleString('fr-FR') }}</td>
               </tr>
               <tr v-if="topProducts.length===0">
-                <td colspan="3" class="px-4 py-6 text-center text-sm text-gray-500">Aucune donnée.</td>
+                <td colspan="3" class="px-4 py-6 text-center text-sm text-gray-500">{{ t('admin.stats.noData') }}</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
       <div class="rounded-xl border bg-white p-6">
-        <div class="font-semibold">Événements</div>
+        <div class="font-semibold">{{ t('admin.stats.events') }}</div>
         <div class="mt-3 grid gap-2 sm:grid-cols-2">
           <div class="rounded border p-3">
-            <div class="text-sm text-gray-600">Vues de page</div>
+            <div class="text-sm text-gray-600">{{ t('admin.stats.eventPageViews') }}</div>
             <div class="mt-1 font-semibold">{{ events.page_view }}</div>
           </div>
           <div class="rounded border p-3">
-            <div class="text-sm text-gray-600">Vues produit</div>
+            <div class="text-sm text-gray-600">{{ t('admin.stats.eventProductViews') }}</div>
             <div class="mt-1 font-semibold">{{ events.product_view }}</div>
           </div>
           <div class="rounded border p-3">
-            <div class="text-sm text-gray-600">Ajouts au panier</div>
+            <div class="text-sm text-gray-600">{{ t('admin.stats.eventAddToCart') }}</div>
             <div class="mt-1 font-semibold">{{ events.add_to_cart }}</div>
           </div>
           <div class="rounded border p-3">
-            <div class="text-sm text-gray-600">Clics WhatsApp</div>
+            <div class="text-sm text-gray-600">{{ t('admin.stats.eventWhatsAppClicks') }}</div>
             <div class="mt-1 font-semibold">{{ events.whatsapp_click }}</div>
           </div>
         </div>
@@ -76,7 +76,9 @@
 <script setup lang="ts">
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
+import { useI18n } from '~/composables/i18n'
 definePageMeta({ layout: 'admin' })
+const { t } = useI18n()
 const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
 const admin = useAdminStore()
@@ -155,6 +157,5 @@ onMounted(async () => {
   await loadEvents()
   await loadTopProducts()
 })
-useHead({ title: 'Admin | Statistiques' })
+useHead({ title: t('admin.stats.headTitle') })
 </script>
-

@@ -1,9 +1,11 @@
 <template>
   <main class="mx-auto max-w-5xl px-6 py-12">
-    <h1 class="text-3xl font-bold">WhatsApp</h1>
-    <p class="mt-3 text-gray-600">Paramètres d’intégration WhatsApp.</p>
+    <h1 class="text-3xl font-bold">{{ t('admin.whatsapp.title') }}</h1>
+    <p class="mt-3 text-gray-600">{{ t('admin.whatsapp.subtitle') }}</p>
   </main>
 </template>
 <script setup>
-useHead({ title: 'Admin | WhatsApp' })
+import { useI18n } from '~/composables/i18n'
+const { t } = useI18n()
+useHead({ title: t('admin.whatsapp.headTitle') })
 </script>

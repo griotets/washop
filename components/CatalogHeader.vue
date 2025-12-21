@@ -31,6 +31,11 @@
 </template>
 
 <script setup>
+import { ShoppingCart, Search } from 'lucide-vue-next'
+import { useCartStore } from '~/stores/cart'
+import { useI18n } from '~/composables/i18n'
+
+const { locale, t } = useI18n()
 const props = defineProps(['store'])
 const route = useRoute()
 const slug = computed(() => String(route.params['boutiqueSlug'] || ''))
@@ -43,7 +48,7 @@ const store = computed(() => {
 })
 
 const color = computed(() => store.value.color || '#111827')
-const initials = computed(() => (store.value.name || 'Boutique').split(/\s+/).map(s => s[0]).join('.'))
+const initials = computed(() => (store.value.name || t('catalog.storeFallback')).split(/\s+/).map(s => s[0]).join('.'))
 
 onMounted(() => {
   try {
@@ -51,11 +56,7 @@ onMounted(() => {
     if (raw) Object.assign(localStore, JSON.parse(raw))
   } catch {}
 })
-import { useCartStore } from '~/stores/cart'
 const cart = useCartStore()
 onMounted(() => cart.load(slug.value))
 const count = computed(() => cart.count)
-import { ShoppingCart, Search } from 'lucide-vue-next'
-import { useI18n } from '~/composables/i18n'
-const { locale, t } = useI18n()
 </script>

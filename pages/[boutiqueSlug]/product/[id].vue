@@ -30,18 +30,18 @@
                 <span v-else class="text-xs font-semibold text-white">{{ storeInitials }}</span>
               </div>
               <div class="flex-1">
-                <div class="font-semibold">{{ store.name || 'Boutique' }}</div>
-                <div class="text-xs text-gray-500">en ligne</div>
+                <div class="font-semibold">{{ store.name || t('catalog.storeFallback') }}</div>
+                <div class="text-xs text-gray-500">{{ t('storefront.online') }}</div>
               </div>
-              <a v-if="waLink" :href="waLink" target="_blank" @click="trackWaClick" class="rounded bg-green-500 px-3 py-2 text-xs font-semibold text-white">WhatsApp</a>
+              <a v-if="waLink" :href="waLink" target="_blank" @click="trackWaClick" class="rounded bg-green-500 px-3 py-2 text-xs font-semibold text-white">{{ t('storefront.whatsapp') }}</a>
             </div>
             <div class="mt-3">
-              <div class="text-xl font-bold">{{ product.name || 'Produit' }}</div>
+              <div class="text-xl font-bold">{{ product.name || t('storefront.productFallback') }}</div>
               <div class="mt-2 text-gray-700" style="white-space: pre-line">{{ product.description || '' }}</div>
-              <div class="mt-3 text-lg font-semibold">FCFA {{ Number(product.price || 0).toLocaleString('fr-FR') }}</div>
+              <div class="mt-3 text-lg font-semibold">FCFA {{ Number(product.price || 0).toLocaleString(getNumberLocale()) }}</div>
               <div class="mt-4 flex flex-col gap-3">
                 <button class="block w-full rounded bg-primary px-4 py-3 text-sm font-bold text-white shadow hover:brightness-110" @click="buyNow">
-                  Acheter maintenant
+                  {{ t('storefront.buyNow') }}
                 </button>
                 <div v-if="getCartQuantity() > 0" class="flex items-center gap-3 rounded-lg border border-primary p-1">
                   <button class="flex h-10 w-12 items-center justify-center rounded-md bg-gray-100 font-bold hover:bg-gray-200" @click="handleUpdateQuantity(-1)">-</button>
@@ -49,7 +49,7 @@
                   <button class="flex h-10 w-12 items-center justify-center rounded-md bg-primary font-bold text-white hover:brightness-110" @click="handleUpdateQuantity(1)">+</button>
                 </div>
                 <button v-else class="block w-full rounded border border-primary px-4 py-3 text-sm font-bold text-primary hover:bg-primary/5" @click="addToCart">
-                  Ajouter au panier
+                  {{ t('storefront.addToCart') }}
                 </button>
               </div>
             </div>
@@ -62,13 +62,13 @@
     <div v-if="showPopup" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div class="w-80 rounded-xl border bg-white p-4">
         <div class="flex items-center justify-between">
-          <div class="font-semibold text-sm">{{ (popupBlock?.title) || 'Offre de bienvenue spéciale' }}</div>
-          <button class="rounded border bg-white px-2 py-1 text-xs" @click="closePopup">Fermer</button>
+          <div class="font-semibold text-sm">{{ (popupBlock?.title) || t('storefront.welcomeOfferTitleFallback') }}</div>
+          <button class="rounded border bg-white px-2 py-1 text-xs" @click="closePopup">{{ t('common.close') }}</button>
         </div>
-        <div class="mt-2 text-sm text-gray-700">{{ (popupBlock?.description) || 'Bénéficiez de 20 % de réduction sur votre premier achat.' }}</div>
+        <div class="mt-2 text-sm text-gray-700">{{ (popupBlock?.description) || t('storefront.welcomeOfferDescFallback') }}</div>
         <div class="mt-3">
-          <a v-if="popupBlock?.link" :href="popupBlock?.link" target="_blank" class="rounded bg-green-600 px-3 py-2 text-sm text-white">Découvrir</a>
-          <span v-else class="rounded border bg-white px-3 py-2 text-sm">Aucun lien</span>
+          <a v-if="popupBlock?.link" :href="popupBlock?.link" target="_blank" class="rounded bg-green-600 px-3 py-2 text-sm text-white">{{ t('storefront.discover') }}</a>
+          <span v-else class="rounded border bg-white px-3 py-2 text-sm">{{ t('storefront.noLink') }}</span>
         </div>
       </div>
     </div>
@@ -78,10 +78,12 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useCartStore } from '~/stores/cart'
 import { useToast } from '~/composables/useToast'
+import { useI18n } from '~/composables/i18n'
 const route = useRoute()
 const cart = useCartStore()
 const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
+const { t, locale } = useI18n()
 const slug = computed(() => String(route.params['boutiqueSlug'] || ''))
 const productId = computed(() => String(route.params.id || ''))
 const showPopup = ref(false)
@@ -118,10 +120,15 @@ function onDrag(e: MouseEvent | TouchEvent) {
 }
 function endDrag() { dragging.value = false }
 const storeInitials = computed(() => (store.name || 'Boutique').split(/\s+/).map(s => s[0]).join('.'))
+function getNumberLocale() {
+  if (locale.value === 'fr') return 'fr-FR'
+  if (locale.value === 'it') return 'it-IT'
+  return 'en-US'
+}
 const waLink = computed(() => {
   const phone = String(store.phone || '').trim()
   if (!phone) return ''
-  const text = encodeURIComponent(`Bonjour, je suis intéressé par ${product.name || 'un produit'}.`)
+  const text = encodeURIComponent(t('storefront.whatsappInterestedMsg', { name: product.name || t('storefront.productFallback') }))
   return `https://wa.me/${phone.replace(/\D/g, '')}?text=${text}`
 })
 
@@ -149,14 +156,14 @@ function handleUpdateQuantity(delta: number) {
   // Check Max Order Qty
   if ((product.max_order_quantity || 0) > 0 && newQty > (product.max_order_quantity || 0)) {
     const toast = useToast()
-    toast.error(`Maximum ${product.max_order_quantity} unités pour ce produit`)
+    toast.error(t('storefront.maxQtyError', { max: product.max_order_quantity }))
     return
   }
 
   // Check Stock
   if (product.track_inventory && newQty > (product.stock_quantity || 0)) {
     const toast = useToast()
-    toast.error(`Stock insuffisant (Max: ${product.stock_quantity})`)
+    toast.error(t('storefront.stockError', { max: product.stock_quantity }))
     return
   }
   
@@ -173,7 +180,7 @@ function handleUpdateQuantity(delta: number) {
 
     cart.add({
       id: productId.value,
-      name: product.name || 'Produit',
+      name: product.name || t('storefront.productFallback'),
       price: product.price || 0,
       image: images.value[0]
     })
@@ -205,7 +212,7 @@ function shareProduct() {
   } else {
     navigator.clipboard.writeText(url)
     const toast = useToast()
-    toast.success('Lien copié !')
+    toast.success(t('storefront.linkCopied'))
   }
 }
 
@@ -224,7 +231,7 @@ onMounted(async () => {
   if (sErr) {
     console.error(sErr)
     const toast = useToast()
-    toast.error('Erreur chargement boutique: ' + sErr.message)
+    toast.error(t('storefront.loadStoreError', { msg: sErr.message }))
   }
   const storeId = sone?.id
   store.id = storeId
@@ -241,7 +248,7 @@ onMounted(async () => {
     if (pErr) {
       console.error(pErr)
       const toast = useToast()
-      toast.error('Erreur chargement produit: ' + pErr.message)
+      toast.error(t('storefront.loadProductError', { msg: pErr.message }))
     }
     product.id = String(p?.id || '')
     product.name = String(p?.name || '')

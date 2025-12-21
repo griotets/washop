@@ -1,25 +1,25 @@
 <template>
   <div>
     <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-bold">Produits</h1>
+      <h1 class="text-2xl font-bold">{{ t('admin.productsPage.title') }}</h1>
       <div class="flex items-center gap-2">
-        <button class="rounded-lg bg-gray-100 px-3 py-2 text-sm" @click="openImportModal">Importation</button>
-        <NuxtLink to="/admin/products/bulk" class="rounded-lg bg-gray-100 px-3 py-2 text-sm">Modification en bloc</NuxtLink>
+        <button class="rounded-lg bg-gray-100 px-3 py-2 text-sm" @click="openImportModal">{{ t('admin.productsPage.import') }}</button>
+        <NuxtLink to="/admin/products/bulk" class="rounded-lg bg-gray-100 px-3 py-2 text-sm">{{ t('admin.productsPage.bulkEdit') }}</NuxtLink>
         
         <NuxtLink 
           v-if="admin.canAddProduct"
           to="/admin/products/new" 
           class="rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white"
         >
-          Ajouter un produit
+          {{ t('admin.productsPage.addProduct') }}
         </NuxtLink>
         <button 
           v-else
-          @click="notify('Limite de produits atteinte. Passez au plan supérieur.')"
+          @click="notify(t('admin.productsPage.limitReachedToast'))"
           class="flex items-center gap-2 rounded-lg bg-gray-300 px-3 py-2 text-sm font-semibold text-gray-500 cursor-not-allowed"
         >
           <Lock class="h-4 w-4" />
-          <span>Ajouter un produit</span>
+          <span>{{ t('admin.productsPage.addProduct') }}</span>
         </button>
       </div>
     </div>
@@ -31,17 +31,16 @@
           <AlertTriangle class="h-5 w-5 text-yellow-400" aria-hidden="true" />
         </div>
         <div class="ml-3">
-          <h3 class="text-sm font-medium text-yellow-800">Limite de produits atteinte</h3>
+          <h3 class="text-sm font-medium text-yellow-800">{{ t('admin.productsPage.limitReachedTitle') }}</h3>
           <div class="mt-2 text-sm text-yellow-700">
             <p>
-              Vous avez atteint la limite de {{ admin.maxProducts }} produits incluse dans votre plan {{ admin.planName }}.
-              Mettez à niveau votre abonnement pour ajouter plus de produits.
+              {{ t('admin.productsPage.limitReachedBody', { max: admin.maxProducts, plan: admin.planName }) }}
             </p>
           </div>
           <div class="mt-4">
             <div class="-mx-2 -my-1.5 flex">
               <NuxtLink to="/admin/settings?tab=billing" class="rounded-md bg-yellow-50 px-2 py-1.5 text-sm font-medium text-yellow-800 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-offset-2 focus:ring-offset-yellow-50">
-                Voir les plans
+                {{ t('admin.productsPage.viewPlans') }}
               </NuxtLink>
             </div>
           </div>
@@ -52,19 +51,19 @@
     <div class="mt-4 flex items-center justify-between">
       <div class="flex items-center rounded-lg border bg-white px-3 py-2 w-full max-w-xl">
         <Search class="h-4 w-4 text-gray-500" />
-        <input v-model.trim="search" type="text" placeholder="Recherche par produit, variante ou UGS" class="ml-2 w-full bg-transparent text-sm outline-none" />
+        <input v-model.trim="search" type="text" :placeholder="t('admin.productsPage.searchPlaceholder')" class="ml-2 w-full bg-transparent text-sm outline-none" />
       </div>
       <div class="flex items-center gap-2">
         <button class="inline-flex h-9 w-9 items-center justify-center rounded-md border bg-white"><Filter class="h-4 w-4 text-gray-700" /></button>
         <button class="inline-flex h-9 w-9 items-center justify-center rounded-md border bg-white"><ArrowUpDown class="h-4 w-4 text-gray-700" /></button>
         <input ref="importInput" type="file" accept=".csv,text/csv" class="hidden" @change="importCsv" />
-        <button class="rounded-lg border bg-white px-3 py-2 text-sm" @click="exportCsv">Exportation</button>
+        <button class="rounded-lg border bg-white px-3 py-2 text-sm" @click="exportCsv">{{ t('admin.productsPage.export') }}</button>
       </div>
     </div>
 
     <div class="mt-3 flex items-center gap-3">
       <select v-model="categoryFilter" class="rounded border px-2 py-1 text-sm">
-        <option value="">Toutes catégories</option>
+        <option value="">{{ t('admin.productsPage.allCategories') }}</option>
         <option v-for="c in categories" :key="c.id" :value="String(c.id)">{{ c.name }}</option>
       </select>
       <div class="flex flex-wrap gap-2">
@@ -77,11 +76,11 @@
         <thead class="bg-gray-50 text-sm text-gray-600">
           <tr>
             <th class="w-12 px-4 py-3 text-left"><input type="checkbox" v-model="selectAll" @change="toggleSelectAll" /></th>
-            <th class="px-4 py-3 text-left">Nom</th>
-            <th class="px-4 py-3 text-left">Prix</th>
-            <th class="px-4 py-3 text-left">Inventaire</th>
-            <th class="px-4 py-3 text-left">Marquer comme épuisé</th>
-            <th class="px-4 py-3 text-left">Visibilité</th>
+            <th class="px-4 py-3 text-left">{{ t('admin.productsPage.colName') }}</th>
+            <th class="px-4 py-3 text-left">{{ t('admin.productsPage.colPrice') }}</th>
+            <th class="px-4 py-3 text-left">{{ t('admin.productsPage.colInventory') }}</th>
+            <th class="px-4 py-3 text-left">{{ t('admin.productsPage.colOutOfStock') }}</th>
+            <th class="px-4 py-3 text-left">{{ t('admin.productsPage.colVisibility') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -92,17 +91,17 @@
                 <img :src="firstImage(p)" alt="" class="h-10 w-10 rounded object-cover bg-gray-100" />
                 <div>
                   <div class="font-medium">{{ p.name }}</div>
-                  <div class="text-xs text-gray-500">UGS: {{ p.sku || '—' }}</div>
+                  <div class="text-xs text-gray-500">{{ t('admin.productsPage.skuLabel') }}: {{ p.sku || '—' }}</div>
                 </div>
               </div>
             </td>
             <td class="px-4 py-3">
-              <div>FCFA {{ Number(p.price || 0).toLocaleString('fr-FR') }}</div>
+              <div>FCFA {{ Number(p.price || 0).toLocaleString(getNumberLocale()) }}</div>
             </td>
             <td class="px-4 py-3">
               <label class="inline-flex items-center gap-2">
                 <input type="checkbox" v-model="p.track_inventory" @change="updateField(p.id, { track_inventory: p.track_inventory })" />
-                <span class="text-sm text-gray-600">Suivre</span>
+                <span class="text-sm text-gray-600">{{ t('admin.productsPage.track') }}</span>
               </label>
             </td>
             <td class="px-4 py-3">
@@ -113,18 +112,18 @@
             <td class="px-4 py-3">
               <div class="flex items-center gap-2">
                 <button :class="p.is_visible ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'" class="rounded px-2 py-1 text-xs font-semibold" @click="toggleVisibility(p)">
-                  {{ p.is_visible ? 'VISIBLE' : 'MASQUÉ' }}
+                  {{ p.is_visible ? t('admin.productsPage.visible') : t('admin.productsPage.hidden') }}
                 </button>
-                <NuxtLink :to="`/admin/products/${p.id}`" class="rounded border px-2 py-1 text-xs">Modifier</NuxtLink>
-                <button class="rounded border px-2 py-1 text-xs" @click="deleteRow(p)">Supprimer</button>
+                <NuxtLink :to="`/admin/products/${p.id}`" class="rounded border px-2 py-1 text-xs">{{ t('admin.productsPage.edit') }}</NuxtLink>
+                <button class="rounded border px-2 py-1 text-xs" @click="deleteRow(p)">{{ t('admin.productsPage.delete') }}</button>
               </div>
             </td>
           </tr>
           <tr v-if="loading">
-            <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">Chargement...</td>
+            <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">{{ t('admin.productsPage.loading') }}</td>
           </tr>
           <tr v-if="!loading && products.length===0">
-            <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">Aucun produit.</td>
+            <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">{{ t('admin.productsPage.empty') }}</td>
           </tr>
         </tbody>
       </table>
@@ -148,9 +147,9 @@
     >
       <div class="flex items-center justify-between border-b p-4">
         <div>
-          <h3 class="font-semibold text-gray-900">Importer des produits</h3>
+          <h3 class="font-semibold text-gray-900">{{ t('admin.productsPage.importModal.title') }}</h3>
           <p class="text-xs text-gray-500">
-            {{ importStep === 'upload' ? 'Étape 1 : Choix du fichier' : 'Étape 2 : Correspondance des colonnes' }}
+            {{ importStep === 'upload' ? t('admin.productsPage.importModal.stepUpload') : t('admin.productsPage.importModal.stepMapping') }}
           </p>
         </div>
         <button @click="showImportModal = false" class="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
@@ -165,7 +164,7 @@
             <div class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold"
               :class="importStep === 'upload' ? 'bg-green-600 text-white' : 'bg-green-600 text-white'"
             >1</div>
-            <span class="ml-2 text-sm font-medium text-gray-900">Upload</span>
+            <span class="ml-2 text-sm font-medium text-gray-900">{{ t('admin.productsPage.importModal.uploadLabel') }}</span>
           </div>
           <div class="mx-4 h-0.5 w-16 bg-gray-200">
             <div class="h-full bg-green-600 transition-all duration-300" :style="{ width: importStep === 'mapping' ? '100%' : '0%' }"></div>
@@ -174,7 +173,7 @@
             <div class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold transition-colors"
               :class="importStep === 'mapping' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-500'"
             >2</div>
-            <span class="ml-2 text-sm font-medium" :class="importStep === 'mapping' ? 'text-gray-900' : 'text-gray-500'">Mapping</span>
+            <span class="ml-2 text-sm font-medium" :class="importStep === 'mapping' ? 'text-gray-900' : 'text-gray-500'">{{ t('admin.productsPage.importModal.mappingLabel') }}</span>
           </div>
         </div>
       </div>
@@ -190,7 +189,7 @@
             <div class="rounded-full bg-white p-2 shadow-sm">
               <Upload class="h-5 w-5" :class="importMethod === 'csv' ? 'text-green-600' : 'text-gray-400'" />
             </div>
-            Fichier CSV
+            {{ t('admin.productsPage.importModal.csvFile') }}
           </button>
           
           <button 
@@ -201,7 +200,7 @@
             <div class="rounded-full bg-white p-2 shadow-sm">
               <Globe class="h-5 w-5" :class="importMethod === 'website' ? 'text-green-600' : 'text-gray-400'" />
             </div>
-            Site Web
+            {{ t('admin.productsPage.importModal.website') }}
           </button>
         </div>
 
@@ -210,23 +209,23 @@
           <div v-if="importStep === 'upload'" class="space-y-4">
             <div class="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-8 text-center transition-colors hover:bg-gray-100">
               <Upload class="mx-auto h-12 w-12 text-gray-400" />
-              <p class="mt-4 text-sm font-medium text-gray-900">Glissez votre fichier CSV ici</p>
-              <p class="mt-1 text-xs text-gray-500">ou cliquez pour parcourir vos dossiers</p>
+              <p class="mt-4 text-sm font-medium text-gray-900">{{ t('admin.productsPage.importModal.dropCsvTitle') }}</p>
+              <p class="mt-1 text-xs text-gray-500">{{ t('admin.productsPage.importModal.dropCsvSubtitle') }}</p>
               <button @click="openFileDialog" class="mt-6 rounded-lg bg-white px-6 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-gray-300 hover:bg-gray-50">
-                Sélectionner un fichier
+                {{ t('admin.productsPage.importModal.selectFile') }}
               </button>
             </div>
             <div class="rounded-lg bg-blue-50 p-4">
               <div class="flex">
                 <Info class="h-5 w-5 text-blue-400" />
                 <div class="ml-3">
-                  <h3 class="text-sm font-medium text-blue-800">Format Recommandé</h3>
+                  <h3 class="text-sm font-medium text-blue-800">{{ t('admin.productsPage.importModal.recommendedTitle') }}</h3>
                   <div class="mt-2 text-sm text-blue-700">
-                    <p>Pour un import réussi, votre fichier doit idéalement contenir les colonnes :</p>
+                    <p>{{ t('admin.productsPage.importModal.recommendedDesc') }}</p>
                     <ul class="mt-1 list-disc list-inside">
-                      <li>Nom du produit</li>
-                      <li>Prix</li>
-                      <li>UGS (SKU)</li>
+                      <li>{{ t('admin.productsPage.importModal.recommendedColName') }}</li>
+                      <li>{{ t('admin.productsPage.importModal.recommendedColPrice') }}</li>
+                      <li>{{ t('admin.productsPage.importModal.recommendedColSku') }}</li>
                     </ul>
                   </div>
                 </div>
@@ -236,7 +235,7 @@
 
           <div v-else-if="importStep === 'mapping'" class="space-y-6">
             <div class="rounded-lg bg-gray-50 p-4 text-sm text-gray-600">
-              <p>Nous avons détecté <span class="font-bold text-gray-900">{{ csvRows.length }} lignes</span> dans votre fichier. Veuillez associer vos colonnes aux champs du système.</p>
+              <p>{{ t('admin.productsPage.importModal.detectedLines', { n: csvRows.length }) }}</p>
             </div>
 
             <div class="grid max-h-[50vh] gap-6 overflow-y-auto pr-2 md:grid-cols-2">
@@ -253,7 +252,7 @@
                   v-model="columnMapping[field.key as keyof typeof columnMapping]" 
                   class="block w-full rounded-lg border-gray-300 bg-gray-50 py-2 text-sm focus:border-green-500 focus:bg-white focus:ring-green-500"
                 >
-                  <option value="">-- Ne pas importer --</option>
+                  <option value="">{{ t('admin.productsPage.importModal.skipImportOption') }}</option>
                   <option v-for="header in csvHeaders" :key="header" :value="header">
                     {{ header }}
                   </option>
@@ -261,9 +260,9 @@
 
                 <!-- Preview Value -->
                 <div v-if="columnMapping[field.key as keyof typeof columnMapping]" class="mt-3 rounded border border-gray-100 bg-gray-50 p-2">
-                  <p class="text-[10px] font-medium uppercase text-gray-400">Exemple de valeur (Ligne 1)</p>
+                  <p class="text-[10px] font-medium uppercase text-gray-400">{{ t('admin.productsPage.importModal.exampleValueTitle') }}</p>
                   <p class="mt-1 truncate text-xs font-medium text-gray-700">
-                    {{ csvRows[0][columnMapping[field.key as keyof typeof columnMapping]] || '(Vide)' }}
+                    {{ csvRows[0][columnMapping[field.key as keyof typeof columnMapping]] || t('admin.productsPage.importModal.exampleEmpty') }}
                   </p>
                 </div>
               </div>
@@ -274,14 +273,14 @@
                 @click="importStep = 'upload'"
                 class="rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50"
               >
-                Retour
+                {{ t('admin.productsPage.importModal.back') }}
               </button>
               <button 
                 @click="finalizeImport"
                 class="flex items-center gap-2 rounded-lg bg-green-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500"
               >
                 <Check class="h-4 w-4" />
-                Confirmer et Importer {{ csvRows.length }} produits
+                {{ t('admin.productsPage.importModal.confirmImport', { n: csvRows.length }) }}
               </button>
             </div>
           </div>
@@ -293,11 +292,11 @@
              @click="importMethod = 'csv'"
              class="mb-4 text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1"
           >
-            <ChevronLeft class="h-3 w-3" /> Retour au choix
+            <ChevronLeft class="h-3 w-3" /> {{ t('admin.productsPage.importModal.backToChoice') }}
           </button>
           
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">Lien du produit ou de la collection</label>
+            <label class="mb-1 block text-sm font-medium text-gray-700">{{ t('admin.productsPage.importModal.websiteUrlLabel') }}</label>
             <div class="flex rounded-lg border shadow-sm focus-within:border-green-500 focus-within:ring-1 focus-within:ring-green-500">
               <span class="inline-flex items-center rounded-l-lg border-r bg-gray-50 px-3 text-gray-500">https://</span>
               <input 
@@ -309,8 +308,8 @@
             </div>
           </div>
           <div class="rounded-lg bg-gray-50 p-3 text-xs text-gray-600">
-            <p class="font-medium text-gray-900">Note :</p>
-            <p>L'importation depuis un site externe peut prendre quelques minutes selon le nombre de produits.</p>
+            <p class="font-medium text-gray-900">{{ t('admin.productsPage.importModal.noteTitle') }}</p>
+            <p>{{ t('admin.productsPage.importModal.websiteNote') }}</p>
           </div>
           <button 
             @click="handleWebsiteImport"
@@ -318,7 +317,7 @@
             class="flex w-full items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Download class="h-4 w-4" />
-            Démarrer l'importation
+            {{ t('admin.productsPage.importModal.startImport') }}
           </button>
         </div>
       </div>
@@ -333,11 +332,13 @@
 <script setup lang="ts">
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
+import { useI18n } from '~/composables/i18n'
 import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, Lock, AlertTriangle, Upload, Globe, X, Download, Info, Check } from 'lucide-vue-next'
 definePageMeta({ layout: 'admin' })
 const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
 const admin = useAdminStore()
+const { t, locale } = useI18n()
 const search = ref('')
 const limit = ref(50)
 const page = ref(1)
@@ -368,15 +369,21 @@ const columnMapping = reactive({
   category_id: ''
 })
 
-const systemFields = [
-  { key: 'name', label: 'Nom du produit (Requis)', required: true },
-  { key: 'price', label: 'Prix (Requis)', required: true },
-  { key: 'sku', label: 'UGS (SKU)' },
-  { key: 'description', label: 'Description' },
-  { key: 'images', label: 'Images (URLs séparées par ;)' },
-  { key: 'stock_quantity', label: 'Quantité en stock' },
-  { key: 'category_id', label: 'ID Catégorie' }
-]
+const systemFields = computed(() => [
+  { key: 'name', label: t('admin.productsPage.fields.name'), required: true },
+  { key: 'price', label: t('admin.productsPage.fields.price'), required: true },
+  { key: 'sku', label: t('admin.productsPage.fields.sku') },
+  { key: 'description', label: t('admin.productsPage.fields.description') },
+  { key: 'images', label: t('admin.productsPage.fields.images') },
+  { key: 'stock_quantity', label: t('admin.productsPage.fields.stock_quantity') },
+  { key: 'category_id', label: t('admin.productsPage.fields.category_id') }
+])
+
+function getNumberLocale() {
+  if (locale.value === 'fr') return 'fr-FR'
+  if (locale.value === 'it') return 'it-IT'
+  return 'en-US'
+}
 
 function openImportModal() {
   showImportModal.value = true
@@ -396,7 +403,7 @@ async function handleWebsiteImport() {
   if (!websiteUrl.value) return
   
   const url = websiteUrl.value.startsWith('http') ? websiteUrl.value : `https://${websiteUrl.value}`
-  notify(`Analyse de ${url} en cours (IA)...`)
+  notify(t('admin.productsPage.analyzeInProgress', { url }))
   
   try {
     const data = await $fetch('/api/ai/analyze-url', {
@@ -429,13 +436,13 @@ async function handleWebsiteImport() {
       
       importMethod.value = 'csv'
       importStep.value = 'mapping'
-      notify('Produit analysé avec succès !')
+      notify(t('admin.productsPage.analyzeSuccess'))
     } else {
-      notify('Impossible d\'extraire les informations.')
+      notify(t('admin.productsPage.analyzeNoInfo'))
     }
   } catch (e: any) {
     console.error(e)
-    notify('Erreur lors de l\'analyse : ' + (e.message || 'Inconnue'))
+    notify(t('admin.productsPage.analyzeError', { msg: e.message || t('admin.productsPage.unknownError') }))
   }
 }
 
@@ -467,7 +474,7 @@ async function loadProducts() {
   const { data, error } = await query
   if (error) {
     console.error('loadProducts error:', error)
-    notify('Erreur de chargement des produits')
+    notify(t('admin.productsPage.loadError'))
     loading.value = false
     return
   }
@@ -494,7 +501,7 @@ async function updateField(id: string | number, patch: Record<string, any>) {
 async function deleteRow(p: any) {
   const storeId = admin.selectedShopId
   if (!storeId) return
-  if (!confirm('Supprimer ce produit ?')) return
+  if (!confirm(t('admin.productsPage.deleteConfirm'))) return
   await supabase.from('products').delete().eq('id', p.id).eq('store_id', storeId)
   await loadProducts()
 }
@@ -560,7 +567,7 @@ async function exportCsv() {
   a.click()
   document.body.removeChild(a)
   URL.revokeObjectURL(url)
-  notify('Exportation terminée')
+  notify(t('admin.productsPage.exportDone'))
 }
 function parseCsv(text: string) {
   const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0)
@@ -589,7 +596,7 @@ async function importCsv(e: any) {
   const text = await f.text()
   const rows = parseCsv(text)
   if (rows.length === 0) {
-    notify('Le fichier CSV est vide ou invalide')
+    notify(t('admin.productsPage.csvEmpty'))
     return
   }
   
@@ -618,11 +625,11 @@ async function finalizeImport() {
   if (!storeId) return
   
   if (!columnMapping.name || !columnMapping.price) {
-    notify('Veuillez mapper les champs obligatoires (Nom et Prix)')
+    notify(t('admin.productsPage.mappingRequired'))
     return
   }
   
-  notify('Importation en cours...')
+  notify(t('admin.productsPage.importInProgress'))
   
   const payloads = csvRows.value.map(r => ({
     store_id: storeId,
@@ -645,7 +652,7 @@ async function finalizeImport() {
   }
   
   await loadProducts()
-  notify('Importation terminée avec succès')
+  notify(t('admin.productsPage.importSuccess'))
   showImportModal.value = false
 }
 watch([search, limit, categoryFilter], () => { page.value = 1; loadProducts() })
@@ -667,5 +674,5 @@ onMounted(async () => {
 })
 function prevPage() { if (page.value > 1) page.value-- }
 function nextPage() { page.value++ }
-useHead({ title: 'Admin | Produits' })
+useHead({ title: t('admin.productsPage.headTitle') })
 </script>

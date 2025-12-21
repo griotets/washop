@@ -1,23 +1,23 @@
 <template>
   <div>
     <div class="flex items-center gap-2">
-      <NuxtLink to="/admin/clients" class="rounded-lg border bg-white px-3 py-2 text-sm">Retour</NuxtLink>
-      <h1 class="text-2xl font-bold">Client</h1>
+      <NuxtLink to="/admin/clients" class="rounded-lg border bg-white px-3 py-2 text-sm">{{ t('admin.clientForm.back') }}</NuxtLink>
+      <h1 class="text-2xl font-bold">{{ t('admin.clientForm.title') }}</h1>
       <div class="ml-auto flex items-center gap-2">
-        <button class="rounded-lg border bg-white px-3 py-2 text-sm" :disabled="saving" @click="deleteClient">Supprimer</button>
-        <button class="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white" :disabled="saving || !isValid" @click="save">Mettre à jour</button>
+        <button class="rounded-lg border bg-white px-3 py-2 text-sm" :disabled="saving" @click="deleteClient">{{ t('admin.clientForm.delete') }}</button>
+        <button class="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white" :disabled="saving || !isValid" @click="save">{{ saving ? t('common.saving') : t('admin.clientForm.update') }}</button>
       </div>
     </div>
 
     <div class="mt-6 rounded-2xl border bg-white p-6" v-if="loaded">
       <div class="grid gap-4">
         <div>
-          <label class="block text-sm font-medium">Nom *</label>
+          <label class="block text-sm font-medium">{{ t('admin.clientForm.nameLabel') }}</label>
           <input v-model.trim="form.name" class="mt-1 w-full rounded-lg border px-3 py-2" />
         </div>
         <div class="grid gap-3 sm:grid-cols-[120px_1fr]">
           <div>
-            <label class="block text-sm font-medium">Indicatif</label>
+            <label class="block text-sm font-medium">{{ t('admin.clientForm.phoneCodeLabel') }}</label>
             <select v-model="phonePrefix" class="mt-1 w-full rounded-lg border px-3 py-2">
               <option value="+237">+237</option>
               <option value="+33">+33</option>
@@ -25,35 +25,35 @@
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium">Téléphone *</label>
+            <label class="block text-sm font-medium">{{ t('admin.clientForm.phoneLabel') }}</label>
             <input v-model.trim="form.phone" class="mt-1 w-full rounded-lg border px-3 py-2" />
           </div>
         </div>
         <div>
-          <label class="block text-sm font-medium">Courriel</label>
+          <label class="block text-sm font-medium">{{ t('admin.clientForm.emailLabel') }}</label>
           <input v-model.trim="form.email" class="mt-1 w-full rounded-lg border px-3 py-2" />
         </div>
         <div>
-          <label class="block text-sm font-medium">Anniversaire</label>
+          <label class="block text-sm font-medium">{{ t('admin.clientForm.birthdayLabel') }}</label>
           <input v-model="birthdayStr" type="date" class="mt-1 w-full rounded-lg border px-3 py-2" />
         </div>
         <div>
-          <label class="block text-sm font-medium">Adresse</label>
+          <label class="block text-sm font-medium">{{ t('admin.clientForm.addressLabel') }}</label>
           <textarea v-model.trim="form.address" rows="2" class="mt-1 w-full rounded-lg border px-3 py-2"></textarea>
         </div>
         <div>
-          <label class="block text-sm font-medium">Tags</label>
+          <label class="block text-sm font-medium">{{ t('admin.clientForm.tagsLabel') }}</label>
           <div class="mt-1 flex flex-wrap gap-2">
             <button v-for="t in tags" :key="t.id" class="rounded-full border px-3 py-1 text-xs" :class="selectedTags.has(Number(t.id))?'bg-green-100 border-green-300':'bg-white'" @click="toggleTag(Number(t.id))">{{ t.name }}</button>
           </div>
-          <input v-model.trim="newTagName" placeholder="Ajouter une étiquette et Enter" class="mt-2 w-full rounded-lg border px-3 py-2 text-sm" @keydown.enter.prevent="addNewTagName" />
+          <input v-model.trim="newTagName" :placeholder="t('admin.clientForm.addTagPlaceholder')" class="mt-2 w-full rounded-lg border px-3 py-2 text-sm" @keydown.enter.prevent="addNewTagName" />
         </div>
         <div>
-          <label class="block text-sm font-medium">Notes</label>
+          <label class="block text-sm font-medium">{{ t('admin.clientForm.notesLabel') }}</label>
           <textarea v-model.trim="form.notes" rows="3" class="mt-1 w-full rounded-lg border px-3 py-2"></textarea>
         </div>
         <div>
-          <label class="block text-sm font-medium">Code de parrainage</label>
+          <label class="block text-sm font-medium">{{ t('admin.clientForm.referralCodeLabel') }}</label>
           <input v-model.trim="form.referral_code" class="mt-1 w-full rounded-lg border px-3 py-2" />
         </div>
       </div>
@@ -64,12 +64,14 @@
 <script setup lang="ts">
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
+import { useI18n } from '~/composables/i18n'
 definePageMeta({ layout: 'admin' })
 const route = useRoute()
 const id = computed(() => String(route.params.id || ''))
 const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
 const admin = useAdminStore()
+const { t } = useI18n()
 const saving = ref(false)
 const loaded = ref(false)
 const phonePrefix = ref('+237')
@@ -156,7 +158,7 @@ async function save() {
 async function deleteClient() {
   const storeId = admin.selectedShopId
   if (!storeId) return
-  if (!confirm('Supprimer ce client ?')) return
+  if (!confirm(t('admin.clientForm.deleteConfirm'))) return
   saving.value = true
   try {
     await supabase.from('clients').delete().eq('id', id.value).eq('store_id', storeId)
@@ -178,6 +180,5 @@ onMounted(async () => {
   await loadTags()
   await loadClient()
 })
-useHead({ title: 'Admin | Modifier le client' })
+useHead({ title: t('admin.clientForm.editHeadTitle') })
 </script>
-
