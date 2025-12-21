@@ -5,7 +5,7 @@
       <div class="px-3 md:px-0">
          <NuxtLink to="/admin/dashboard" class="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-6">
            <ArrowLeft class="h-4 w-4" />
-           <span>Retour au tableau de bord</span>
+           <span>{{ t('admin.settings.backToDashboard') }}</span>
          </NuxtLink>
       </div>
 
@@ -30,63 +30,63 @@
     <div class="flex-1 bg-white rounded-xl border shadow-sm p-6 md:p-8">
       <!-- General Settings -->
       <div v-if="activeTab === 'general'">
-        <h2 class="text-xl font-bold mb-6">Magasin général</h2>
+        <h2 class="text-xl font-bold mb-6">{{ t('admin.settings.generalStoreTitle') }}</h2>
         
         <div class="space-y-10">
           <!-- Profil Section -->
           <section class="space-y-6">
-            <h3 class="font-semibold text-lg border-b pb-2">Profil</h3>
+            <h3 class="font-semibold text-lg border-b pb-2">{{ t('admin.settings.profileTitle') }}</h3>
             
             <div>
-              <label class="block text-sm font-medium text-gray-700">Nom</label>
+              <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.nameLabel') }}</label>
               <input v-model="form.name" type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700">Description</label>
+              <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.descriptionLabel') }}</label>
               <textarea v-model="form.description" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2"></textarea>
-              <p class="mt-1 text-xs text-gray-500">Une brève description de votre magasin.</p>
+              <p class="mt-1 text-xs text-gray-500">{{ t('admin.settings.descriptionHint') }}</p>
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700">Devise</label>
+              <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.currencyLabel') }}</label>
               <select v-model="form.currency" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2 bg-white">
-                <option value="XAF">XAF (FCFA)</option>
-                <option value="EUR">EUR (€)</option>
-                <option value="USD">USD ($)</option>
+                <option value="XAF">{{ t('admin.settings.currencyXaf') }}</option>
+                <option value="EUR">{{ t('admin.settings.currencyEur') }}</option>
+                <option value="USD">{{ t('admin.settings.currencyUsd') }}</option>
               </select>
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700">Lien de magasin</label>
+              <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.storeLinkLabel') }}</label>
               <div class="mt-1 flex rounded-md shadow-sm">
                 <span class="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm">{{ domain }} /</span>
                 <input v-model="form.slug" type="text" class="block w-full min-w-0 flex-1 rounded-none rounded-r-md border-gray-300 focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
               </div>
-              <p class="mt-1 text-xs text-gray-500">Lien vers votre magasin. Si vous modifiez ce paramètre, votre code QR et vos liens partagés ne seront plus valables.</p>
+              <p class="mt-1 text-xs text-gray-500">{{ t('admin.settings.storeLinkHint') }}</p>
             </div>
 
             <div>
-               <label class="block text-sm font-medium text-gray-700">Courriel</label>
-               <input v-model="form.email" type="email" placeholder="ex: contact@maboutique.com" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
-               <p class="mt-1 text-xs text-gray-500">Les clients recevront des courriels à partir de cette adresse</p>
+               <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.emailLabel') }}</label>
+               <input v-model="form.email" type="email" :placeholder="t('admin.settings.emailPlaceholder')" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+               <p class="mt-1 text-xs text-gray-500">{{ t('admin.settings.emailHint') }}</p>
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700">Adresse</label>
+              <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.addressLabel') }}</label>
               <div class="mt-1">
-                 <input v-model="form.address" placeholder="Entrer l'adresse" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+                 <input v-model="form.address" :placeholder="t('admin.settings.addressPlaceholder')" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
               </div>
             </div>
           </section>
 
           <!-- WhatsApp Section -->
           <section class="space-y-6">
-             <h3 class="font-semibold text-lg border-b pb-2">Numéro WhatsApp</h3>
-             <p class="text-sm text-gray-500">Les clients enverront des messages de commande à ce numéro. Pour recevoir des notifications de commande automatiques, veuillez configurer votre flux de travail.</p>
+             <h3 class="font-semibold text-lg border-b pb-2">{{ t('admin.settings.whatsAppTitle') }}</h3>
+             <p class="text-sm text-gray-500">{{ t('admin.settings.whatsAppSubtitle') }}</p>
              
              <div>
-               <label class="block text-sm font-medium text-gray-700">Numéro primaire</label>
+               <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.primaryNumberLabel') }}</label>
                <div class="mt-1 flex gap-2">
                  <select v-model="form.phoneCode" class="w-24 rounded-md border-gray-300 border p-2 bg-white">
                    <option value="+237">+237</option>
@@ -96,7 +96,7 @@
                    <option value="+225">+225</option>
                    <option value="+221">+221</option>
                  </select>
-                 <input v-model="form.phoneNumber" type="tel" placeholder="6..." class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+                 <input v-model="form.phoneNumber" type="tel" :placeholder="t('admin.settings.phonePlaceholder')" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
                </div>
              </div>
           </section>
@@ -104,49 +104,49 @@
           <!-- Regional Section -->
           <section class="space-y-6">
              <div class="flex items-center gap-2 border-b pb-2">
-               <h3 class="font-semibold text-lg">Régionale</h3>
-               <div class="rounded-full border border-gray-300 w-4 h-4 flex items-center justify-center text-[10px] text-gray-500 cursor-help" title="Réglages régionaux">?</div>
+               <h3 class="font-semibold text-lg">{{ t('admin.settings.regionalTitle') }}</h3>
+               <div class="rounded-full border border-gray-300 w-4 h-4 flex items-center justify-center text-[10px] text-gray-500 cursor-help" :title="t('admin.settings.regionalTooltip')">?</div>
              </div>
              
              <div>
-               <label class="block text-sm font-medium text-gray-700">Pays/Région</label>
+               <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.countryLabel') }}</label>
                <select v-model="form.country" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2 bg-white">
-                 <option value="Cameroon">Cameroon</option>
-                 <option value="France">France</option>
-                 <option value="Gabon">Gabon</option>
-                 <option value="Ivory Coast">Ivory Coast</option>
-                 <option value="Senegal">Senegal</option>
+                 <option value="Cameroon">{{ t('admin.settings.countryCameroon') }}</option>
+                 <option value="France">{{ t('admin.settings.countryFrance') }}</option>
+                 <option value="Gabon">{{ t('admin.settings.countryGabon') }}</option>
+                 <option value="Ivory Coast">{{ t('admin.settings.countryIvoryCoast') }}</option>
+                 <option value="Senegal">{{ t('admin.settings.countrySenegal') }}</option>
                </select>
              </div>
 
              <div>
-               <label class="block text-sm font-medium text-gray-700">Langue</label>
-               <p class="text-xs text-gray-500 mb-1">Sélectionnez la langue de votre magasin. Cela changera la langue de l'interface de votre magasin.</p>
+               <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.languageLabel') }}</label>
+               <p class="text-xs text-gray-500 mb-1">{{ t('admin.settings.languageHint') }}</p>
                <select v-model="form.language" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2 bg-white">
-                 <option value="fr">Par défaut</option>
+                 <option value="fr">{{ t('admin.settings.languageDefault') }}</option>
                  <option value="en">English</option>
                </select>
              </div>
 
-             <div>
-               <label class="block text-sm font-medium text-gray-700">Monnaie</label>
-               <select v-model="form.currency" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2 bg-white">
-                 <option value="XAF">XAF</option>
-                 <option value="EUR">EUR</option>
-                 <option value="USD">USD</option>
-               </select>
-             </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.currencyLabel') }}</label>
+              <select v-model="form.currency" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2 bg-white">
+                <option value="XAF">XAF</option>
+                <option value="EUR">EUR</option>
+                <option value="USD">USD</option>
+              </select>
+            </div>
 
              <div>
-               <label class="block text-sm font-medium text-gray-700">Unité de distance</label>
+               <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.distanceUnitLabel') }}</label>
                <select v-model="form.distanceUnit" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2 bg-white">
-                 <option value="km">Kilomètre</option>
-                 <option value="mi">Mile</option>
+                 <option value="km">{{ t('admin.settings.distanceUnitKm') }}</option>
+                 <option value="mi">{{ t('admin.settings.distanceUnitMi') }}</option>
                </select>
              </div>
 
              <div>
-               <label class="block text-sm font-medium text-gray-700 mb-1">Fournisseur de carte</label>
+               <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('admin.settings.mapProviderLabel') }}</label>
                <div class="space-y-2">
                  <div class="flex items-center">
                    <input id="map-osm" name="map-provider" type="radio" value="osm" v-model="form.mapProvider" class="h-4 w-4 border-gray-300 text-green-600 focus:ring-green-500" />
@@ -161,14 +161,14 @@
                <div v-if="isFreePlan" class="mt-2 rounded-md bg-green-50 p-2 flex items-center justify-between">
                   <div class="flex items-center gap-2">
                     <div class="text-green-500">⚡</div>
-                    <span class="text-sm text-green-700 font-medium">Mise à niveau nécessaire pour utiliser Business</span>
+                    <span class="text-sm text-green-700 font-medium">{{ t('admin.settings.upgradeNeededBusiness') }}</span>
                   </div>
-                  <button class="text-sm font-semibold text-gray-900 bg-white px-3 py-1 rounded border shadow-sm hover:bg-gray-50">Mise à niveau</button>
+                  <button class="text-sm font-semibold text-gray-900 bg-white px-3 py-1 rounded border shadow-sm hover:bg-gray-50">{{ t('admin.upgrade') }}</button>
                 </div>
              </div>
 
              <div>
-               <label class="block text-sm font-medium text-gray-700">Taux d'imposition</label>
+               <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.taxRateLabel') }}</label>
                <div class="mt-1 flex rounded-md shadow-sm">
                  <span class="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm">%</span>
                  <input v-model="form.taxRate" type="number" step="0.01" class="block w-full min-w-0 flex-1 rounded-none rounded-r-md border-gray-300 focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
@@ -176,21 +176,21 @@
              </div>
 
              <div>
-               <label class="block text-sm font-medium text-gray-700 mb-1">Méthode fiscale</label>
+               <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('admin.settings.taxMethodLabel') }}</label>
                <div class="space-y-2">
                  <div class="flex items-center">
                    <input id="tax-inclusive" name="tax-method" type="radio" :value="true" v-model="form.taxInclusive" class="h-4 w-4 border-gray-300 text-green-600 focus:ring-green-500" />
-                   <label for="tax-inclusive" class="ml-3 block text-sm font-medium text-gray-700">Inclusif</label>
+                   <label for="tax-inclusive" class="ml-3 block text-sm font-medium text-gray-700">{{ t('admin.settings.taxMethodInclusive') }}</label>
                  </div>
                  <div class="flex items-center">
                    <input id="tax-exclusive" name="tax-method" type="radio" :value="false" v-model="form.taxInclusive" class="h-4 w-4 border-gray-300 text-green-600 focus:ring-green-500" />
-                   <label for="tax-exclusive" class="ml-3 block text-sm font-medium text-gray-700">Exclusif</label>
+                   <label for="tax-exclusive" class="ml-3 block text-sm font-medium text-gray-700">{{ t('admin.settings.taxMethodExclusive') }}</label>
                  </div>
                </div>
              </div>
 
              <div>
-               <label class="block text-sm font-medium text-gray-700">ID de l'étiquette</label>
+               <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.taxIdLabel') }}</label>
                <input v-model="form.taxId" type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
              </div>
           </section>
@@ -199,60 +199,60 @@
           <section class="rounded-lg border border-gray-200 bg-white p-4">
              <div class="flex items-center justify-between">
                <div class="flex items-center gap-2">
-                  <h3 class="font-semibold text-gray-900">Heures d'ouverture</h3>
-                  <div class="rounded-full border border-gray-300 w-4 h-4 flex items-center justify-center text-[10px] text-gray-500 cursor-help" title="Configurer les heures d'ouverture">?</div>
+                  <h3 class="font-semibold text-gray-900">{{ t('admin.settings.openingHoursTitle') }}</h3>
+                  <div class="rounded-full border border-gray-300 w-4 h-4 flex items-center justify-center text-[10px] text-gray-500 cursor-help" :title="t('admin.settings.openingHoursTooltip')">?</div>
                </div>
                <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
                   <input type="checkbox" name="toggle" id="toggle-hours" v-model="form.openingHoursEnabled" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
                   <label for="toggle-hours" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
                </div>
              </div>
-             <p class="mt-1 text-sm text-gray-500">Les clients peuvent voir le statut "Ouvert" ou "Fermé" de votre magasin.</p>
+             <p class="mt-1 text-sm text-gray-500">{{ t('admin.settings.openingHoursHint') }}</p>
           </section>
 
           <!-- Communities -->
           <section class="rounded-lg border border-gray-200 bg-white p-4 space-y-4">
              <div class="flex items-center gap-2">
-                <h3 class="font-semibold text-gray-900">Communautés</h3>
-                <div class="rounded-full border border-gray-300 w-4 h-4 flex items-center justify-center text-[10px] text-gray-500 cursor-help" title="Liens vers vos communautés">?</div>
+                <h3 class="font-semibold text-gray-900">{{ t('admin.settings.communitiesTitle') }}</h3>
+                <div class="rounded-full border border-gray-300 w-4 h-4 flex items-center justify-center text-[10px] text-gray-500 cursor-help" :title="t('admin.settings.communitiesTooltip')">?</div>
              </div>
-             <p class="text-sm text-gray-500">Mettez en valeur votre communauté en ligne dans votre magasin</p>
+             <p class="text-sm text-gray-500">{{ t('admin.settings.communitiesHint') }}</p>
              
              <div>
-               <label class="block text-sm font-medium text-gray-700">WhatsApp</label>
-               <p class="text-xs text-gray-500 mb-1">Lien vers un groupe, une communauté ou un canal</p>
-               <input v-model="form.socialWhatsapp" placeholder="https://" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+               <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.communitiesWhatsAppLabel') }}</label>
+               <p class="text-xs text-gray-500 mb-1">{{ t('admin.settings.communitiesWhatsAppHint') }}</p>
+               <input v-model="form.socialWhatsapp" :placeholder="t('common.urlPlaceholder')" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
              </div>
 
              <div>
-               <label class="block text-sm font-medium text-gray-700">Télégramme</label>
-               <p class="text-xs text-gray-500 mb-1">Lien de groupe ou de canal</p>
-               <input v-model="form.socialTelegram" placeholder="https://" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+               <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.telegramLabel') }}</label>
+               <p class="text-xs text-gray-500 mb-1">{{ t('admin.settings.communitiesTelegramHint') }}</p>
+               <input v-model="form.socialTelegram" :placeholder="t('common.urlPlaceholder')" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
              </div>
 
              <div>
-               <label class="block text-sm font-medium text-gray-700">Instagram</label>
-               <p class="text-xs text-gray-500 mb-1">Lien vers un groupe, un canal ou un profil</p>
-               <input v-model="form.socialInstagram" placeholder="https://" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+               <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.communitiesInstagramLabel') }}</label>
+               <p class="text-xs text-gray-500 mb-1">{{ t('admin.settings.communitiesInstagramHint') }}</p>
+               <input v-model="form.socialInstagram" :placeholder="t('common.urlPlaceholder')" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
              </div>
 
              <div>
-               <label class="block text-sm font-medium text-gray-700">Facebook</label>
-               <p class="text-xs text-gray-500 mb-1">Lien vers un groupe ou une page</p>
-               <input v-model="form.socialFacebook" placeholder="https://" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+               <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.communitiesFacebookLabel') }}</label>
+               <p class="text-xs text-gray-500 mb-1">{{ t('admin.settings.communitiesFacebookHint') }}</p>
+               <input v-model="form.socialFacebook" :placeholder="t('common.urlPlaceholder')" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
              </div>
           </section>
 
           <!-- Danger Zone -->
           <section class="rounded-lg border border-red-200 bg-white p-4 mt-8">
-             <h3 class="font-semibold text-gray-900 mb-4">Zone de danger</h3>
+             <h3 class="font-semibold text-gray-900 mb-4">{{ t('admin.settings.dangerZoneTitle') }}</h3>
              
              <div class="space-y-6">
                 <!-- Disable Checkout -->
                 <div class="flex items-start justify-between">
                    <div>
-                      <h4 class="text-sm font-medium text-gray-900">Désactiver la caisse</h4>
-                      <p class="text-sm text-gray-500">Les points d'entrée de la caisse seront désactivés et les clients ne pourront plus passer de commandes.</p>
+                      <h4 class="text-sm font-medium text-gray-900">{{ t('admin.settings.disableCheckoutTitle') }}</h4>
+                      <p class="text-sm text-gray-500">{{ t('admin.settings.disableCheckoutDesc') }}</p>
                    </div>
                    <!-- Toggle -->
                    <div class="relative inline-block w-12 ml-4 align-middle select-none transition duration-200 ease-in flex-shrink-0">
@@ -264,8 +264,8 @@
                 <!-- Disable Store -->
                 <div class="flex items-start justify-between">
                    <div>
-                      <h4 class="text-sm font-medium text-gray-900">Désactiver le magasin</h4>
-                      <p class="text-sm text-gray-500">Les magasins seront désactivés et tous les visiteurs seront redirigés vers WhatsApp.</p>
+                      <h4 class="text-sm font-medium text-gray-900">{{ t('admin.settings.disableStoreTitle') }}</h4>
+                      <p class="text-sm text-gray-500">{{ t('admin.settings.disableStoreDesc') }}</p>
                    </div>
                    <!-- Toggle -->
                    <div class="relative inline-block w-12 ml-4 align-middle select-none transition duration-200 ease-in flex-shrink-0">
@@ -285,24 +285,28 @@
                       </div>
                       <div class="ml-3">
                          <p class="text-sm text-green-700">
-                            Mise à niveau nécessaire pour utiliser Business
+                            {{ t('admin.settings.upgradeNeededBusiness') }}
                          </p>
                       </div>
                    </div>
                    <button class="bg-white text-green-600 px-3 py-1 rounded text-sm font-medium border border-green-200 hover:bg-green-50">
-                      Mise à niveau
+                      {{ t('admin.upgrade') }}
                    </button>
                 </div>
 
                 <!-- Delete Store -->
                 <div class="pt-6 border-t border-gray-200">
-                   <h4 class="text-sm font-medium text-gray-900 mb-2">Supprimer le magasin</h4>
-                   <p class="text-sm text-gray-500 mb-2">Entrez <span class="font-mono bg-gray-100 px-1 rounded">{{ form.slug }}</span> pour confirmer la suppression</p>
+                   <h4 class="text-sm font-medium text-gray-900 mb-2">{{ t('admin.settings.deleteStoreTitle') }}</h4>
+                   <p class="text-sm text-gray-500 mb-2">
+                      {{ t('admin.settings.deleteStoreConfirmHintPrefix') }}
+                      <span class="font-mono bg-gray-100 px-1 rounded">{{ form.slug }}</span>
+                      {{ t('admin.settings.deleteStoreConfirmHintSuffix') }}
+                   </p>
                    
                    <input v-model="deleteConfirmation" type="text" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm border p-2 mb-4" />
                    
                    <button :disabled="deleteConfirmation !== form.slug" class="w-full bg-gray-200 text-gray-500 px-4 py-2 rounded-lg font-medium hover:bg-red-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors mb-4">
-                      Supprimer le magasin
+                      {{ t('admin.settings.deleteStoreButton') }}
                    </button>
 
                    <div class="rounded-md bg-red-50 p-4">
@@ -313,10 +317,10 @@
                             </svg>
                          </div>
                          <div class="ml-3">
-                            <h3 class="text-sm font-medium text-red-800">Danger</h3>
+                            <h3 class="text-sm font-medium text-red-800">{{ t('admin.settings.dangerTitle') }}</h3>
                             <div class="mt-2 text-sm text-red-700">
-                               <p>Les commandes, les produits, les clients et tous les autres paramètres liés au magasin seront définitivement supprimés.</p>
-                               <a href="#" class="font-medium underline hover:text-red-600 mt-1 inline-block">Voir plus</a>
+                               <p>{{ t('admin.settings.dangerDeleteStoreDesc') }}</p>
+                               <a href="#" class="font-medium underline hover:text-red-600 mt-1 inline-block">{{ t('admin.settings.seeMore') }}</a>
                             </div>
                          </div>
                       </div>
@@ -329,7 +333,7 @@
         <div class="mt-8 pt-6 border-t flex justify-end sticky bottom-0 bg-white py-4">
            <button @click="save" :disabled="saving" class="bg-gray-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2">
              <Loader2 v-if="saving" class="h-4 w-4 animate-spin" />
-             <span>{{ saving ? 'Enregistrement...' : 'Enregistrer' }}</span>
+             <span>{{ saving ? t('common.saving') : t('common.save') }}</span>
            </button>
         </div>
       </div>
@@ -337,8 +341,8 @@
       <!-- Delivery Tab -->
       <div v-else-if="activeTab === 'delivery'" class="space-y-6">
           <div class="bg-white rounded-lg border border-gray-200 p-6">
-             <h3 class="text-lg font-medium text-gray-900 mb-4">Méthodes de livraison</h3>
-             <p class="text-sm text-gray-500 mb-6">Configurez comment vos clients reçoivent leurs commandes.</p>
+             <h3 class="text-lg font-medium text-gray-900 mb-4">{{ t('admin.settings.deliveryTitle') }}</h3>
+             <p class="text-sm text-gray-500 mb-6">{{ t('admin.settings.deliverySubtitle') }}</p>
              
              <div class="space-y-4">
                  <!-- Pickup -->
@@ -347,11 +351,11 @@
                          <div class="mt-1">
                             <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                            </svg>
-                         </div>
-                         <div>
-                             <h4 class="font-medium text-gray-900">Retrait en magasin</h4>
-                             <p class="text-sm text-gray-500">Les clients viennent chercher leur commande.</p>
+                         </svg>
+                        </div>
+                        <div>
+                             <h4 class="font-medium text-gray-900">{{ t('admin.settings.deliveryPickupTitle') }}</h4>
+                             <p class="text-sm text-gray-500">{{ t('admin.settings.deliveryPickupDesc') }}</p>
                          </div>
                      </div>
                      <div class="relative inline-block w-12 align-middle select-none transition duration-200 ease-in flex-shrink-0">
@@ -366,11 +370,11 @@
                          <div class="mt-1">
                             <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
-                            </svg>
-                         </div>
-                         <div>
-                             <h4 class="font-medium text-gray-900">Livraison à domicile</h4>
-                             <p class="text-sm text-gray-500">Vous livrez les commandes aux clients.</p>
+                         </svg>
+                        </div>
+                        <div>
+                             <h4 class="font-medium text-gray-900">{{ t('admin.settings.deliveryHomeTitle') }}</h4>
+                             <p class="text-sm text-gray-500">{{ t('admin.settings.deliveryHomeDesc') }}</p>
                          </div>
                      </div>
                      <div class="relative inline-block w-12 align-middle select-none transition duration-200 ease-in flex-shrink-0">
@@ -382,21 +386,21 @@
              
              <!-- Delivery Details -->
              <div v-if="deliveryForm.deliveryEnabled" class="mt-6 space-y-4 border-t pt-6">
-                 <h4 class="font-medium text-gray-900">Options de livraison</h4>
+                 <h4 class="font-medium text-gray-900">{{ t('admin.settings.deliveryOptionsTitle') }}</h4>
                  
                  <div>
-                    <label class="block text-sm font-medium text-gray-700">Frais de livraison ({{ form.currency }})</label>
+                    <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.deliveryFeeLabel', { currency: form.currency }) }}</label>
                     <input v-model="deliveryForm.deliveryFee" type="number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
                  </div>
                  
                  <div>
-                    <label class="block text-sm font-medium text-gray-700">Livraison gratuite à partir de ({{ form.currency }})</label>
-                    <input v-model="deliveryForm.freeDeliveryThreshold" type="number" placeholder="Laisser vide si jamais gratuit" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+                    <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.freeDeliveryThresholdLabel', { currency: form.currency }) }}</label>
+                    <input v-model="deliveryForm.freeDeliveryThreshold" type="number" :placeholder="t('admin.settings.freeDeliveryThresholdPlaceholder')" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
                  </div>
 
                  <div>
-                    <label class="block text-sm font-medium text-gray-700">Note de livraison</label>
-                    <textarea v-model="deliveryForm.deliveryNote" rows="2" placeholder="Ex: Livraison sous 24h..." class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2"></textarea>
+                    <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.deliveryNoteLabel') }}</label>
+                    <textarea v-model="deliveryForm.deliveryNote" rows="2" :placeholder="t('admin.settings.deliveryNotePlaceholder')" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2"></textarea>
                  </div>
              </div>
           </div>
@@ -404,7 +408,7 @@
           <div class="flex justify-end sticky bottom-0 bg-white py-4 border-t">
              <button @click="saveDelivery" :disabled="saving" class="bg-gray-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2">
                <Loader2 v-if="saving" class="h-4 w-4 animate-spin" />
-               <span>{{ saving ? 'Enregistrement...' : 'Sauvegarder' }}</span>
+               <span>{{ saving ? t('common.saving') : t('common.save') }}</span>
              </button>
           </div>
       </div>
@@ -412,32 +416,32 @@
       <!-- Enterprise Details Tab -->
       <div v-else-if="activeTab === 'details'" class="space-y-8">
           <div class="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 class="text-lg font-bold text-gray-900 mb-2">Coordonnées de l'organisation</h3>
-              <p class="text-sm text-gray-500 mb-6">Identifiant de l'organisation : {{ enterpriseId }}</p>
+              <h3 class="text-lg font-bold text-gray-900 mb-2">{{ t('admin.settings.enterpriseContactTitle') }}</h3>
+              <p class="text-sm text-gray-500 mb-6">{{ t('admin.settings.enterpriseIdLabel', { id: enterpriseId }) }}</p>
               
               <div class="space-y-6">
                  <div>
-                   <label class="block text-sm font-medium text-gray-700">Nom</label>
+                   <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.nameLabel') }}</label>
                    <input v-model="enterpriseForm.name" type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
                  </div>
                  
                  <div>
-                   <label class="block text-sm font-medium text-gray-700">Quel type d'entreprise dirigez-vous ?</label>
+                   <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.enterpriseIndustryLabel') }}</label>
                    <select v-model="enterpriseForm.industry" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2 bg-white">
-                     <option value="">Sélectionner...</option>
-                     <option value="Restauration & Gastronomie">Restauration & Gastronomie</option>
-                     <option value="Vêtements & Accessoires">Vêtements & Accessoires</option>
-                     <option value="Santé & Beauté">Santé & Beauté</option>
-                     <option value="Électronique">Électronique</option>
-                     <option value="Services">Services</option>
-                     <option value="Autre">Autre</option>
+                     <option value="">{{ t('admin.settings.selectPlaceholder') }}</option>
+                     <option value="Restauration & Gastronomie">{{ t('admin.settings.enterpriseIndustryFood') }}</option>
+                     <option value="Vêtements & Accessoires">{{ t('admin.settings.enterpriseIndustryFashion') }}</option>
+                     <option value="Santé & Beauté">{{ t('admin.settings.enterpriseIndustryHealth') }}</option>
+                     <option value="Électronique">{{ t('admin.settings.enterpriseIndustryElectronics') }}</option>
+                     <option value="Services">{{ t('admin.settings.enterpriseIndustryServices') }}</option>
+                     <option value="Autre">{{ t('admin.settings.enterpriseIndustryOther') }}</option>
                    </select>
                  </div>
                  
                  <div>
-                   <label class="block text-sm font-medium text-gray-700">Nombre d'employés</label>
+                   <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.enterpriseEmployeeCountLabel') }}</label>
                    <select v-model="enterpriseForm.employeeCount" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2 bg-white">
-                     <option value=""># employés</option>
+                     <option value="">{{ t('admin.settings.enterpriseEmployeeCountPlaceholder') }}</option>
                      <option value="1-5">1-5</option>
                      <option value="6-20">6-20</option>
                      <option value="21-50">21-50</option>
@@ -446,7 +450,7 @@
                  </div>
                  
                  <div>
-                   <label class="block text-sm font-medium text-gray-700">Fuseau horaire</label>
+                   <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.enterpriseTimezoneLabel') }}</label>
                    <select v-model="enterpriseForm.timezone" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2 bg-white">
                      <option value="Africa/Douala">GMT+01:00 West Central Africa</option>
                      <option value="Europe/Paris">GMT+01:00 Central European Standard Time</option>
@@ -458,21 +462,21 @@
           
           <!-- Danger Zone -->
           <div class="bg-white rounded-lg border border-gray-200 p-6">
-             <h3 class="font-semibold text-gray-900 mb-4">Zone de danger</h3>
+             <h3 class="font-semibold text-gray-900 mb-4">{{ t('admin.settings.dangerZoneTitle') }}</h3>
              
              <div class="space-y-4">
-                 <h4 class="text-sm font-medium text-gray-900">Entrez "DELETE" pour supprimer cette entreprise</h4>
-                 <p class="text-sm text-gray-500">La suppression de l'entreprise n'est autorisée que lorsque vous n'avez pas de magasins et que vous êtes sur Basic plan.</p>
+                 <h4 class="text-sm font-medium text-gray-900">{{ t('admin.settings.enterpriseDeleteHeading') }}</h4>
+                 <p class="text-sm text-gray-500">{{ t('admin.settings.enterpriseDeleteDesc') }}</p>
                  
                  <input v-model="deleteEnterpriseConfirmation" type="text" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm border p-2" />
                  
                  <button @click="deleteEnterprise" :disabled="deleteEnterpriseConfirmation !== 'DELETE'" class="w-full bg-gray-100 text-gray-500 px-4 py-2 rounded-lg font-medium hover:bg-red-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                    Supprimer l'organisation
+                    {{ t('admin.settings.enterpriseDeleteButton') }}
                  </button>
                  
                  <div class="rounded-md bg-red-50 p-4">
-                    <h3 class="text-sm font-medium text-red-800 mb-2">Danger</h3>
-                    <p class="text-sm text-red-700">Tous les actifs de l'organisation, y compris les magasins, les commandes, les produits, les clients et les paramètres, seront définitivement supprimés.</p>
+                    <h3 class="text-sm font-medium text-red-800 mb-2">{{ t('admin.settings.dangerTitle') }}</h3>
+                    <p class="text-sm text-red-700">{{ t('admin.settings.enterpriseDeleteDangerDesc') }}</p>
                  </div>
              </div>
           </div>
@@ -480,7 +484,7 @@
           <div class="flex justify-end sticky bottom-0 bg-white py-4 border-t mt-8">
              <button @click="saveEnterprise" :disabled="saving" class="bg-gray-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2">
                <Loader2 v-if="saving" class="h-4 w-4 animate-spin" />
-               <span>{{ saving ? 'Enregistrement...' : 'Sauvegarder' }}</span>
+               <span>{{ saving ? t('common.saving') : t('common.save') }}</span>
              </button>
           </div>
       </div>
@@ -488,28 +492,28 @@
       <!-- Billing Tab -->
       <div v-else-if="activeTab === 'billing'" class="space-y-6">
           <div class="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 class="text-lg font-medium text-gray-900 mb-4">Aperçu de l'abonnement</h3>
+              <h3 class="text-lg font-medium text-gray-900 mb-4">{{ t('admin.settings.billingTitle') }}</h3>
               <div class="flex items-center justify-between mb-6">
                   <div>
-                      <p class="text-sm text-gray-500">Plan actuel</p>
+                      <p class="text-sm text-gray-500">{{ t('admin.settings.billingCurrentPlanLabel') }}</p>
                       <div class="flex items-center gap-2 mt-1">
-                          <span class="text-2xl font-bold text-gray-900 capitalize">{{ subscription?.plan?.name || 'Gratuit' }}</span>
+                          <span class="text-2xl font-bold text-gray-900 capitalize">{{ subscription?.plan?.name || t('admin.settings.billingFreePlanName') }}</span>
                           <span class="px-2.5 py-0.5 rounded-full text-xs font-medium" :class="subscription?.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'">
-                              {{ subscription?.status === 'active' ? 'Actif' : (subscription?.status || 'Inactif') }}
+                              {{ formatSubscriptionStatus(subscription?.status) }}
                           </span>
                       </div>
                   </div>
                   <div class="text-right">
-                      <p class="text-sm text-gray-500">Prochain renouvellement</p>
-                      <p class="font-medium text-gray-900">{{ subscription?.end_date ? new Date(subscription.end_date).toLocaleDateString() : 'N/A' }}</p>
+                      <p class="text-sm text-gray-500">{{ t('admin.settings.billingNextRenewalLabel') }}</p>
+                      <p class="font-medium text-gray-900">{{ subscription?.end_date ? new Date(subscription.end_date).toLocaleDateString() : t('common.notAvailable') }}</p>
                   </div>
               </div>
               
               <!-- Usage -->
               <div>
                   <div class="flex justify-between text-sm mb-1">
-                      <span class="font-medium text-gray-700">Utilisation des produits</span>
-                      <span class="text-gray-500">{{ productCount }} / {{ subscription?.plan?.max_products || 'Illimité' }}</span>
+                      <span class="font-medium text-gray-700">{{ t('admin.settings.billingUsageProductsLabel') }}</span>
+                      <span class="text-gray-500">{{ productCount }} / {{ subscription?.plan?.max_products || t('admin.settings.billingUnlimited') }}</span>
                   </div>
                   <div class="w-full bg-gray-200 rounded-full h-2.5">
                       <div class="bg-green-600 h-2.5 rounded-full" :style="{ width: Math.min((productCount / (subscription?.plan?.max_products || 100)) * 100, 100) + '%' }"></div>
@@ -521,15 +525,15 @@
           <div class="grid md:grid-cols-3 gap-6">
               <div v-for="plan in plans" :key="plan.id" class="border rounded-lg p-6 relative flex flex-col" :class="{'border-green-500 ring-1 ring-green-500': subscription?.plan_id === plan.id, 'bg-white': true}">
                   <div v-if="subscription?.plan_id === plan.id" class="absolute top-0 right-0 bg-green-500 text-white text-xs px-2 py-1 rounded-bl-lg rounded-tr-lg font-medium">
-                      Actuel
+                      {{ t('admin.settings.billingCurrentBadge') }}
                   </div>
                   <h4 class="text-lg font-semibold text-gray-900">{{ plan.name }}</h4>
                   <div class="mt-2 flex items-baseline text-gray-900">
                       <span class="text-3xl font-bold tracking-tight">{{ plan.price.toLocaleString() }}</span>
-                      <span class="ml-1 text-sm font-semibold text-gray-500">FCFA / mois</span>
+                      <span class="ml-1 text-sm font-semibold text-gray-500">{{ t('admin.settings.billingPerMonth') }}</span>
                   </div>
                   <p class="mt-4 text-sm text-gray-500 flex-grow">
-                     {{ plan.id === 'free' ? 'Pour démarrer votre activité' : (plan.id === 'premium' ? 'Pour les entreprises en croissance' : 'Pour les grandes structures') }}
+                     {{ plan.id === 'free' ? t('admin.settings.billingPlanDescFree') : (plan.id === 'premium' ? t('admin.settings.billingPlanDescPremium') : t('admin.settings.billingPlanDescBusiness')) }}
                   </p>
                   
                   <ul class="mt-6 space-y-4 mb-8">
@@ -542,7 +546,7 @@
                   </ul>
 
                   <button :disabled="subscription?.plan_id === plan.id" class="w-full mt-auto bg-gray-900 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed">
-                      {{ subscription?.plan_id === plan.id ? 'Plan actuel' : 'Choisir ce plan' }}
+                      {{ subscription?.plan_id === plan.id ? t('admin.settings.billingButtonCurrent') : t('admin.settings.billingButtonChoose') }}
                   </button>
               </div>
           </div>
@@ -556,13 +560,13 @@
                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                </svg>
              </div>
-             <h3 class="text-lg font-medium text-gray-900">Bientôt disponible</h3>
-             <p class="mt-2 text-sm text-gray-500 max-w-sm">Le module {{ menu.flatMap(g => g.items).find(i => i.id === activeTab)?.label }} est en cours de développement.</p>
+             <h3 class="text-lg font-medium text-gray-900">{{ t('admin.settings.comingSoonTitle') }}</h3>
+             <p class="mt-2 text-sm text-gray-500 max-w-sm">{{ t('admin.settings.comingSoonDesc', { module: activeTabLabel }) }}</p>
           </div>
           <div v-else class="flex flex-col items-center justify-center py-12">
              <AdminPremiumLock 
-               title="Fonctionnalité Premium"
-               description="Cette section nécessite un abonnement supérieur. Mettez à niveau votre plan pour accéder à ces réglages avancés."
+              :title="t('admin.premiumLock.title')"
+              :description="t('admin.settings.premiumSectionDesc')"
              />
           </div>
        </div>
@@ -573,9 +577,12 @@
 <script setup lang="ts">
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
+import { useI18n } from '~/composables/i18n'
 import { ArrowLeft, Lock, Loader2 } from 'lucide-vue-next'
 
-useHead({ title: 'Admin | Réglages' })
+const { t, locale, supportedLocales, hasKey } = useI18n()
+
+useHead({ title: t('admin.settings.headTitle') })
 definePageMeta({ layout: 'admin' })
 
 const nuxt = useNuxtApp()
@@ -600,25 +607,74 @@ watch(activeTab, (newTab) => {
   router.push({ query: { ...route.query, tab: newTab } })
 })
 
-const menu = [
+const menu = computed(() => [
   {
-    title: 'Magasins',
+    title: t('admin.settings.menuStoresTitle'),
     items: [
-      { id: 'general', label: 'Général' },
-      { id: 'delivery', label: 'Livraison' },
-      { id: 'payments', label: 'Paiements', badge: 'Soon' },
-      { id: 'checkout', label: 'Caisse', badge: 'Soon' },
+      { id: 'general', label: t('admin.settings.menuGeneral') },
+      { id: 'delivery', label: t('admin.settings.menuDelivery') },
+      { id: 'payments', label: t('admin.settings.menuPayments'), badge: t('admin.settings.badgeSoon') },
+      { id: 'checkout', label: t('admin.settings.menuCheckout'), badge: t('admin.settings.badgeSoon') },
     ]
   },
   {
-    title: 'Entreprise',
+    title: t('admin.settings.menuEnterpriseTitle'),
     items: [
-      { id: 'details', label: 'Détails' },
-      { id: 'billing', label: 'Facturation' },
-      { id: 'members', label: 'Membres', badge: 'Premium' },
+      { id: 'details', label: t('admin.settings.menuDetails') },
+      { id: 'billing', label: t('admin.settings.menuBilling') },
+      { id: 'members', label: t('admin.settings.menuMembers'), badge: t('admin.settings.badgePremium') },
     ]
   }
+])
+
+const activeTabLabel = computed(() => {
+  const items = menu.value.flatMap((g) => g.items)
+  return items.find((i) => i.id === activeTab.value)?.label || ''
+})
+
+function formatSubscriptionStatus(status?: string | null) {
+  const raw = String(status || '').trim()
+  const s = raw.toLowerCase()
+  if (s === 'active') return t('admin.settings.billingStatusActive')
+  if (s === 'inactive' || s === '') return t('admin.settings.billingStatusInactive')
+  if (s === 'trialing') return t('admin.settings.billingStatusTrialing')
+  if (s === 'canceled' || s === 'cancelled') return t('admin.settings.billingStatusCanceled')
+  if (s === 'past_due') return t('admin.settings.billingStatusPastDue')
+  if (s === 'unpaid') return t('admin.settings.billingStatusUnpaid')
+  return raw || t('admin.settings.billingStatusInactive')
+}
+
+const menuTranslationKeys = [
+  'admin.settings.menuStoresTitle',
+  'admin.settings.menuGeneral',
+  'admin.settings.menuDelivery',
+  'admin.settings.menuPayments',
+  'admin.settings.menuCheckout',
+  'admin.settings.badgeSoon',
+  'admin.settings.menuEnterpriseTitle',
+  'admin.settings.menuDetails',
+  'admin.settings.menuBilling',
+  'admin.settings.menuMembers',
+  'admin.settings.badgePremium'
 ]
+
+function validateMenuTranslations() {
+  if (!import.meta.dev) return
+  const langs = supportedLocales?.length ? supportedLocales : ['fr', 'en', 'it']
+  const missing: Array<{ lang: string, key: string }> = []
+  for (const lang of langs) {
+    for (const key of menuTranslationKeys) {
+      if (!hasKey(key, lang)) missing.push({ lang, key })
+    }
+  }
+  if (missing.length) {
+    console.warn('[i18n] Missing admin.settings menu translations', missing)
+  }
+}
+
+watch(() => locale.value, () => {
+  validateMenuTranslations()
+}, { immediate: true })
 
 const form = reactive({
   name: '',
