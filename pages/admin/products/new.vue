@@ -1,95 +1,95 @@
 <template>
   <div>
     <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-bold">Ajouter un produit</h1>
+      <h1 class="text-2xl font-bold">{{ t('admin.productsPage.addProduct') }}</h1>
       <div class="flex items-center gap-2">
-        <NuxtLink to="/admin/products" class="rounded-lg border bg-white px-3 py-2 text-sm">Retour à la liste</NuxtLink>
-        <button class="rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white" :disabled="saving || !isValid" @click="save">Sauvegarder</button>
+        <NuxtLink to="/admin/products" class="rounded-lg border bg-white px-3 py-2 text-sm">{{ t('admin.productForm.backToList') }}</NuxtLink>
+        <button class="rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white" :disabled="saving || !isValid" @click="save">{{ t('admin.productForm.save') }}</button>
       </div>
     </div>
 
     <div class="mt-6 grid gap-6 lg:grid-cols-[2fr_1fr]">
       <div class="space-y-6">
         <div class="rounded-xl border bg-white p-6">
-          <label class="block text-sm font-medium">Nom *</label>
+          <label class="block text-sm font-medium">{{ t('admin.productForm.nameLabel') }}</label>
           <input v-model.trim="form.name" type="text" class="mt-1 w-full rounded-lg border px-3 py-2" />
           <div class="mt-4 grid gap-4 sm:grid-cols-3">
             <div>
-              <label class="block text-sm font-medium">Type</label>
+              <label class="block text-sm font-medium">{{ t('admin.productForm.typeLabel') }}</label>
               <select v-model="form.type" class="mt-1 w-full rounded-lg border px-3 py-2">
-                <option value="physical">Physique</option>
-                <option value="digital">Numérique</option>
-                <option value="reservation">Réservation</option>
-                <option value="subscription">Abonnement</option>
-                <option value="other">Autre</option>
+                <option value="physical">{{ t('admin.productForm.type.physical') }}</option>
+                <option value="digital">{{ t('admin.productForm.type.digital') }}</option>
+                <option value="reservation">{{ t('admin.productForm.type.reservation') }}</option>
+                <option value="subscription">{{ t('admin.productForm.type.subscription') }}</option>
+                <option value="other">{{ t('admin.productForm.type.other') }}</option>
               </select>
             </div>
             <div>
-              <label class="block text-sm font-medium">Prix *</label>
+              <label class="block text-sm font-medium">{{ t('admin.productForm.priceLabel') }}</label>
               <input v-model.number="form.price" type="number" min="0" step="0.01" class="mt-1 w-full rounded-lg border px-3 py-2" />
             </div>
             <div>
-              <label class="block text-sm font-medium">Prix original</label>
+              <label class="block text-sm font-medium">{{ t('admin.productForm.originalPriceLabel') }}</label>
               <input v-model.number="form.original_price" type="number" min="0" step="0.01" class="mt-1 w-full rounded-lg border px-3 py-2" />
             </div>
             <div class="sm:col-span-3 grid gap-4 sm:grid-cols-3 mt-2">
               <label class="inline-flex items-center gap-2">
                 <input type="checkbox" v-model="form.show_estimated_price" />
-                <span class="text-sm">Affichage du prix estimé</span>
+                <span class="text-sm">{{ t('admin.productForm.showEstimatedPrice') }}</span>
               </label>
               <label class="inline-flex items-center gap-2">
                 <input type="checkbox" v-model="form.track_cost" />
-                <span class="text-sm">Coût par article</span>
+                <span class="text-sm">{{ t('admin.productForm.trackCost') }}</span>
               </label>
               <label class="inline-flex items-center gap-2">
                 <input type="checkbox" v-model="form.show_net_price" />
-                <span class="text-sm">Prix net par unité</span>
+                <span class="text-sm">{{ t('admin.productForm.showNetPrice') }}</span>
               </label>
             </div>
             <div>
-              <label class="block text-sm font-medium">UGS</label>
+              <label class="block text-sm font-medium">{{ t('admin.productForm.skuLabel') }}</label>
               <input v-model.trim="form.sku" type="text" class="mt-1 w-full rounded-lg border px-3 py-2" />
             </div>
             <div>
-              <label class="block text-sm font-medium">Poids</label>
+              <label class="block text-sm font-medium">{{ t('admin.productForm.weightLabel') }}</label>
               <div class="flex items-center gap-2">
                 <input v-model.number="form.weight" type="number" min="0" step="0.01" class="mt-1 w-full rounded-lg border px-3 py-2" />
-                <span class="text-sm text-gray-600">g</span>
+                <span class="text-sm text-gray-600">{{ t('admin.productForm.weightUnit') }}</span>
               </div>
             </div>
           </div>
           <div class="mt-4">
             <div class="flex items-center justify-between mb-1">
-              <label class="block text-sm font-medium">Description</label>
+              <label class="block text-sm font-medium">{{ t('admin.productForm.descriptionLabel') }}</label>
               <button @click="generateDescription" :disabled="generatingDesc" class="text-xs flex items-center gap-1 text-purple-600 hover:text-purple-700 font-medium disabled:opacity-50">
-                <Sparkles class="h-3 w-3" /> {{ generatingDesc ? 'Rédaction...' : 'Générer avec IA' }}
+                <Sparkles class="h-3 w-3" /> {{ generatingDesc ? t('admin.productNew.writing') : t('admin.productNew.generateWithAi') }}
               </button>
             </div>
             <textarea v-model.trim="form.description" rows="4" class="mt-1 w-full rounded-lg border px-3 py-2" placeholder='Decorate with **bold**, ~strike~, _italic_'></textarea>
           </div>
           <div class="mt-4 grid gap-4 sm:grid-cols-2">
             <div>
-              <label class="block text-sm font-medium">Catégorie</label>
+              <label class="block text-sm font-medium">{{ t('admin.productForm.categoryTitle') }}</label>
               <div class="relative">
-                <input v-model.trim="categorySearch" @focus="categoryOpen=true" @input="categoryOpen=true" @blur="closeCategoryDropdownLater" placeholder="Rechercher ou créer une catégorie" class="mt-1 w-full rounded-lg border px-3 py-2" />
+                <input v-model.trim="categorySearch" @focus="categoryOpen=true" @input="categoryOpen=true" @blur="closeCategoryDropdownLater" :placeholder="t('admin.productNew.categorySearchPlaceholder')" class="mt-1 w-full rounded-lg border px-3 py-2" />
                 <div v-if="categoryOpen" class="absolute z-20 mt-1 w-full rounded-lg border bg-white shadow">
-                  <button class="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100" @click="selectCategory(null)">Aucune</button>
+                  <button class="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100" @click="selectCategory(null)">{{ t('admin.productForm.noneOption') }}</button>
                   <button v-for="c in filteredCategories" :key="c.id" class="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100" @click="selectCategory(c)">{{ c.name }}</button>
                   <div class="border-t px-3 py-2">
-                    <div class="text-xs text-gray-600 mb-1">Créer “{{ categorySearch || '...' }}”</div>
-                    <button class="rounded-lg border bg-white px-3 py-2 text-xs" @click="createCategoryFromSearch">Créer la catégorie</button>
+                    <div class="text-xs text-gray-600 mb-1">{{ t('admin.productNew.createCategoryFromSearch', { name: categorySearch || '...' }) }}</div>
+                    <button class="rounded-lg border bg-white px-3 py-2 text-xs" @click="createCategoryFromSearch">{{ t('admin.productNew.createCategory') }}</button>
                   </div>
                 </div>
               </div>
             </div>
             <div>
-              <label class="block text-sm font-medium">Tags</label>
+              <label class="block text-sm font-medium">{{ t('admin.productForm.tagsTitle') }}</label>
               <div class="mt-1 flex flex-wrap gap-2">
                 <button v-for="t in tags" :key="t.id" class="rounded-full border px-3 py-1 text-xs" :class="selectedTags.has(Number(t.id))?'bg-green-100 border-green-300':'bg-white'" @click="toggleTag(Number(t.id))">{{ t.name }}</button>
               </div>
               <div class="mt-2 flex items-center gap-2">
-                <input v-model.trim="newTagName" placeholder="Ajouter une étiquette" class="flex-1 rounded-lg border px-3 py-2 text-sm" />
-                <button class="rounded-lg border bg-white px-3 py-2 text-sm" @click="createTag" :disabled="tagCreating">{{ tagCreating ? '...' : 'Créer' }}</button>
+                <input v-model.trim="newTagName" :placeholder="t('admin.productNew.addTagPlaceholder')" class="flex-1 rounded-lg border px-3 py-2 text-sm" />
+                <button class="rounded-lg border bg-white px-3 py-2 text-sm" @click="createTag" :disabled="tagCreating">{{ tagCreating ? '...' : t('admin.productNew.createTag') }}</button>
               </div>
             </div>
           </div>
@@ -97,7 +97,7 @@
 
         <div class="rounded-xl border bg-white p-6">
           <div class="flex items-center justify-between">
-            <div class="font-semibold">Images</div>
+            <div class="font-semibold">{{ t('admin.productForm.imagesTitle') }}</div>
             <input ref="imageFileInput" type="file" accept="image/*" class="hidden" multiple @change="onImageFile" />
           </div>
           <div class="mt-3 relative">
@@ -107,23 +107,23 @@
             <div class="flex items-center justify-center rounded-lg border-2 border-dashed px-4 py-10 text-center cursor-pointer" :class="dropActive?'border-green-400 bg-green-50':'border-gray-300 bg-gray-50'" @click="triggerImageInput" @dragenter.prevent="onImageDragEnter" @dragover.prevent="onImageDragOver" @dragleave.prevent="onImageDragLeave" @drop.prevent="onImageDrop">
               <div>
                 <Upload class="mx-auto h-8 w-8 text-gray-400" />
-                <div class="mt-2 text-sm font-medium text-gray-800">Faites glisser un fichier ici ou cliquez pour en sélectionner un</div>
-                <div class="mt-1 text-xs text-gray-500">Le fichier ne doit pas dépasser 10 mb. Le rapport recommandé est de 1:1.</div>
+                <div class="mt-2 text-sm font-medium text-gray-800">{{ t('admin.productForm.dropzoneTitle') }}</div>
+                <div class="mt-1 text-xs text-gray-500">{{ t('admin.productForm.dropzoneHint') }}</div>
               </div>
             </div>
           </div>
           <div class="mt-4 flex items-center gap-3">
             <input v-model.trim="imageUrl" placeholder="https://..." class="flex-1 rounded-lg border px-3 py-2 text-sm" />
-            <button class="rounded-lg border bg-white px-3 py-2 text-sm" @click="addImageUrl">Ajouter l'URL</button>
+            <button class="rounded-lg border bg-white px-3 py-2 text-sm" @click="addImageUrl">{{ t('admin.productForm.addImageUrl') }}</button>
             <button class="rounded-lg border bg-white px-3 py-2 text-sm flex items-center gap-2 hover:bg-gray-50" @click="generateImage" :disabled="generatingImage">
               <Wand2 class="h-4 w-4 text-purple-600" /> 
-              <span>{{ generatingImage ? '...' : 'Générer IA' }}</span>
+              <span>{{ generatingImage ? '...' : t('admin.productNew.generateAi') }}</span>
             </button>
           </div>
           <div class="mt-4 grid gap-3 sm:grid-cols-3">
             <div v-for="(img,i) in form.images" :key="i" class="relative" draggable="true" @dragstart="onImageTileDragStart(i)" @dragover.prevent @drop="onImageTileDrop(i)">
               <img :src="img" alt="" class="h-24 w-full rounded object-cover bg-gray-100" />
-              <button class="absolute right-2 top-2 rounded bg-white/80 px-2 py-1 text-xs" @click="removeImage(i)">Supprimer</button>
+              <button class="absolute right-2 top-2 rounded bg-white/80 px-2 py-1 text-xs" @click="removeImage(i)">{{ t('admin.productForm.removeImage') }}</button>
             </div>
           </div>
         </div>
@@ -132,33 +132,33 @@
           <div class="grid gap-4 sm:grid-cols-3">
             <label class="inline-flex items-center gap-2">
               <input type="checkbox" v-model="form.track_inventory" />
-              <span class="text-sm">Suivre l'inventaire</span>
+              <span class="text-sm">{{ t('admin.productForm.trackInventory') }}</span>
             </label>
             <div>
-              <label class="block text-sm font-medium">Inventaire</label>
+              <label class="block text-sm font-medium">{{ t('admin.productForm.inventoryLabel') }}</label>
               <input v-model.number="form.stock_quantity" type="number" min="0" class="mt-1 w-full rounded-lg border px-3 py-2" />
             </div>
             <label class="inline-flex items-center gap-2">
               <input type="checkbox" v-model="form.is_visible" />
-              <span class="text-sm">Visible</span>
+              <span class="text-sm">{{ t('admin.productForm.visibleLabel') }}</span>
             </label>
           </div>
           <div class="mt-4 grid gap-4 sm:grid-cols-3">
             <label class="inline-flex items-center gap-2">
               <input type="checkbox" v-model="form.is_out_of_stock" />
-              <span class="text-sm">Marquer comme épuisé</span>
+              <span class="text-sm">{{ t('admin.productForm.outOfStockLabel') }}</span>
             </label>
             <div>
-              <label class="block text-sm font-medium">Capacité journalière</label>
+              <label class="block text-sm font-medium">{{ t('admin.productNew.dailyCapacity') }}</label>
               <input v-model.number="form.daily_capacity" type="number" min="0" class="mt-1 w-full rounded-lg border px-3 py-2" />
             </div>
             <div class="grid gap-2 sm:grid-cols-2">
               <div>
-                <label class="block text-sm font-medium">Qté max par commande</label>
+                <label class="block text-sm font-medium">{{ t('admin.productNew.maxQtyPerOrder') }}</label>
                 <input v-model.number="form.max_order_qty" type="number" min="0" class="mt-1 w-full rounded-lg border px-3 py-2" />
               </div>
               <div>
-                <label class="block text-sm font-medium">Qté min par commande</label>
+                <label class="block text-sm font-medium">{{ t('admin.productNew.minQtyPerOrder') }}</label>
                 <input v-model.number="form.min_order_qty" type="number" min="0" class="mt-1 w-full rounded-lg border px-3 py-2" />
               </div>
             </div>
@@ -166,10 +166,10 @@
           <div class="mt-4 grid gap-4 sm:grid-cols-2">
             <label class="inline-flex items-center gap-2">
               <input type="checkbox" v-model="form.tax_exempt" />
-              <span class="text-sm">Dérogation fiscale</span>
+              <span class="text-sm">{{ t('admin.productNew.taxExempt') }}</span>
             </label>
             <div>
-              <label class="block text-sm font-medium">Motif</label>
+              <label class="block text-sm font-medium">{{ t('admin.productNew.taxExemptReason') }}</label>
               <input v-model.trim="form.tax_exempt_reason" type="text" class="mt-1 w-full rounded-lg border px-3 py-2" />
             </div>
           </div>
@@ -178,48 +178,48 @@
         <div class="rounded-xl border bg-white p-6">
           <div class="grid gap-4 sm:grid-cols-3">
             <div>
-              <label class="block text-sm font-medium">Unité</label>
+              <label class="block text-sm font-medium">{{ t('admin.productNew.unit') }}</label>
               <select v-model="unit" class="mt-1 w-full rounded-lg border px-3 py-2">
-                <option value="G">Grammes (G)</option>
-                <option value="KG">Kilogrammes (KG)</option>
-                <option value="L">Litres (L)</option>
-                <option value="ML">Millilitres (ML)</option>
-                <option value="PCS">Pièces (PCS)</option>
-                <option value="PAX">Personnes (PAX)</option>
-                <option value="PERSON">Personne</option>
-                <option value="ROOM">Chambre</option>
-                <option value="PACK">Pack</option>
-                <option value="QTY">Quantité</option>
-                <option value="LBS">Livres (LBS)</option>
-                <option value="HOUR">Heure</option>
-                <option value="BOX">Boîte</option>
+                <option value="G">{{ t('admin.productNew.unitOption.g') }}</option>
+                <option value="KG">{{ t('admin.productNew.unitOption.kg') }}</option>
+                <option value="L">{{ t('admin.productNew.unitOption.l') }}</option>
+                <option value="ML">{{ t('admin.productNew.unitOption.ml') }}</option>
+                <option value="PCS">{{ t('admin.productNew.unitOption.pcs') }}</option>
+                <option value="PAX">{{ t('admin.productNew.unitOption.pax') }}</option>
+                <option value="PERSON">{{ t('admin.productNew.unitOption.person') }}</option>
+                <option value="ROOM">{{ t('admin.productNew.unitOption.room') }}</option>
+                <option value="PACK">{{ t('admin.productNew.unitOption.pack') }}</option>
+                <option value="QTY">{{ t('admin.productNew.unitOption.qty') }}</option>
+                <option value="LBS">{{ t('admin.productNew.unitOption.lbs') }}</option>
+                <option value="HOUR">{{ t('admin.productNew.unitOption.hour') }}</option>
+                <option value="BOX">{{ t('admin.productNew.unitOption.box') }}</option>
               </select>
             </div>
             <div>
-              <label class="block text-sm font-medium">Valeur par unité</label>
+              <label class="block text-sm font-medium">{{ t('admin.productNew.unitValue') }}</label>
               <input v-model.number="unitValue" type="number" min="0" step="0.01" class="mt-1 w-full rounded-lg border px-3 py-2" />
             </div>
             <label class="inline-flex items-center gap-2 mt-6 sm:mt-0">
               <input type="checkbox" v-model="requiresShipping" />
-              <span class="text-sm">Nécessite une livraison</span>
+              <span class="text-sm">{{ t('admin.productNew.requiresShipping') }}</span>
             </label>
           </div>
           <div class="mt-4">
-            <div class="text-sm font-medium">Méthodes de livraison</div>
+            <div class="text-sm font-medium">{{ t('admin.productNew.deliveryMethods') }}</div>
             <div class="mt-2 flex flex-wrap gap-2">
-              <button class="rounded px-3 py-1 text-xs border" :class="deliveryMethods.has('pickup')?'bg-green-100 border-green-300':'bg-white'" @click="toggleDelivery('pickup')">À emporter</button>
-              <button class="rounded px-3 py-1 text-xs border" :class="deliveryMethods.has('delivery')?'bg-green-100 border-green-300':'bg-white'" @click="toggleDelivery('delivery')">Livraison</button>
-              <button class="rounded px-3 py-1 text-xs border" :class="deliveryMethods.has('dine_in')?'bg-green-100 border-green-300':'bg-white'" @click="toggleDelivery('dine_in')">Sur place</button>
+              <button class="rounded px-3 py-1 text-xs border" :class="deliveryMethods.has('pickup')?'bg-green-100 border-green-300':'bg-white'" @click="toggleDelivery('pickup')">{{ t('admin.productNew.delivery.pickup') }}</button>
+              <button class="rounded px-3 py-1 text-xs border" :class="deliveryMethods.has('delivery')?'bg-green-100 border-green-300':'bg-white'" @click="toggleDelivery('delivery')">{{ t('admin.productNew.delivery.delivery') }}</button>
+              <button class="rounded px-3 py-1 text-xs border" :class="deliveryMethods.has('dine_in')?'bg-green-100 border-green-300':'bg-white'" @click="toggleDelivery('dine_in')">{{ t('admin.productNew.delivery.dineIn') }}</button>
             </div>
           </div>
         </div>
 
         <div class="rounded-xl border bg-white p-6">
           <div class="flex items-center justify-between">
-            <div class="font-semibold">Variantes</div>
+            <div class="font-semibold">{{ t('admin.productForm.variantsTitle') }}</div>
             <div class="flex items-center gap-2">
-              <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="addVariant">Ajouter</button>
-              <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="reorderModeVariants=!reorderModeVariants">Modifier la séquence</button>
+              <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="addVariant">{{ t('admin.productForm.add') }}</button>
+              <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="reorderModeVariants=!reorderModeVariants">{{ t('admin.productNew.reorderVariants') }}</button>
             </div>
           </div>
           <div class="mt-4 space-y-3">
@@ -227,9 +227,9 @@
               <div class="hidden sm:flex items-center">
                 <GripVertical class="h-4 w-4 text-gray-400" />
               </div>
-              <input v-model.trim="v.name" type="text" placeholder="Nom" class="rounded border px-2 py-1 text-sm" />
-              <input v-model.number="v.price" type="number" min="0" step="0.01" placeholder="Prix" class="rounded border px-2 py-1 text-sm" />
-              <input v-model.number="v.original_price" type="number" min="0" step="0.01" placeholder="Prix original" class="rounded border px-2 py-1 text-sm" />
+              <input v-model.trim="v.name" type="text" :placeholder="t('admin.productForm.variantNamePlaceholder')" class="rounded border px-2 py-1 text-sm" />
+              <input v-model.number="v.price" type="number" min="0" step="0.01" :placeholder="t('admin.productForm.variantPricePlaceholder')" class="rounded border px-2 py-1 text-sm" />
+              <input v-model.number="v.original_price" type="number" min="0" step="0.01" :placeholder="t('admin.productForm.variantOriginalPricePlaceholder')" class="rounded border px-2 py-1 text-sm" />
               <div class="flex items-center gap-2">
                 <div class="relative">
                    <img :src="v.image_url||''" class="h-10 w-10 rounded object-cover bg-gray-100" />
@@ -240,7 +240,7 @@
               <div class="flex items-center gap-2">
                 <button v-if="reorderModeVariants" class="rounded border px-2 py-1 text-xs" @click="moveVariantUp(i)" :disabled="i===0">↑</button>
                 <button v-if="reorderModeVariants" class="rounded border px-2 py-1 text-xs" @click="moveVariantDown(i)" :disabled="i===variants.length-1">↓</button>
-                <button class="rounded border px-2 py-1 text-xs" @click="removeVariant(i)">Supprimer</button>
+                <button class="rounded border px-2 py-1 text-xs" @click="removeVariant(i)">{{ t('admin.productForm.delete') }}</button>
               </div>
             </div>
           </div>
@@ -248,10 +248,10 @@
 
         <div class="rounded-xl border bg-white p-6">
           <div class="flex items-center justify-between">
-            <div class="font-semibold">Options</div>
+            <div class="font-semibold">{{ t('admin.productForm.optionsTitle') }}</div>
             <div class="flex items-center gap-2">
-              <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="addOption">Ajouter</button>
-              <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="reorderModeOptions=!reorderModeOptions">Modifier l'ordre</button>
+              <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="addOption">{{ t('admin.productForm.add') }}</button>
+              <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="reorderModeOptions=!reorderModeOptions">{{ t('admin.productNew.reorderOptions') }}</button>
             </div>
           </div>
           <div class="mt-4 space-y-3">
@@ -259,23 +259,23 @@
               <div class="hidden sm:flex items-center">
                 <GripVertical class="h-4 w-4 text-gray-400" />
               </div>
-              <input v-model.trim="o.name" type="text" placeholder="Nom" class="rounded border px-2 py-1 text-sm" />
+              <input v-model.trim="o.name" type="text" :placeholder="t('admin.productForm.optionNamePlaceholder')" class="rounded border px-2 py-1 text-sm" />
               <select v-model="o.type" class="rounded border px-2 py-1 text-sm">
-                <option value="text">Texte</option>
-                <option value="number">Nombre</option>
-                <option value="date">Date</option>
-                <option value="checkbox">Case</option>
-                <option value="select">Choix</option>
+                <option value="text">{{ t('admin.productForm.optionType.text') }}</option>
+                <option value="number">{{ t('admin.productForm.optionType.number') }}</option>
+                <option value="date">{{ t('admin.productForm.optionType.date') }}</option>
+                <option value="checkbox">{{ t('admin.productForm.optionType.checkbox') }}</option>
+                <option value="select">{{ t('admin.productForm.optionType.select') }}</option>
               </select>
-              <input v-model="o.values" type="text" placeholder="Valeurs (séparées par des virgules)" class="rounded border px-2 py-1 text-sm" />
+              <input v-model="o.values" type="text" :placeholder="t('admin.productForm.optionValuesPlaceholder')" class="rounded border px-2 py-1 text-sm" />
               <label class="inline-flex items-center gap-2">
                 <input type="checkbox" v-model="o.is_required" />
-                <span class="text-sm">Obligatoire</span>
+                <span class="text-sm">{{ t('admin.productForm.required') }}</span>
               </label>
               <div class="flex items-center gap-2">
                 <button v-if="reorderModeOptions" class="rounded border px-2 py-1 text-xs" @click="moveOptionUp(i)" :disabled="i===0">↑</button>
                 <button v-if="reorderModeOptions" class="rounded border px-2 py-1 text-xs" @click="moveOptionDown(i)" :disabled="i===options.length-1">↓</button>
-                <button class="rounded border px-2 py-1 text-xs" @click="removeOption(i)">Supprimer</button>
+                <button class="rounded border px-2 py-1 text-xs" @click="removeOption(i)">{{ t('admin.productForm.delete') }}</button>
               </div>
             </div>
           </div>
@@ -284,7 +284,7 @@
 
       <div class="space-y-6">
         <div class="rounded-xl border bg-white p-6">
-          <div class="font-semibold">Aperçu (téléphone)</div>
+          <div class="font-semibold">{{ t('admin.productNew.previewPhone') }}</div>
           <div class="mt-4 flex justify-center">
             <div class="w-[360px] rounded-3xl border bg-gray-50 p-4">
               <div class="rounded-xl bg-white shadow overflow-hidden">
@@ -293,23 +293,23 @@
                     <span class="text-xs font-semibold text-gray-700">{{ storeInitials || 'SB' }}</span>
                   </div>
                   <div class="flex-1">
-                    <div class="text-sm font-semibold">{{ storeName || 'Votre boutique' }}</div>
-                    <div class="text-xs text-gray-500">en ligne</div>
+                    <div class="text-sm font-semibold">{{ storeName || t('storefront.storeFallback') }}</div>
+                    <div class="text-xs text-gray-500">{{ t('storefront.online') }}</div>
                   </div>
-                  <a v-if="waLink" :href="waLink" target="_blank" class="rounded bg-green-500 px-2 py-1 text-xs font-semibold text-white">WhatsApp</a>
+                  <a v-if="waLink" :href="waLink" target="_blank" class="rounded bg-green-500 px-2 py-1 text-xs font-semibold text-white">{{ t('storefront.whatsapp') }}</a>
                 </div>
                 <img :src="form.images[0] || ''" class="h-40 w-full object-cover bg-gray-100" />
                 <div class="p-3">
-                  <div class="font-semibold">{{ form.name || 'Nom du produit' }}</div>
-                  <div class="mt-1 text-sm text-gray-600" style="white-space: pre-line">{{ form.description || 'Description du produit' }}</div>
-                  <div class="mt-2 text-sm font-semibold">FCFA {{ Number(form.price || 0).toLocaleString('fr-FR') }}</div>
+                  <div class="font-semibold">{{ form.name || t('admin.productNew.previewProductName') }}</div>
+                  <div class="mt-1 text-sm text-gray-600" style="white-space: pre-line">{{ form.description || t('admin.productNew.previewProductDesc') }}</div>
+                  <div class="mt-2 text-sm font-semibold">FCFA {{ Number(form.price || 0).toLocaleString(getNumberLocale()) }}</div>
                   <div class="mt-3">
-                    <a v-if="waLink" :href="waLink" target="_blank" class="block rounded bg-green-500 px-3 py-2 text-sm font-semibold text-white text-center">Contacter sur WhatsApp</a>
-                    <span v-else class="block rounded border bg-white px-3 py-2 text-sm text-center text-gray-600">Numéro non disponible</span>
+                    <a v-if="waLink" :href="waLink" target="_blank" class="block rounded bg-green-500 px-3 py-2 text-sm font-semibold text-white text-center">{{ t('admin.productNew.contactWhatsApp') }}</a>
+                    <span v-else class="block rounded border bg-white px-3 py-2 text-sm text-center text-gray-600">{{ t('admin.productNew.phoneUnavailable') }}</span>
                   </div>
                 </div>
                 <div class="border-t p-3 text-sm text-gray-700">
-                  WhatsApp: {{ storePhone || '—' }}
+                  {{ t('admin.productNew.whatsappLabel') }}: {{ storePhone || '—' }}
                 </div>
               </div>
             </div>
@@ -321,7 +321,7 @@
   <div v-if="saving" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 backdrop-blur-sm">
     <div class="rounded-xl bg-gray-900/90 px-6 py-5 text-center text-white shadow-xl">
       <div class="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-white/30 border-t-white"></div>
-      <div class="mt-3 text-sm font-semibold">Création du produit…</div>
+      <div class="mt-3 text-sm font-semibold">{{ t('admin.productNew.creating') }}</div>
     </div>
   </div>
 </template>
@@ -330,10 +330,12 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
 import { Upload, GripVertical, Sparkles, Wand2 } from 'lucide-vue-next'
+import { useI18n } from '~/composables/i18n'
 definePageMeta({ layout: 'admin', alias: ['/admin/product/new'] })
 const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
 const admin = useAdminStore()
+const { t, locale } = useI18n()
 const saving = ref(false)
 const generatingDesc = ref(false)
 const generatingImage = ref(false)
@@ -373,6 +375,11 @@ const categoryOpen = ref(false)
 const storePhone = ref<string>('')
 const storeName = ref<string>('')
 const storeInitials = computed(() => (storeName.value || 'SB').split(/\s+/).map(s => s[0]).join('.'))
+function getNumberLocale() {
+  if (locale.value === 'fr') return 'fr-FR'
+  if (locale.value === 'it') return 'it-IT'
+  return 'en-US'
+}
 const waLink = computed(() => {
   const phone = String(storePhone.value || '').trim()
   const digits = phone.replace(/[^\d+]/g, '')
@@ -391,7 +398,7 @@ function createCategoryFromSearch() {
   const v = String(categorySearch.value || '').trim()
   if (!v) return
   const exists = filteredCategories.value.find((c: any) => String(c.name || '').toLowerCase() === v.toLowerCase())
-  if (exists) { toast.error('Cette catégorie existe déjà'); return }
+  if (exists) { toast.error(t('admin.productNew.categoryExists')); return }
   newCategoryName.value = v
   createCategory()
   categoryOpen.value = false
@@ -431,15 +438,15 @@ async function createTag() {
 }
 function createCategory() {
   const name = String(newCategoryName.value || '').trim()
-  if (!name) { toast.error('Nom de catégorie invalide'); return }
+  if (!name) { toast.error(t('admin.productNew.invalidCategoryName')); return }
   const storeId = admin.selectedShopId
-  if (!storeId) { toast.error('Sélectionnez une boutique'); return }
+  if (!storeId) { toast.error(t('admin.productNew.selectStore')); return }
   ;(async () => {
     const { data, error } = await supabase.from('categories').insert({ store_id: storeId, name }).select('id').maybeSingle()
-    if (error) { toast.error('Erreur de création de catégorie'); newCategoryName.value = ''; return }
+    if (error) { toast.error(t('admin.productNew.createCategoryError')); newCategoryName.value = ''; return }
     if (data?.id) {
       form.category_id = Number(data.id)
-      toast.success('Catégorie créée')
+      toast.success(t('admin.productNew.categoryCreated'))
       await loadFilters()
     }
     newCategoryName.value = ''
@@ -470,7 +477,7 @@ async function onImageFile(e: any) {
   if (!files || files.length === 0) return
   const MAX = 10 * 1024 * 1024
   for (const f of Array.from(files) as File[]) {
-    if (f.size > MAX) { toast.error(`Fichier trop volumineux: ${f.name} (>10MB)`); continue }
+    if (f.size > MAX) { toast.error(t('admin.productForm.fileTooLargeWithName', { name: f.name })); continue }
     await uploadImage(f)
   }
 }
@@ -494,7 +501,7 @@ async function onImageDrop(e: DragEvent) {
   }
   const MAX = 10 * 1024 * 1024
   for (const f of files) {
-    if (f.size > MAX) { toast.error('Fichier trop volumineux (>10MB)'); continue }
+    if (f.size > MAX) { toast.error(t('admin.productForm.fileTooLarge')); continue }
     await uploadImage(f)
   }
 }
@@ -527,7 +534,7 @@ async function uploadVariantImage(e: any, v: any) {
   const file = e.target.files?.[0]
   if (!file) return
   const MAX = 10 * 1024 * 1024
-  if (file.size > MAX) { toast.error('Fichier trop volumineux (>10MB)'); return }
+  if (file.size > MAX) { toast.error(t('admin.productForm.fileTooLarge')); return }
   
   // Optimistic preview
   const previewUrl = URL.createObjectURL(file)
@@ -569,7 +576,7 @@ function onOptionDrop(i: number) {
 
 async function generateDescription() {
   if (!form.name) {
-    toast.error('Veuillez entrer un nom de produit d\'abord')
+    toast.error(t('admin.productNew.enterNameFirst'))
     return
   }
   generatingDesc.value = true
@@ -583,10 +590,10 @@ async function generateDescription() {
     })
     if (description) {
       form.description = description
-      toast.success('Description générée !')
+      toast.success(t('admin.productNew.descriptionGenerated'))
     }
   } catch (e: any) {
-    toast.error(e.statusMessage || 'Erreur lors de la génération')
+    toast.error(e.statusMessage || t('admin.productNew.generationError'))
   } finally {
     generatingDesc.value = false
   }
@@ -594,7 +601,7 @@ async function generateDescription() {
 
 async function generateImage() {
   if (!form.name) {
-    toast.error('Entrez un nom de produit pour guider l\'IA')
+    toast.error(t('admin.productNew.enterNameForAi'))
     return
   }
   generatingImage.value = true
@@ -610,10 +617,10 @@ async function generateImage() {
       const blob = await res.blob()
       const file = new File([blob], "ai-generated.jpg", { type: "image/jpeg" })
       uploadImage(file)
-      toast.success('Image générée !')
+      toast.success(t('admin.productNew.imageGenerated'))
     }
   } catch (e: any) {
-    toast.error(e.statusMessage || 'Erreur lors de la génération')
+    toast.error(e.statusMessage || t('admin.productNew.generationError'))
   } finally {
     generatingImage.value = false
   }
@@ -748,12 +755,12 @@ async function save() {
       })
     }
     const toast = useToast()
-    toast.success('Produit créé')
+    toast.success(t('admin.productNew.created'))
     setTimeout(() => navigateTo(`/admin/products/${pid}`), 600)
   } catch (e: any) {
     console.error('Error saving product:', e)
     const toast = useToast()
-    toast.error(e.message || 'Erreur lors de la création du produit')
+    toast.error(e.message || t('admin.productNew.createError'))
   } finally { saving.value = false }
 }
 async function loadFilters() {
@@ -792,5 +799,5 @@ onUnmounted(() => {
     if (v.image_url && v.image_url.startsWith('blob:')) URL.revokeObjectURL(v.image_url)
   })
 })
-useHead({ title: 'Admin | Ajouter un produit' })
+useHead({ title: t('admin.productNew.headTitle') })
 </script>
