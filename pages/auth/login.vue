@@ -26,6 +26,9 @@
                 @keyup.enter="emailValid && !loading ? sendEmailOtp() : null"
               />
             </div>
+            <div class="flex justify-end">
+              <NuxtLink to="/auth/forgot-password" class="text-xs text-primary hover:underline">Mot de passe oublié ?</NuxtLink>
+            </div>
             <button 
               :disabled="!emailValid || loading" 
               class="w-full rounded-lg bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50 hover:bg-primary-dark transition-colors flex items-center justify-center gap-2" 
