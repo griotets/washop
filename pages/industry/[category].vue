@@ -56,7 +56,7 @@
                   :class="['text-white p-4 pt-8 shadow-sm', headerClass]"
                 >
                   <div class="font-bold text-lg">{{ content.title }}</div>
-                  <div class="text-xs opacity-90">Expérience {{ groupLabel }}</div>
+                  <div class="text-xs opacity-90">{{ t('industryCategory.experience', { group: groupLabel }) }}</div>
                 </div>
                 <div class="flex-1 overflow-y-auto p-3 bg-gray-50">
                   <div v-if="isFood" class="space-y-3">
@@ -84,8 +84,8 @@
                     </div>
                     <div class="bg-white rounded-lg p-3 border">
                       <div class="flex items-center justify-between">
-                        <div class="text-sm font-medium">Panier</div>
-                        <div class="text-xs text-gray-600">2 articles</div>
+                        <div class="text-sm font-medium">{{ t('catalog.cart') }}</div>
+                        <div class="text-xs text-gray-600">{{ t('catalog.items', { n: 2 }) }}</div>
                       </div>
                       <div class="mt-2">
                         <div class="h-2 w-full bg-gray-200 rounded"></div>
@@ -94,9 +94,9 @@
                   </div>
                   <div v-else-if="isEcom" class="space-y-3">
                     <div class="flex gap-2">
-                      <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">Nouveautés</span>
-                      <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">Promos</span>
-                      <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">Meilleures ventes</span>
+                      <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">{{ t('industryCategory.tags.new') }}</span>
+                      <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">{{ t('industryCategory.tags.promos') }}</span>
+                      <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">{{ t('industryCategory.tags.bestSellers') }}</span>
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                       <div class="bg-white p-2 rounded-lg shadow-sm">
@@ -113,27 +113,27 @@
                   </div>
                   <div v-else class="space-y-3">
                     <div class="bg-white p-3 rounded-lg shadow-sm border">
-                      <div class="text-sm font-medium">Choisir un service</div>
+                      <div class="text-sm font-medium">{{ t('industryCategory.chooseService') }}</div>
                       <div class="mt-2 grid grid-cols-2 gap-2">
                         <div class="h-8 bg-gray-100 rounded"></div>
                         <div class="h-8 bg-gray-100 rounded"></div>
                       </div>
                     </div>
                     <div class="bg-white p-3 rounded-lg shadow-sm border">
-                      <div class="text-sm font-medium">Sélectionner une date</div>
+                      <div class="text-sm font-medium">{{ t('industryCategory.selectDate') }}</div>
                       <div class="mt-2 h-20 bg-gray-100 rounded"></div>
                     </div>
                   </div>
                 </div>
                 <div class="bg-white border-t p-3 flex justify-between items-center">
                   <div class="text-sm font-semibold">
-                    <span v-if="isFood">2 Articles</span>
-                    <span v-else-if="isEcom">3 Produits</span>
-                    <span v-else>1 Réservation</span>
+                    <span v-if="isFood">{{ t('catalog.items', { n: 2 }) }}</span>
+                    <span v-else-if="isEcom">{{ t('catalog.items', { n: 3 }) }}</span>
+                    <span v-else>{{ t('industryCategory.countReservation') }}</span>
                   </div>
                   <div :class="['text-white px-4 py-1.5 rounded-full text-xs font-bold', ctaClass]">
-                    <span v-if="isServices">Réserver sur WhatsApp</span>
-                    <span v-else>Commander via WhatsApp</span>
+                    <span v-if="isServices">{{ t('industryCategory.reserveWhatsApp') }}</span>
+                    <span v-else>{{ t('industryCategory.orderWhatsApp') }}</span>
                   </div>
                 </div>
               </div>
@@ -143,7 +143,7 @@
       </div>
 
       <div class="mx-auto mt-16 max-w-2xl lg:max-w-none">
-        <h2 class="text-2xl font-bold tracking-tight text-gray-900 text-center">Cas d’usage principaux</h2>
+        <h2 class="text-2xl font-bold tracking-tight text-gray-900 text-center">{{ t('industryCategory.useCasesTitle') }}</h2>
         <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <div v-for="u in useCases" :key="u.title" class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
             <div class="text-lg font-semibold text-gray-900">{{ u.title }}</div>
@@ -153,8 +153,8 @@
       </div>
 
       <div class="mx-auto mt-16 max-w-2xl lg:max-w-none">
-        <h2 class="text-2xl font-bold tracking-tight text-gray-900 text-center">Aperçu de l’expérience</h2>
-        <p class="mt-3 text-center text-gray-600">Exemples d’écrans représentatifs pour {{ groupLabel }}.</p>
+        <h2 class="text-2xl font-bold tracking-tight text-gray-900 text-center">{{ t('industryCategory.experienceTitle') }}</h2>
+        <p class="mt-3 text-center text-gray-600">{{ t('industryCategory.experienceDesc', { group: groupLabel }) }}</p>
         <div class="mt-8 lg:grid lg:grid-cols-3 lg:gap-8 flex gap-6 overflow-x-auto snap-x snap-mandatory px-1">
           <div v-for="s in screens" :key="s" class="flex justify-center snap-center min-w-[280px]">
             <div class="relative border-gray-800 bg-gray-800 border-[14px] rounded-[2.5rem] h-[560px] w-[280px] shadow-xl">
@@ -194,19 +194,19 @@
                     <div v-else-if="s==='checkout'">
                       <div class="space-y-3">
                         <div class="bg-white rounded-lg p-3 shadow-sm">
-                          <div class="flex justify-between text-sm"><span>Sous-total</span><span>15 000 F</span></div>
-                          <div class="flex justify-between text-sm text-gray-600 mt-1"><span>Livraison</span><span>1 000 F</span></div>
+                          <div class="flex justify-between text-sm"><span>{{ t('industryCategory.checkout.subtotal') }}</span><span>15 000 F</span></div>
+                          <div class="flex justify-between text-sm text-gray-600 mt-1"><span>{{ t('industryCategory.checkout.shipping') }}</span><span>1 000 F</span></div>
                           <div class="h-2 w-full bg-gray-200 rounded mt-2"></div>
                         </div>
                         <div class="bg-white rounded-lg p-3 shadow-sm">
-                          <div class="text-sm font-medium">Adresse</div>
+                          <div class="text-sm font-medium">{{ t('industryCategory.checkout.address') }}</div>
                           <div class="h-10 bg-gray-100 rounded mt-2"></div>
                         </div>
                       </div>
                     </div>
                     <div v-else-if="s==='services'">
                       <div class="bg-white p-3 rounded-lg shadow-sm">
-                        <div class="text-sm font-medium">Choisir un service</div>
+                        <div class="text-sm font-medium">{{ t('industryCategory.chooseService') }}</div>
                         <div class="mt-2 grid grid-cols-2 gap-2">
                           <div class="h-8 bg-gray-100 rounded"></div>
                           <div class="h-8 bg-gray-100 rounded"></div>
@@ -215,13 +215,13 @@
                     </div>
                     <div v-else-if="s==='calendar'">
                       <div class="bg-white p-3 rounded-lg shadow-sm">
-                        <div class="text-sm font-medium">Sélectionner une date</div>
+                        <div class="text-sm font-medium">{{ t('industryCategory.selectDate') }}</div>
                         <div class="mt-2 h-24 bg-gray-100 rounded"></div>
                       </div>
                     </div>
                     <div v-else-if="s==='confirm'">
                       <div class="bg-white p-3 rounded-lg shadow-sm">
-                        <div class="text-sm font-medium">Confirmation</div>
+                        <div class="text-sm font-medium">{{ t('industryCategory.screen.confirmation') }}</div>
                         <div class="h-3 w-3/4 bg-gray-200 rounded mt-2"></div>
                         <div class="h-3 w-1/2 bg-gray-200 rounded mt-2"></div>
                       </div>
@@ -262,7 +262,7 @@
       </div>
 
       <div class="mx-auto mt-16 max-w-3xl">
-        <h2 class="text-2xl font-bold tracking-tight text-gray-900 text-center">FAQ</h2>
+        <h2 class="text-2xl font-bold tracking-tight text-gray-900 text-center">{{ t('industryCategory.faqTitle') }}</h2>
         <div class="mt-8 divide-y divide-gray-100 rounded-2xl border border-gray-200 bg-white">
           <div v-for="q in faq" :key="q.q" class="p-6">
             <div class="font-semibold text-gray-900">{{ q.q }}</div>
@@ -272,7 +272,7 @@
       </div>
 
       <div class="mx-auto mt-16 max-w-2xl lg:max-w-none">
-        <h2 class="text-2xl font-bold tracking-tight text-gray-900 text-center">Explorer d'autres industries</h2>
+        <h2 class="text-2xl font-bold tracking-tight text-gray-900 text-center">{{ t('industryCategory.exploreOthers') }}</h2>
         <div class="mt-8 grid max-w-xl grid-cols-1 gap-6 lg:max-w-none lg:grid-cols-3">
           <NuxtLink
             v-for="r in related"
@@ -285,7 +285,7 @@
               <div class="text-lg font-semibold text-gray-900">{{ r.title }}</div>
             </div>
             <div class="mt-2 text-gray-600 text-sm line-clamp-2">{{ r.subtitle }}</div>
-            <div class="mt-4 text-green-600 text-sm font-semibold">Voir la page →</div>
+            <div class="mt-4 text-green-600 text-sm font-semibold">{{ t('industryCategory.viewPage') }}</div>
           </NuxtLink>
         </div>
       </div>
@@ -295,10 +295,10 @@
           to="/auth/register"
           class="rounded-md bg-green-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
         >
-          Commencer gratuitement
+          {{ t('industryCategory.startFree') }}
         </NuxtLink>
         <NuxtLink to="/pricing" class="ml-6 text-sm font-semibold leading-6 text-gray-900">
-          Voir les tarifs →
+          {{ t('industryCategory.viewPricing') }}
         </NuxtLink>
       </div>
 
@@ -308,8 +308,8 @@
             {{ content.title }} — {{ groupLabel }}
           </div>
           <div class="flex gap-2">
-            <NuxtLink to="/pricing" class="rounded-full px-3 py-1.5 text-[11px] font-semibold text-gray-900 ring-1 ring-gray-200">Tarifs</NuxtLink>
-            <NuxtLink to="/auth/register" :class="['rounded-full px-3 py-1.5 text-[11px] font-bold text-white', ctaClass]">Créer un compte</NuxtLink>
+            <NuxtLink to="/pricing" class="rounded-full px-3 py-1.5 text-[11px] font-semibold text-gray-900 ring-1 ring-gray-200">{{ t('industryCategory.bottomBar.pricing') }}</NuxtLink>
+            <NuxtLink to="/auth/register" :class="['rounded-full px-3 py-1.5 text-[11px] font-bold text-white', ctaClass]">{{ t('industryCategory.bottomBar.createAccount') }}</NuxtLink>
           </div>
         </div>
       </div>
@@ -321,6 +321,8 @@
 
 <script setup>
 import { getIndustryContent, industryContent } from '~/data/industry.js'
+import { useI18n } from '~/composables/i18n'
+const { t } = useI18n()
 const route = useRoute()
 const slug = computed(() => String(route.params.category || ''))
 const content = computed(() => getIndustryContent(slug.value) || { title: slug.value, lead: 'Industry', subtitle: '', benefits: [], features: [], kpis: [] })
@@ -342,16 +344,16 @@ const ctaClass = computed(() => {
   return 'bg-teal-600'
 })
 const groupLabel = computed(() => {
-  if (isFood.value) return 'Restauration'
-  if (isEcom.value) return 'Ecommerce'
-  return 'Services'
+  if (isFood.value) return t('industryCategory.group.food')
+  if (isEcom.value) return t('industryCategory.group.ecom')
+  return t('industryCategory.group.services')
 })
 
 const faq = computed(() => [
-  { q: 'Comment je démarre ?', a: 'Créez un compte, importez vos produits ou services, et partagez votre lien WhatsApp.' },
-  { q: 'Puis-je accepter des paiements ?', a: 'Oui, via des liens de paiement et options locales selon votre secteur.' },
-  { q: 'Est-ce que c’est adapté au mobile ?', a: 'Oui, toute l’expérience est pensée mobile-first pour vous et vos clients.' },
-  { q: 'Combien ça coûte ?', a: 'Un plan gratuit est disponible. Les plans payants débloquent des fonctionnalités avancées.' }
+  { q: t('industryCategory.faq.q1'), a: t('industryCategory.faq.a1') },
+  { q: t('industryCategory.faq.q2'), a: t('industryCategory.faq.a2') },
+  { q: t('industryCategory.faq.q3'), a: t('industryCategory.faq.a3') },
+  { q: t('industryCategory.faq.q4'), a: t('industryCategory.faq.a4') }
 ])
 
 const related = computed(() => {
@@ -431,25 +433,25 @@ const screens = computed(() => {
 })
 
 const screenTitle = (s) => {
-  if (s === 'list') return 'Catalogue'
-  if (s === 'detail') return 'Détail'
-  if (s === 'checkout') return 'Confirmation'
-  if (s === 'services') return 'Services'
-  if (s === 'calendar') return 'Calendrier'
-  return 'Confirmation'
+  if (s === 'list') return t('industryCategory.screen.catalog')
+  if (s === 'detail') return t('industryCategory.screen.detail')
+  if (s === 'checkout') return t('industryCategory.screen.confirmation')
+  if (s === 'services') return t('industryCategory.screen.services')
+  if (s === 'calendar') return t('industryCategory.screen.calendar')
+  return t('industryCategory.screen.confirmation')
 }
 
 const screenCtaLeft = (s) => {
-  if (s === 'checkout') return 'Total 16 000 F'
-  if (s === 'confirm') return 'Rendez-vous 15:30'
-  if (isFood.value) return '2 Articles'
-  if (isEcom.value) return '3 Produits'
-  return '1 Sélection'
+  if (s === 'checkout') return t('industryCategory.screenCta.total')
+  if (s === 'confirm') return t('industryCategory.screenCta.appointment')
+  if (isFood.value) return t('catalog.items', { n: 2 })
+  if (isEcom.value) return t('catalog.items', { n: 3 })
+  return t('industryCategory.countReservation')
 }
 
 const screenCtaRight = (s) => {
-  if (isServices.value) return 'Réserver sur WhatsApp'
-  return 'Commander via WhatsApp'
+  if (isServices.value) return t('industryCategory.reserveWhatsApp')
+  return t('industryCategory.orderWhatsApp')
 }
 
 const useCases = computed(() => {

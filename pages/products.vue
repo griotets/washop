@@ -7,10 +7,10 @@
     <div class="relative isolate px-6 pt-14 lg:px-8 bg-gradient-to-b from-green-50 to-white">
       <div class="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56 text-center">
         <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-emerald-600">
-          Nos Solutions
+          {{ t('products.heroTitle') }}
         </h1>
         <p class="mt-6 text-lg leading-8 text-gray-600">
-          Des outils puissants pour vendre, automatiser et engager vos clients sur leurs canaux préférés.
+          {{ t('products.heroSubtitle') }}
         </p>
       </div>
       
@@ -24,10 +24,10 @@
     <div class="py-24 sm:py-32">
       <div class="mx-auto max-w-7xl px-6 lg:px-8">
         <div class="mx-auto max-w-2xl lg:text-center">
-          <h2 class="text-base font-semibold leading-7 text-green-600">Écosystème</h2>
-          <p class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Tout pour réussir votre commerce conversationnel</p>
+          <h2 class="text-base font-semibold leading-7 text-green-600">{{ t('products.sectionBadge') }}</h2>
+          <p class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">{{ t('products.sectionTitle') }}</p>
           <p class="mt-6 text-lg leading-8 text-gray-600">
-            Une suite complète d'outils interconnectés pour gérer votre activité de A à Z.
+            {{ t('products.sectionDesc') }}
           </p>
         </div>
         <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
@@ -38,12 +38,12 @@
                 <div class="h-12 w-12 flex items-center justify-center rounded-xl bg-green-100 group-hover:bg-green-600 transition-colors duration-300">
                   <ShoppingCart class="h-6 w-6 text-green-600 group-hover:text-white transition-colors duration-300" />
                 </div>
-                Commande WhatsApp
+                {{ t('products.card.whatsappOrder.title') }}
               </dt>
               <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
-                <p class="flex-auto">Transformez votre catalogue en boutique WhatsApp. Vos clients remplissent leur panier et vous envoient la commande directement dans une conversation.</p>
+                <p class="flex-auto">{{ t('products.card.whatsappOrder.desc') }}</p>
                 <div class="mt-6">
-                  <NuxtLink to="/products/whatsapp-order" class="text-sm font-semibold leading-6 text-green-600 hover:text-green-500">En savoir plus <span aria-hidden="true">→</span></NuxtLink>
+                  <NuxtLink to="/products/whatsapp-order" class="text-sm font-semibold leading-6 text-green-600 hover:text-green-500">{{ t('common.learnMore') }} <span aria-hidden="true">→</span></NuxtLink>
                 </div>
               </dd>
             </div>
@@ -54,12 +54,12 @@
                 <div class="h-12 w-12 flex items-center justify-center rounded-xl bg-green-100 group-hover:bg-green-600 transition-colors duration-300">
                   <Share2 class="h-6 w-6 text-green-600 group-hover:text-white transition-colors duration-300" />
                 </div>
-                API WhatsApp Business
+                {{ t('products.card.businessApi.title') }}
               </dt>
               <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
-                <p class="flex-auto">Connectez votre CRM, envoyez des notifications automatiques et gérez des milliers de conversations avec l'API officielle WhatsApp.</p>
+                <p class="flex-auto">{{ t('products.card.businessApi.desc') }}</p>
                 <div class="mt-6">
-                  <NuxtLink to="/products/whatsapp-business-api" class="text-sm font-semibold leading-6 text-green-600 hover:text-green-500">En savoir plus <span aria-hidden="true">→</span></NuxtLink>
+                  <NuxtLink to="/products/whatsapp-business-api" class="text-sm font-semibold leading-6 text-green-600 hover:text-green-500">{{ t('common.learnMore') }} <span aria-hidden="true">→</span></NuxtLink>
                 </div>
               </dd>
             </div>
@@ -70,12 +70,12 @@
                 <div class="h-12 w-12 flex items-center justify-center rounded-xl bg-purple-100 group-hover:bg-purple-600 transition-colors duration-300">
                   <Bot class="h-6 w-6 text-purple-600 group-hover:text-white transition-colors duration-300" />
                 </div>
-                Chatbot Intelligent
+                {{ t('products.card.chatbot.title') }}
               </dt>
               <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
-                <p class="flex-auto">Automatisez votre service client 24/7. Répondez aux questions fréquentes et guidez vos clients vers l'achat sans intervention humaine.</p>
+                <p class="flex-auto">{{ t('products.card.chatbot.desc') }}</p>
                 <div class="mt-6">
-                  <NuxtLink to="/products/chatbot" class="text-sm font-semibold leading-6 text-purple-600 hover:text-purple-500">En savoir plus <span aria-hidden="true">→</span></NuxtLink>
+                  <NuxtLink to="/products/chatbot" class="text-sm font-semibold leading-6 text-purple-600 hover:text-purple-500">{{ t('common.learnMore') }} <span aria-hidden="true">→</span></NuxtLink>
                 </div>
               </dd>
             </div>
@@ -86,12 +86,12 @@
                 <div class="h-12 w-12 flex items-center justify-center rounded-xl bg-sky-100 group-hover:bg-sky-600 transition-colors duration-300">
                   <Send class="h-6 w-6 text-sky-600 group-hover:text-white transition-colors duration-300" />
                 </div>
-                Commande Telegram
+                {{ t('products.card.telegram.title') }}
               </dt>
               <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
-                <p class="flex-auto">Profitez de la puissance des canaux Telegram. Vendez vos produits directement à votre communauté avec une expérience d'achat fluide.</p>
+                <p class="flex-auto">{{ t('products.card.telegram.desc') }}</p>
                 <div class="mt-6">
-                  <NuxtLink to="/products/telegram-order" class="text-sm font-semibold leading-6 text-sky-600 hover:text-sky-500">En savoir plus <span aria-hidden="true">→</span></NuxtLink>
+                  <NuxtLink to="/products/telegram-order" class="text-sm font-semibold leading-6 text-sky-600 hover:text-sky-500">{{ t('common.learnMore') }} <span aria-hidden="true">→</span></NuxtLink>
                 </div>
               </dd>
             </div>
@@ -103,13 +103,13 @@
     <div class="bg-purple-900 py-16 sm:py-24">
       <div class="mx-auto max-w-7xl px-6 lg:px-8">
         <div class="mx-auto max-w-2xl text-center">
-          <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Prêt à digitaliser votre commerce ?</h2>
+          <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">{{ t('products.cta.title') }}</h2>
           <p class="mx-auto mt-6 max-w-xl text-lg leading-8 text-purple-200">
-            Commencez gratuitement dès aujourd'hui. Aucune carte de crédit requise.
+            {{ t('products.cta.subtitle') }}
           </p>
           <div class="mt-10 flex items-center justify-center gap-x-6">
-            <NuxtLink to="/auth/register" class="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-purple-900 shadow-sm hover:bg-purple-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Créer mon compte</NuxtLink>
-            <NuxtLink to="/pricing" class="text-sm font-semibold leading-6 text-white">Voir les tarifs <span aria-hidden="true">→</span></NuxtLink>
+            <NuxtLink to="/auth/register" class="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-purple-900 shadow-sm hover:bg-purple-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">{{ t('products.cta.createAccount') }}</NuxtLink>
+            <NuxtLink to="/pricing" class="text-sm font-semibold leading-6 text-white">{{ t('products.cta.viewPricing') }} <span aria-hidden="true">→</span></NuxtLink>
           </div>
         </div>
       </div>
@@ -120,11 +120,11 @@
     <div class="fixed bottom-4 left-4 right-4 lg:hidden z-40">
       <div class="flex items-center justify-between rounded-full bg-white/90 backdrop-blur px-3 py-2 shadow-lg border border-gray-200">
         <div class="text-xs text-gray-700">
-          Nos solutions WhatsApp
+          {{ t('products.mobileBarTitle') }}
         </div>
         <div class="flex gap-2">
-          <NuxtLink to="/pricing" class="rounded-full px-3 py-1.5 text-[11px] font-semibold text-gray-900 ring-1 ring-gray-200">Tarifs</NuxtLink>
-          <NuxtLink to="/auth/register" class="rounded-full px-3 py-1.5 text-[11px] font-bold text-white bg-purple-600">Créer un compte</NuxtLink>
+          <NuxtLink to="/pricing" class="rounded-full px-3 py-1.5 text-[11px] font-semibold text-gray-900 ring-1 ring-gray-200">{{ t('nav.pricing') }}</NuxtLink>
+          <NuxtLink to="/auth/register" class="rounded-full px-3 py-1.5 text-[11px] font-bold text-white bg-purple-600">{{ t('common.createAccount') }}</NuxtLink>
         </div>
       </div>
     </div>
@@ -133,6 +133,8 @@
 
 <script setup>
 import { ShoppingCart, Share2, Bot, Send } from 'lucide-vue-next'
+import { useI18n } from '~/composables/i18n'
+const { t } = useI18n()
 
 useHead({
   title: 'Nos Produits | Wa-Shop',

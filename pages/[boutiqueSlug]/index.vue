@@ -8,13 +8,13 @@
         <div class="absolute inset-0 bg-gradient-to-r from-gray-900/10 to-gray-900/5"></div>
         <div class="relative px-6 py-12 sm:px-12 sm:py-16 text-center sm:text-left">
           <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl md:text-5xl">
-            <span class="block text-primary" :style="{ color: appearance.primary }">{{ storeInfo.name || 'Bienvenue' }}</span>
+            <span class="block text-primary" :style="{ color: appearance.primary }">{{ storeInfo.name || t('storefront.welcome') }}</span>
             <span v-if="appearance.bannerEnabled && appearance.bannerText" class="block text-xl sm:text-2xl mt-2 font-medium text-gray-600">{{ appearance.bannerText }}</span>
-            <span v-else-if="!appearance.bannerEnabled" class="block text-xl sm:text-2xl mt-2 font-medium text-gray-600">Découvrez nos produits</span>
+            <span v-else-if="!appearance.bannerEnabled" class="block text-xl sm:text-2xl mt-2 font-medium text-gray-600">{{ t('storefront.discoverProducts') }}</span>
           </h1>
           <div v-if="appearance.bannerEnabled && (appearance.bannerBtnText || appearance.bannerLink)" class="mt-8">
             <a :href="appearance.bannerLink || '#'" target="_blank" class="inline-flex items-center justify-center rounded-lg border border-transparent px-6 py-3 text-base font-medium text-white shadow-sm hover:opacity-90 transition-opacity" :style="{ backgroundColor: appearance.primary }">
-              {{ appearance.bannerBtnText || 'En savoir plus' }}
+              {{ appearance.bannerBtnText || t('common.learnMore') }}
             </a>
           </div>
         </div>
@@ -29,7 +29,7 @@
           v-model="searchQuery" 
           type="text" 
           class="block w-full rounded-full border-gray-200 pl-11 pr-4 py-3 text-sm focus:border-primary focus:ring-primary shadow-sm transition-shadow hover:shadow-md"
-          :placeholder="`Rechercher dans ${storeInfo.name || 'la boutique'}...`"
+          :placeholder="t('storefront.searchPlaceholder', { store: storeInfo.name || t('storefront.storeFallback') })"
           :style="{ '--tw-ring-color': appearance.primary, '--tw-border-opacity': '1' }"
         />
       </div>
@@ -43,7 +43,7 @@
             :class="activeCategory === 'all' ? 'text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-100 border'"
             :style="activeCategory === 'all' ? { backgroundColor: appearance.primary } : {}"
           >
-            Tous
+            {{ t('storefront.all') }}
           </button>
           <button 
             v-for="cat in categories" 
@@ -68,10 +68,10 @@
         <div class="rounded-full bg-red-100 p-3 text-red-600 mb-4">
           <AlertCircle class="h-8 w-8" />
         </div>
-        <h3 class="text-lg font-medium text-gray-900">Une erreur est survenue</h3>
+        <h3 class="text-lg font-medium text-gray-900">{{ t('storefront.errorTitle') }}</h3>
         <p class="mt-2 text-gray-500">{{ error }}</p>
         <button @click="reloadPage" class="mt-6 rounded-lg px-6 py-2 text-white hover:opacity-90 transition-opacity" :style="{ backgroundColor: appearance.primary }">
-          Réactualiser la page
+          {{ t('storefront.reload') }}
         </button>
       </div>
 
@@ -79,7 +79,7 @@
         <div v-for="group in productGroups" :key="group.categoryId" :id="`category-${group.categoryId}`" class="scroll-mt-32">
           <div class="flex items-center justify-between mb-6">
             <h2 class="text-2xl font-bold text-gray-900">{{ group.categoryName }}</h2>
-            <span class="text-sm text-gray-500">{{ group.products.length }} produits</span>
+            <span class="text-sm text-gray-500">{{ t('storefront.productsCount', { n: group.products.length }) }}</span>
           </div>
           
           <div class="grid grid-cols-2 gap-x-4 gap-y-8 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8">
@@ -92,11 +92,11 @@
                 />
                 <div class="absolute top-2 right-2 transition-opacity" :class="getCartQuantity(product.id) > 0 ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'">
                   <div v-if="getCartQuantity(product.id) > 0" class="flex items-center gap-2 rounded-full bg-white p-1 shadow">
-                    <button @click.prevent="handleUpdateQuantity(product, -1)" class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200">-</button>
-                    <span class="text-sm font-semibold">{{ getCartQuantity(product.id) }}</span>
-                    <button @click.prevent="handleUpdateQuantity(product, 1)" class="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white hover:brightness-110" :style="{ backgroundColor: appearance.primary }">+</button>
-                  </div>
-                  <button v-else @click.prevent="addToCart(product)" class="p-2 rounded-full bg-white shadow text-gray-900 hover:text-primary transition-colors" title="Ajouter au panier">
+                  <button @click.prevent="handleUpdateQuantity(product, -1)" class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200">-</button>
+                  <span class="text-sm font-semibold">{{ getCartQuantity(product.id) }}</span>
+                  <button @click.prevent="handleUpdateQuantity(product, 1)" class="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white hover:brightness-110" :style="{ backgroundColor: appearance.primary }">+</button>
+                </div>
+                  <button v-else @click.prevent="addToCart(product)" class="p-2 rounded-full bg-white shadow text-gray-900 hover:text-primary transition-colors" :title="t('storefront.addToCartTitle')">
                     <ShoppingCart class="h-5 w-5" />
                   </button>
                 </div>
@@ -115,7 +115,7 @@
                     <p v-if="product.original_price > product.price" class="text-sm text-gray-500 line-through">{{ formatPrice(product.original_price) }}</p>
                   </div>
                   <div v-if="product.is_out_of_stock" class="rounded bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-800">
-                    Épuisé
+                    {{ t('storefront.soldOut') }}
                   </div>
                 </div>
               </div>
@@ -127,10 +127,10 @@
           <div class="mx-auto h-12 w-12 text-gray-400 mb-4">
             <Search class="h-12 w-12 opacity-50" />
           </div>
-          <h3 class="text-lg font-medium text-gray-900">Aucun résultat</h3>
-          <p class="mt-2 text-gray-500">Aucun produit ne correspond à "{{ searchQuery }}"</p>
+          <h3 class="text-lg font-medium text-gray-900">{{ t('storefront.noResultsTitle') }}</h3>
+          <p class="mt-2 text-gray-500">{{ t('storefront.noResultsDesc', { query: searchQuery }) }}</p>
           <button @click="searchQuery = ''" class="mt-4 font-medium hover:underline" :style="{ color: appearance.primary }">
-            Effacer la recherche
+            {{ t('storefront.clearSearch') }}
           </button>
         </div>
 
@@ -138,8 +138,8 @@
           <div class="mx-auto h-12 w-12 text-gray-400 mb-4">
             <PackageSearch class="h-12 w-12" />
           </div>
-          <h3 class="text-lg font-medium text-gray-900">Aucun produit trouvé</h3>
-          <p class="mt-2 text-gray-500">Cette boutique n'a pas encore ajouté de produits.</p>
+          <h3 class="text-lg font-medium text-gray-900">{{ t('storefront.noProductsTitle') }}</h3>
+          <p class="mt-2 text-gray-500">{{ t('storefront.noProductsDesc') }}</p>
         </div>
       </div>
     </main>
@@ -164,10 +164,10 @@
         </div>
         <div class="mt-6 flex justify-end gap-3">
           <button type="button" class="inline-flex justify-center rounded-md border border-transparent bg-gray-100 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none" @click="closePopup">
-            Fermer
+            {{ t('common.close') }}
           </button>
           <a v-if="popupLink" :href="popupLink" target="_blank" class="inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white shadow-sm hover:opacity-90 focus:outline-none" :style="{ backgroundColor: appearance.primary }">
-            Découvrir
+            {{ t('storefront.discover') }}
           </a>
         </div>
       </div>
@@ -178,6 +178,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { ShoppingCart, PackageSearch, X, AlertCircle } from 'lucide-vue-next'
 import { useCartStore } from '~/stores/cart'
+import { useI18n } from '~/composables/i18n'
+const { t, locale } = useI18n()
 
 const route = useRoute()
 const nuxt = useNuxtApp()
@@ -248,7 +250,7 @@ const productGroups = computed(() => {
   const result = Object.entries(groups)
     .map(([id, items]) => ({
       categoryId: id,
-      categoryName: id === uncategorizedKey ? 'Autres' : (categoryMap[id] || 'Inconnu'),
+      categoryName: id === uncategorizedKey ? t('storefront.otherCategory') : (categoryMap[id] || t('storefront.unknownCategory')),
       products: items
     }))
     .filter(g => g.products.length > 0)
@@ -272,13 +274,14 @@ const productGroups = computed(() => {
   })
 })
 
-const popupTitle = computed(() => appearance.popupTitle || 'Offre spéciale')
-const popupDescription = computed(() => appearance.popupDescription || 'Profitez de nos offres exclusives.')
+const popupTitle = computed(() => appearance.popupTitle || t('storefront.popupTitleFallback'))
+const popupDescription = computed(() => appearance.popupDescription || t('storefront.popupDescFallback'))
 const popupLink = computed(() => appearance.popupLink || '')
 
 // Methods
 function formatPrice(price: number) {
-  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF' }).format(price)
+  const l = locale.value === 'it' ? 'it-IT' : locale.value === 'en' ? 'en-US' : 'fr-FR'
+  return new Intl.NumberFormat(l, { style: 'currency', currency: 'XAF' }).format(price)
 }
 
 function getCartQuantity(productId: string | number) {
@@ -323,14 +326,14 @@ function handleUpdateQuantity(product: any, delta: number) {
   // Check Max Order Qty
   if (product.max_order_qty > 0 && newQty > product.max_order_qty) {
     const toast = useToast()
-    toast.error(`Maximum ${product.max_order_qty} unités pour ce produit`)
+    toast.error(t('storefront.maxQtyError', { max: product.max_order_qty }))
     return
   }
 
   // Check Stock
   if (product.track_inventory && newQty > product.stock_quantity) {
     const toast = useToast()
-    toast.error(`Stock insuffisant (Max: ${product.stock_quantity})`)
+    toast.error(t('storefront.stockError', { max: product.stock_quantity }))
     return
   }
   
@@ -368,7 +371,7 @@ onMounted(async () => {
     if (loading.value) {
       console.warn('Loading timed out')
       loading.value = false
-      error.value = 'Le chargement prend trop de temps. Veuillez rafraîchir la page.'
+      error.value = t('storefront.timeoutError')
     }
   }, 50000)
 
@@ -400,7 +403,7 @@ onMounted(async () => {
     if (storeError) {
       console.error('Error fetching store:', storeError)
       const toast = useToast()
-      toast.error('Erreur chargement boutique: ' + storeError.message)
+      toast.error(t('storefront.loadStoreError', { msg: storeError.message }))
       error.value = storeError.message
       loading.value = false
       return
@@ -408,7 +411,7 @@ onMounted(async () => {
 
     if (!store) {
       console.error('Store not found')
-      error.value = 'Boutique introuvable'
+      error.value = t('storefront.storeNotFound')
       return
     }
 
@@ -488,7 +491,7 @@ onMounted(async () => {
 
   } catch (e) {
     console.error(e)
-    error.value = 'Une erreur inattendue est survenue'
+    error.value = t('storefront.unexpectedError')
   } finally {
     clearTimeout(timeout)
     loading.value = false
@@ -496,6 +499,6 @@ onMounted(async () => {
 })
 
 useHead({
-  title: computed(() => `${storeInfo.name || 'Boutique'} | Catalogue`)
+  title: computed(() => `${storeInfo.name || t('storefront.storeTitleFallback')} | ${t('storefront.catalogTitle')}`)
 })
 </script>

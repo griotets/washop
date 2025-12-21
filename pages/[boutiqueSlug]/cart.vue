@@ -7,31 +7,31 @@
       <div class="mb-8 flex items-center justify-between px-4">
         <div class="flex flex-col items-center gap-2">
           <div :class="['flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold', step >= 1 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-500']">1</div>
-          <div class="text-xs font-medium text-gray-600">Panier</div>
+          <div class="text-xs font-medium text-gray-600">{{ t('catalog.cart') }}</div>
         </div>
         <div :class="['h-1 flex-1 rounded-full mx-2', step >= 2 ? 'bg-primary' : 'bg-gray-200']"></div>
         <div class="flex flex-col items-center gap-2">
           <div :class="['flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold', step >= 2 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-500']">2</div>
-          <div class="text-xs font-medium text-gray-600">Livraison</div>
+          <div class="text-xs font-medium text-gray-600">{{ t('checkout.step.delivery') }}</div>
         </div>
         <div :class="['h-1 flex-1 rounded-full mx-2', step >= 3 ? 'bg-primary' : 'bg-gray-200']"></div>
         <div class="flex flex-col items-center gap-2">
           <div :class="['flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold', step >= 3 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-500']">3</div>
-          <div class="text-xs font-medium text-gray-600">Confirmer</div>
+          <div class="text-xs font-medium text-gray-600">{{ t('checkout.step.confirm') }}</div>
         </div>
       </div>
 
       <!-- Step 1: Cart -->
       <div v-if="step === 1">
-        <h1 class="text-2xl font-bold">Votre Panier</h1>
+        <h1 class="text-2xl font-bold">{{ t('checkout.cartTitle') }}</h1>
         
         <div v-if="cart.items.length === 0" class="mt-8 text-center">
           <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
             <ShoppingCart class="h-8 w-8 text-gray-400" />
           </div>
-          <p class="text-gray-600">Votre panier est vide.</p>
+          <p class="text-gray-600">{{ t('checkout.cartEmpty') }}</p>
           <NuxtLink :to="`/${slug}`" class="mt-4 inline-block rounded-lg bg-primary px-6 py-2 text-white">
-            Retour à la boutique
+            {{ t('checkout.backToStore') }}
           </NuxtLink>
         </div>
 
@@ -42,7 +42,7 @@
             </div>
             <div class="flex-1">
               <div class="font-semibold">{{ item.name }}</div>
-              <div class="text-sm font-medium text-primary">{{ item.price.toLocaleString('fr-FR') }} XAF</div>
+              <div class="text-sm font-medium text-primary">{{ formatMoney(item.price) }}</div>
             </div>
             <div class="flex items-center gap-3 rounded-lg bg-gray-50 p-1">
               <button class="h-7 w-7 rounded bg-white shadow-sm hover:bg-gray-100 disabled:opacity-50" @click="cart.setQuantity(item.id, item.quantity - 1)" :disabled="item.quantity <= 1">
@@ -62,22 +62,22 @@
 
       <!-- Step 2: Delivery -->
       <div v-if="step === 2">
-        <h1 class="text-2xl font-bold">Informations de livraison</h1>
+        <h1 class="text-2xl font-bold">{{ t('checkout.deliveryTitle') }}</h1>
         
         <div class="mt-6 space-y-6 rounded-xl border bg-white p-6 shadow-sm">
           <!-- Delivery Method -->
           <div v-if="availableMethods.length > 1">
-            <label class="mb-3 block text-sm font-medium text-gray-700">Mode de réception</label>
+            <label class="mb-3 block text-sm font-medium text-gray-700">{{ t('checkout.deliveryMethod') }}</label>
             <div class="grid grid-cols-2 gap-4">
               <label :class="['flex cursor-pointer flex-col items-center rounded-xl border-2 p-4 transition-colors', form.method === 'pickup' ? 'border-primary bg-primary/5' : 'border-gray-100 hover:border-gray-200']">
                 <input type="radio" v-model="form.method" value="pickup" class="sr-only" />
                 <Store class="mb-2 h-6 w-6" :class="form.method === 'pickup' ? 'text-primary' : 'text-gray-400'" />
-                <span :class="['font-medium', form.method === 'pickup' ? 'text-primary' : 'text-gray-600']">Retrait</span>
+                <span :class="['font-medium', form.method === 'pickup' ? 'text-primary' : 'text-gray-600']">{{ t('checkout.pickup') }}</span>
               </label>
               <label :class="['flex cursor-pointer flex-col items-center rounded-xl border-2 p-4 transition-colors', form.method === 'delivery' ? 'border-primary bg-primary/5' : 'border-gray-100 hover:border-gray-200']">
                 <input type="radio" v-model="form.method" value="delivery" class="sr-only" />
                 <Truck class="mb-2 h-6 w-6" :class="form.method === 'delivery' ? 'text-primary' : 'text-gray-400'" />
-                <span :class="['font-medium', form.method === 'delivery' ? 'text-primary' : 'text-gray-600']">Livraison</span>
+                <span :class="['font-medium', form.method === 'delivery' ? 'text-primary' : 'text-gray-600']">{{ t('checkout.delivery') }}</span>
               </label>
             </div>
           </div>
@@ -85,29 +85,29 @@
           <!-- Contact Info -->
           <div class="space-y-4">
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Nom complet *</label>
-              <input v-model="form.name" type="text" class="w-full rounded-lg border-gray-300 px-4 py-2 focus:border-primary focus:ring-primary" placeholder="Votre nom" />
+              <label class="mb-1 block text-sm font-medium text-gray-700">{{ t('checkout.fullName') }}</label>
+              <input v-model="form.name" type="text" class="w-full rounded-lg border-gray-300 px-4 py-2 focus:border-primary focus:ring-primary" :placeholder="t('checkout.namePlaceholder')" />
             </div>
 
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Téléphone WhatsApp *</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700">{{ t('checkout.whatsAppPhone') }}</label>
               <PhoneInput v-model="form.phone" />
             </div>
 
             <div v-if="form.method === 'delivery'" class="space-y-4">
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700">Ville *</label>
-                <input v-model="form.city" type="text" class="w-full rounded-lg border-gray-300 px-4 py-2 focus:border-primary focus:ring-primary" placeholder="Votre ville" />
+                <label class="mb-1 block text-sm font-medium text-gray-700">{{ t('checkout.city') }}</label>
+                <input v-model="form.city" type="text" class="w-full rounded-lg border-gray-300 px-4 py-2 focus:border-primary focus:ring-primary" :placeholder="t('checkout.cityPlaceholder')" />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700">Adresse / Quartier *</label>
-                <textarea v-model="form.address" rows="2" class="w-full rounded-lg border-gray-300 px-4 py-2 focus:border-primary focus:ring-primary" placeholder="Détails de localisation (quartier, repère...)"></textarea>
+                <label class="mb-1 block text-sm font-medium text-gray-700">{{ t('checkout.address') }}</label>
+                <textarea v-model="form.address" rows="2" class="w-full rounded-lg border-gray-300 px-4 py-2 focus:border-primary focus:ring-primary" :placeholder="t('checkout.addressPlaceholder')"></textarea>
               </div>
             </div>
 
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Note (optionnel)</label>
-              <textarea v-model="form.note" rows="2" class="w-full rounded-lg border-gray-300 px-4 py-2 focus:border-primary focus:ring-primary" placeholder="Instructions spéciales..."></textarea>
+              <label class="mb-1 block text-sm font-medium text-gray-700">{{ t('checkout.noteOptional') }}</label>
+              <textarea v-model="form.note" rows="2" class="w-full rounded-lg border-gray-300 px-4 py-2 focus:border-primary focus:ring-primary" :placeholder="t('checkout.notePlaceholder')"></textarea>
             </div>
           </div>
         </div>
@@ -115,52 +115,52 @@
 
       <!-- Step 3: Confirmation -->
       <div v-if="step === 3">
-        <h1 class="text-2xl font-bold">Confirmation</h1>
+        <h1 class="text-2xl font-bold">{{ t('checkout.confirmTitle') }}</h1>
         
         <div class="mt-6 space-y-6">
           <!-- Summary Card -->
           <div class="rounded-xl border bg-white p-6 shadow-sm">
-            <h3 class="mb-4 font-semibold text-gray-900">Récapitulatif de la commande</h3>
+            <h3 class="mb-4 font-semibold text-gray-900">{{ t('checkout.summaryTitle') }}</h3>
             <div class="space-y-3">
               <div v-for="item in cart.items" :key="item.id" class="flex justify-between text-sm">
                 <span class="text-gray-600">{{ item.quantity }}x {{ item.name }}</span>
-                <span class="font-medium">{{ (item.price * item.quantity).toLocaleString('fr-FR') }} XAF</span>
+                <span class="font-medium">{{ formatMoney(item.price * item.quantity) }}</span>
               </div>
             </div>
             <div class="my-4 border-t border-dashed"></div>
             <div class="flex justify-between text-lg font-bold">
-              <span>Total</span>
-              <span class="text-primary">{{ cart.total.toLocaleString('fr-FR') }} XAF</span>
+              <span>{{ t('checkout.total') }}</span>
+              <span class="text-primary">{{ formatMoney(cart.total) }}</span>
             </div>
           </div>
 
           <!-- Info Card -->
           <div class="rounded-xl border bg-white p-6 shadow-sm">
-            <h3 class="mb-4 font-semibold text-gray-900">Vos informations</h3>
+            <h3 class="mb-4 font-semibold text-gray-900">{{ t('checkout.yourInfoTitle') }}</h3>
             <dl class="space-y-3 text-sm">
               <div class="flex justify-between">
-                <dt class="text-gray-500">Nom</dt>
+                <dt class="text-gray-500">{{ t('checkout.field.name') }}</dt>
                 <dd class="font-medium">{{ form.name }}</dd>
               </div>
               <div class="flex justify-between">
-                <dt class="text-gray-500">Téléphone</dt>
+                <dt class="text-gray-500">{{ t('checkout.field.phone') }}</dt>
                 <dd class="font-medium">{{ form.phone }}</dd>
               </div>
               <div class="flex justify-between">
-                <dt class="text-gray-500">Mode</dt>
+                <dt class="text-gray-500">{{ t('checkout.field.method') }}</dt>
                 <dd class="inline-flex items-center gap-1 font-medium text-primary">
                   <component :is="form.method === 'pickup' ? Store : Truck" class="h-4 w-4" />
-                  {{ form.method === 'pickup' ? 'Retrait en boutique' : 'Livraison' }}
+                  {{ form.method === 'pickup' ? t('checkout.method.pickupStore') : t('checkout.delivery') }}
                 </dd>
               </div>
               <div v-if="form.method === 'delivery'">
-                <dt class="mt-2 text-gray-500">Adresse de livraison</dt>
+                <dt class="mt-2 text-gray-500">{{ t('checkout.deliveryAddress') }}</dt>
                 <dd class="mt-1 rounded bg-gray-50 p-2 font-medium text-gray-700">
                   {{ form.city }}, {{ form.address }}
                 </dd>
               </div>
               <div v-if="form.note">
-                <dt class="mt-2 text-gray-500">Note</dt>
+                <dt class="mt-2 text-gray-500">{{ t('checkout.field.note') }}</dt>
                 <dd class="mt-1 italic text-gray-600">"{{ form.note }}"</dd>
               </div>
             </dl>
@@ -173,19 +173,19 @@
     <div class="fixed bottom-0 left-0 right-0 border-t bg-white p-4 shadow-lg">
       <div class="mx-auto flex max-w-3xl items-center justify-between gap-4">
         <div v-if="step === 1" class="font-bold text-lg">
-          {{ cart.total.toLocaleString('fr-FR') }} XAF
+          {{ formatMoney(cart.total) }}
         </div>
         
         <button v-if="step > 1" @click="step--" class="rounded-lg border border-gray-300 px-6 py-3 font-semibold text-gray-700 hover:bg-gray-50">
-          Retour
+          {{ t('checkout.back') }}
         </button>
         
         <button v-if="step === 1" @click="step++" :disabled="cart.items.length === 0" class="ml-auto rounded-lg bg-primary px-8 py-3 font-semibold text-white shadow-sm hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed">
-          Commander
+          {{ t('checkout.order') }}
         </button>
         
         <button v-else-if="step === 2" @click="validateStep2" class="ml-auto rounded-lg bg-primary px-8 py-3 font-semibold text-white shadow-sm hover:brightness-110">
-          Continuer
+          {{ t('common.continue') }}
         </button>
         
         <button v-else-if="step === 3" @click="submitOrder" :disabled="loading" class="ml-auto flex items-center gap-2 rounded-lg bg-[#25D366] px-6 py-3 font-semibold text-white shadow-sm hover:brightness-110 disabled:opacity-75 disabled:cursor-not-allowed">
@@ -194,7 +194,7 @@
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
           <MessageCircle v-else class="h-5 w-5" />
-          {{ loading ? 'Envoi...' : 'Envoyer sur WhatsApp' }}
+          {{ loading ? t('common.sending') : t('catalog.sendOrderWhatsApp') }}
         </button>
       </div>
     </div>
@@ -208,6 +208,8 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { ShoppingCart, Trash2, Package, Store, Truck, MessageCircle } from 'lucide-vue-next'
 import { useCartStore } from '~/stores/cart'
 import PhoneInput from '~/components/PhoneInput.vue'
+import { useI18n } from '~/composables/i18n'
+const { t, locale } = useI18n()
 
 const route = useRoute()
 const nuxt = useNuxtApp()
@@ -215,7 +217,7 @@ const supabase = nuxt.$supabase as SupabaseClient
 const slug = computed(() => String(route.params['boutiqueSlug'] || ''))
 const cart = useCartStore()
 
-useHead({ title: `Panier | ${slug.value}` })
+useHead({ title: computed(() => `${t('checkout.seoTitle')} | ${slug.value}`) })
 
 // State
 const step = ref(1)
@@ -285,17 +287,17 @@ function loadStoreConfig() {
 
 function validateStep2() {
   const toast = useToast()
-  if (!form.name.trim()) return toast.error('Veuillez entrer votre nom')
-  if (!form.phone.trim() || form.phone.length < 9) return toast.error('Veuillez entrer un numéro de téléphone valide')
+  if (!form.name.trim()) return toast.error(t('checkout.error.nameRequired'))
+  if (!form.phone.trim() || form.phone.length < 9) return toast.error(t('checkout.error.phoneInvalid'))
   if (form.method === 'delivery' && (!form.city.trim() || !form.address.trim())) {
-    return toast.error('Veuillez compléter l\'adresse de livraison')
+    return toast.error(t('checkout.error.addressRequired'))
   }
   step.value = 3
 }
 
 async function submitOrder() {
   const toast = useToast()
-  if (!storeData.value?.id) return toast.error('Erreur: Boutique non identifiée')
+  if (!storeData.value?.id) return toast.error(t('checkout.error.storeMissing'))
   
   loading.value = true
 
@@ -361,17 +363,17 @@ async function submitOrder() {
       const storeUrl = `${baseUrl}/${slug.value}`
       
       // Construct detailed message
-      const lines = cart.items.map(i => `- ${i.quantity}x ${i.name} (${(i.price * i.quantity).toLocaleString('fr-FR')} XAF)`).join('\n')
+      const lines = cart.items.map(i => `- ${i.quantity}x ${i.name} (${formatMoney(i.price * i.quantity)})`).join('\n')
       
       let deliveryDetails = ''
       if (form.method === 'pickup') {
-        deliveryDetails = `📍 *Mode:* Retrait en boutique\n👤 *Nom:* ${form.name}\n📞 *Tél:* ${form.phone}`
+        deliveryDetails = `📍 *${t('checkout.whatsapp.mode')}:* ${t('checkout.method.pickupStore')}\n👤 *${t('checkout.field.name')}:* ${form.name}\n📞 *${t('checkout.field.phone')}:* ${form.phone}`
       } else {
-        deliveryDetails = `🚚 *Mode:* Livraison\n👤 *Nom:* ${form.name}\n📞 *Tél:* ${form.phone}\n🏠 *Adresse:* ${form.city}, ${form.address}`
+        deliveryDetails = `🚚 *${t('checkout.whatsapp.mode')}:* ${t('checkout.delivery')}\n👤 *${t('checkout.field.name')}:* ${form.name}\n📞 *${t('checkout.field.phone')}:* ${form.phone}\n🏠 *${t('checkout.whatsapp.address')}:* ${form.city}, ${form.address}`
       }
-      if (form.note) deliveryDetails += `\n📝 *Note:* ${form.note}`
+      if (form.note) deliveryDetails += `\n📝 *${t('checkout.field.note')}:* ${form.note}`
       
-      const message = `${baseUrl}\n\n*Nouvelle Commande Wa-Shop #${order.id.slice(0, 8)}*\n\n${lines}\n\n*Total : ${cart.total.toLocaleString('fr-FR')} XAF*\n\n----------------\n${deliveryDetails}\n\n📄 Facture: ${billUrl}\n🏪 Boutique: ${storeUrl}`
+      const message = `${baseUrl}\n\n*${t('checkout.whatsapp.newOrderTitle', { id: order.id.slice(0, 8) })}*\n\n${lines}\n\n*${t('checkout.total')}: ${formatMoney(cart.total)}*\n\n----------------\n${deliveryDetails}\n\n📄 ${t('checkout.whatsapp.invoice')}: ${billUrl}\n🏪 ${t('checkout.whatsapp.store')}: ${storeUrl}`
       
       // Track WhatsApp Click
       if (storeData.value?.id) {
@@ -393,10 +395,15 @@ async function submitOrder() {
 
   } catch (e: any) {
     console.error('Order submit error:', e)
-    toast.error('Erreur lors de la commande: ' + e.message)
+    toast.error(t('checkout.error.orderSubmit', { msg: e.message }))
   } finally {
     loading.value = false
   }
+}
+
+function formatMoney(amount: number) {
+  const l = locale.value === 'it' ? 'it-IT' : locale.value === 'en' ? 'en-US' : 'fr-FR'
+  return new Intl.NumberFormat(l, { style: 'currency', currency: 'XAF' }).format(amount)
 }
 
 
@@ -411,4 +418,3 @@ function getStorePhone() {
   }
 }
 </script>
-
