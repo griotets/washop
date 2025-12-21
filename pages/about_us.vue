@@ -10,7 +10,7 @@
           À propos de Wa-Shop
         </h1>
         <p class="mt-6 text-lg leading-8 text-gray-600">
-          Nous aidons les entreprises camerounaises à vendre en ligne simplement via WhatsApp.
+          Nous aidons les entreprises à vendre en ligne simplement via WhatsApp.
         </p>
       </div>
       
@@ -27,7 +27,7 @@
         <div>
            <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-6">Notre Mission</h2>
            <p class="text-lg leading-8 text-gray-600 mb-6">
-             Wa-Shop est né d'un constat simple : le commerce au Cameroun se fait déjà sur WhatsApp, mais les outils manquent pour le rendre efficace. 
+             Wa-Shop est né d'un constat simple : le commerce  se fait déjà sur WhatsApp, mais les outils manquent pour le rendre efficace. 
            </p>
            <p class="text-lg leading-8 text-gray-600">
              Notre mission est de fournir une plateforme simple, rapide et abordable pour permettre à chaque commerçant de créer sa boutique en ligne en quelques minutes, sans connaissances techniques.
@@ -198,11 +198,11 @@
 
 <script setup>
 useHead({
-  title: 'À propos de nous | Wa-Shop Cameroun',
+  title: 'À propos de nous | Wa-Shop',
   meta: [
-    { name: 'description', content: 'Wa-Shop aide les entreprises camerounaises à vendre en ligne simplement via WhatsApp. Découvrez notre mission et nos valeurs.' },
-    { property: 'og:title', content: 'À propos de nous | Wa-Shop Cameroun' },
-    { property: 'og:description', content: 'Simplifier le commerce en ligne au Cameroun. Une mission, une équipe, une solution pour tous.' },
+    { name: 'description', content: 'Wa-Shop aide les entreprises à vendre en ligne simplement via WhatsApp. Découvrez notre mission et nos valeurs.' },
+    { property: 'og:title', content: 'À propos de nous | Wa-Shop' },
+    { property: 'og:description', content: 'Simplifier le commerce en ligne. Une mission, une équipe, une solution pour tous.' },
     { property: 'og:image', content: '/og-about.jpg' },
     { name: 'twitter:card', content: 'summary_large_image' }
   ]

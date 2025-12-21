@@ -135,10 +135,10 @@
 import { ShoppingCart, Share2, Bot, Send } from 'lucide-vue-next'
 
 useHead({
-  title: 'Nos Produits | Wa-Shop Cameroun',
+  title: 'Nos Produits | Wa-Shop',
   meta: [
     { name: 'description', content: 'Découvrez notre suite d\'outils pour le commerce conversationnel : Boutique WhatsApp, API Business, Chatbot et Telegram.' },
-    { property: 'og:title', content: 'Nos Produits | Wa-Shop Cameroun' },
+    { property: 'og:title', content: 'Nos Produits | Wa-Shop' },
     { property: 'og:description', content: 'Tout pour vendre sur WhatsApp et Telegram. Solutions simples et efficaces.' },
     { property: 'og:image', content: '/og-products.jpg' },
     { name: 'twitter:card', content: 'summary_large_image' }

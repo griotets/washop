@@ -177,10 +177,10 @@
 import { Check } from 'lucide-vue-next'
 
 useHead({
-  title: 'Tarifs et Plans | Wa-Shop Cameroun',
+  title: 'Tarifs et Plans | Wa-Shop',
   meta: [
-    { name: 'description', content: 'Découvrez nos offres pour créer votre boutique WhatsApp au Cameroun. Plan gratuit disponible, sans carte de crédit requise.' },
-    { property: 'og:title', content: 'Tarifs et Plans | Wa-Shop Cameroun' },
+    { name: 'description', content: 'Découvrez nos offres pour créer votre boutique WhatsApp. Plan gratuit disponible, sans carte de crédit requise.' },
+    { property: 'og:title', content: 'Tarifs et Plans | Wa-Shop' },
     { property: 'og:description', content: 'Créez votre boutique en ligne dès aujourd\'hui. Plans adaptés à tous les budgets.' },
     { property: 'og:image', content: '/og-pricing.jpg' }, // Placeholder for OG image
     { name: 'twitter:card', content: 'summary_large_image' }

@@ -380,10 +380,10 @@ const relatedColor = (s) => {
 }
 
 useHead({
-  title: `${content.value.title} | Wa-Shop Cameroun`,
+  title: `${content.value.title} | Wa-Shop`,
   meta: [
     { name: 'description', content: `${content.value.lead} ${content.value.subtitle}` },
-    { property: 'og:title', content: `${content.value.title} | Wa-Shop Cameroun` },
+    { property: 'og:title', content: `${content.value.title} | Wa-Shop` },
     { property: 'og:description', content: `${content.value.lead}` },
     { property: 'og:image', content: '/og-industry.jpg' },
     { name: 'twitter:card', content: 'summary_large_image' }
@@ -399,7 +399,7 @@ useHead({
         '@type': 'Service',
         name: content.value.title,
         description: `${content.value.lead} ${content.value.subtitle}`.trim(),
-        provider: { '@type': 'Organization', name: 'Wa-Shop Cameroun', url: 'https://wa-shop.cm' },
+        provider: { '@type': 'Organization', name: 'Wa-Shop', url: 'https://wa-shop.cm' },
         areaServed: { '@type': 'Country', name: 'Cameroon' },
         offers: { '@type': 'Offer', price: '0', priceCurrency: 'XAF', availability: 'https://schema.org/InStock' }
       })

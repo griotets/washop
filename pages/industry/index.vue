@@ -138,7 +138,7 @@
       <div class="mx-auto mt-16 max-w-2xl text-center mb-24 lg:mb-16">
         <h2 class="text-2xl font-bold tracking-tight text-gray-900">Vous ne trouvez pas votre secteur ?</h2>
         <p class="mt-3 text-base leading-7 text-gray-600">
-          Wa-Shop s’adapte à de nombreux cas d’usage au Cameroun. Contactez-nous pour valider ensemble le meilleur scénario pour votre activité.
+          Wa-Shop s’adapte à de nombreux cas d’usage. Contactez-nous pour valider ensemble le meilleur scénario pour votre activité.
         </p>
         <div class="mt-8 flex justify-center gap-4">
           <NuxtLink
@@ -234,10 +234,10 @@ const groupShort = (group) => {
 }
 
 useHead({
-  title: 'Secteurs d’activité | Wa-Shop Cameroun',
+  title: 'Secteurs d’activité | Wa-Shop',
   meta: [
-    { name: 'description', content: 'Découvrez les secteurs couverts par Wa-Shop Cameroun : restauration, ecommerce, services et plus encore, avec des expériences WhatsApp adaptées.' },
-    { property: 'og:title', content: 'Secteurs d’activité | Wa-Shop Cameroun' },
+    { name: 'description', content: 'Découvrez les secteurs couverts par Wa-Shop : restauration, ecommerce, services et plus encore, avec des expériences WhatsApp adaptées.' },
+    { property: 'og:title', content: 'Secteurs d’activité | Wa-Shop' },
     { property: 'og:description', content: 'Parcourez les cas d’usage Wa-Shop par secteur et découvrez comment vendre mieux sur WhatsApp.' },
     { property: 'og:image', content: '/og-industry-index.jpg' },
     { name: 'twitter:card', content: 'summary_large_image' }

@@ -1,4 +1,4 @@
-💰 Business Model & Stratégie de Rentabilité : Wa-Shop Cameroun
+💰 Business Model & Stratégie de Rentabilité : Wa-Shop
 
 Pour maximiser vos revenus tout en restant compétitif face à des solutions gratuites ou informelles, le modèle Freemium + Services Transactionnels est le plus adapté au marché camerounais.
 
