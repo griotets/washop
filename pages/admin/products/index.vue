@@ -180,7 +180,7 @@
       
       <div class="p-6">
         <!-- Method Selection (Only visible in Upload step) -->
-        <div v-if="importStep === 'upload' && importMethod !== 'website'" class="mb-6 grid grid-cols-2 gap-3">
+        <div v-if="importStep === 'upload'" class="mb-6 grid grid-cols-2 gap-3">
           <button 
             @click="importMethod = 'csv'"
             class="flex flex-col items-center justify-center gap-2 rounded-xl border-2 p-4 text-sm font-medium transition-all"
@@ -575,7 +575,7 @@ function parseCsv(text: string) {
   const headers = lines[0].split(',').map(h => h.trim())
   const rows: any[] = []
   for (let i = 1; i < lines.length; i++) {
-    const cols = []
+    const cols: string[] = []
     let cur = ''
     let inQuotes = false
     for (const ch of lines[i]) {

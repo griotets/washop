@@ -222,13 +222,15 @@ function addImageUrl() {
   form.images.push(url)
   imageUrl.value = ''
 }
-function removeImage(i: number) {
-  const url = form.images[i]
+function removeImage(i: string | number) {
+  const idx = typeof i === 'string' ? Number(i) : i
+  if (!Number.isFinite(idx)) return
+  const url = form.images[idx]
   if (pendingUploads.value.has(url)) {
     URL.revokeObjectURL(url)
     pendingUploads.value.delete(url)
   }
-  form.images.splice(i, 1)
+  form.images.splice(idx, 1)
 }
 
 async function onImageFile(e: any) {
@@ -372,11 +374,17 @@ async function uploadImage(file: File) {
   pendingUploads.value.set(previewUrl, file)
 }
 let dragImageIndex: number | null = null
-function onImageTileDragStart(i: number) { dragImageIndex = i }
-function onImageTileDrop(i: number) {
-  if (dragImageIndex === null || dragImageIndex === i) return
+function onImageTileDragStart(i: string | number) {
+  const idx = typeof i === 'string' ? Number(i) : i
+  if (!Number.isFinite(idx)) return
+  dragImageIndex = idx
+}
+function onImageTileDrop(i: string | number) {
+  const idx = typeof i === 'string' ? Number(i) : i
+  if (!Number.isFinite(idx)) return
+  if (dragImageIndex === null || dragImageIndex === idx) return
   const v = form.images.splice(dragImageIndex,1)[0]
-  form.images.splice(i,0,v)
+  form.images.splice(idx,0,v)
   dragImageIndex = null
 }
 

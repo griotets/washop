@@ -140,14 +140,15 @@ watch(() => form.name, (n) => {
   prevSlugBase.value = n
 })
 const prevSlugBase = ref('')
-function slugify(s) {
+function slugify(s: string) {
   return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
 }
 const slugCheckLoading = ref(false)
 const slugAvailable = ref(true)
 const isValid = computed(() => !!form.name && !!form.phoneFull && !!form.slug && slugAvailable.value)
-function onLogoChange(e) {
-  const f = e.target.files?.[0]
+function onLogoChange(e: Event) {
+  const input = e.target as HTMLInputElement
+  const f = input.files?.[0]
   if (!f) return
   const r = new FileReader()
   r.onload = () => { form.logoUrl = String(r.result || '') }

@@ -559,41 +559,8 @@
                   </div>
               </div>
 
-              <div class="grid gap-6 md:grid-cols-2">
-                  <div class="rounded-lg border border-gray-200 p-4 space-y-3">
-                      <div class="flex items-center justify-between">
-                          <h5 class="font-semibold text-gray-900">{{ t('admin.settings.annualDiscountConfigTitle') }}</h5>
-                          <span class="text-xs text-gray-500">{{ t('admin.settings.annualDiscountConfigHint') }}</span>
-                      </div>
-                      <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
-                          <div class="flex-1">
-                              <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.annualDiscountPercentLabel') }}</label>
-                              <div class="mt-1 flex rounded-md shadow-sm">
-                                  <input v-model.number="annualDiscountDraft" type="number" min="0" max="90" step="1" class="block w-full rounded-l-md border-gray-300 focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
-                                  <span class="inline-flex items-center rounded-r-md border border-l-0 border-gray-300 bg-gray-50 px-3 text-gray-600 sm:text-sm">%</span>
-                              </div>
-                          </div>
-                          <button
-                            type="button"
-                            class="bg-gray-900 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50"
-                            :disabled="savingBillingSettings || !enterpriseId"
-                            @click="saveAnnualDiscount"
-                          >
-                              {{ t('admin.settings.annualDiscountSaveButton') }}
-                          </button>
-                      </div>
-                      <div class="text-sm text-gray-600">
-                          <div class="flex items-center justify-between">
-                              <span>{{ t('admin.settings.annualDiscountPreviewBefore') }}</span>
-                              <span class="font-medium text-gray-900">{{ formatMoney(annualPreviewBefore, 'XAF') }}</span>
-                          </div>
-                          <div class="flex items-center justify-between">
-                              <span>{{ t('admin.settings.annualDiscountPreviewAfter') }}</span>
-                              <span class="font-semibold text-green-700">{{ formatMoney(annualPreviewAfter, 'XAF') }}</span>
-                          </div>
-                      </div>
-                  </div>
-
+              <div class="grid gap-6 md:grid-cols-1">
+            
                   <div class="rounded-lg border border-gray-200 p-4">
                       <h5 class="font-semibold text-gray-900 mb-3">{{ t('admin.settings.annualDiscountHistoryTitle') }}</h5>
                       <div v-if="billingSettingsHistory.length === 0" class="text-sm text-gray-500">
