@@ -521,6 +521,100 @@
               </div>
           </div>
 
+          <div class="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
+              <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                      <h4 class="text-base font-semibold text-gray-900">{{ t('admin.settings.annualPaymentTitle') }}</h4>
+                      <p class="mt-1 text-sm text-gray-600">{{ t('admin.settings.annualPaymentSubtitle') }}</p>
+                  </div>
+                  <div class="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1 w-full sm:w-auto">
+                      <button
+                        type="button"
+                        class="flex-1 sm:flex-none rounded-md px-3 py-2 text-sm font-medium transition-colors"
+                        :class="billingInterval === 'month' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+                        @click="billingInterval = 'month'"
+                      >
+                        {{ t('admin.settings.billingIntervalMonthly') }}
+                      </button>
+                      <button
+                        type="button"
+                        class="flex-1 sm:flex-none rounded-md px-3 py-2 text-sm font-medium transition-colors"
+                        :class="billingInterval === 'year' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+                        @click="billingInterval = 'year'"
+                      >
+                        {{ t('admin.settings.billingIntervalAnnual', { percent: annualDiscountPercent }) }}
+                      </button>
+                  </div>
+              </div>
+
+              <div v-if="billingInterval === 'year'" class="rounded-lg border border-green-200 bg-green-50 p-4">
+                  <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <div class="text-sm text-green-900">
+                          <span class="font-semibold">{{ t('admin.settings.annualPaymentBenefitTitle') }}</span>
+                          <span class="ml-2 text-green-800">{{ t('admin.settings.annualPaymentBenefitDesc', { percent: annualDiscountPercent }) }}</span>
+                      </div>
+                      <div class="text-sm text-green-900 font-medium">
+                          {{ t('admin.settings.annualPaymentFormula') }}
+                      </div>
+                  </div>
+              </div>
+
+              <div class="grid gap-6 md:grid-cols-2">
+                  <div class="rounded-lg border border-gray-200 p-4 space-y-3">
+                      <div class="flex items-center justify-between">
+                          <h5 class="font-semibold text-gray-900">{{ t('admin.settings.annualDiscountConfigTitle') }}</h5>
+                          <span class="text-xs text-gray-500">{{ t('admin.settings.annualDiscountConfigHint') }}</span>
+                      </div>
+                      <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+                          <div class="flex-1">
+                              <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.annualDiscountPercentLabel') }}</label>
+                              <div class="mt-1 flex rounded-md shadow-sm">
+                                  <input v-model.number="annualDiscountDraft" type="number" min="0" max="90" step="1" class="block w-full rounded-l-md border-gray-300 focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+                                  <span class="inline-flex items-center rounded-r-md border border-l-0 border-gray-300 bg-gray-50 px-3 text-gray-600 sm:text-sm">%</span>
+                              </div>
+                          </div>
+                          <button
+                            type="button"
+                            class="bg-gray-900 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50"
+                            :disabled="savingBillingSettings || !enterpriseId"
+                            @click="saveAnnualDiscount"
+                          >
+                              {{ t('admin.settings.annualDiscountSaveButton') }}
+                          </button>
+                      </div>
+                      <div class="text-sm text-gray-600">
+                          <div class="flex items-center justify-between">
+                              <span>{{ t('admin.settings.annualDiscountPreviewBefore') }}</span>
+                              <span class="font-medium text-gray-900">{{ formatMoney(annualPreviewBefore, 'XAF') }}</span>
+                          </div>
+                          <div class="flex items-center justify-between">
+                              <span>{{ t('admin.settings.annualDiscountPreviewAfter') }}</span>
+                              <span class="font-semibold text-green-700">{{ formatMoney(annualPreviewAfter, 'XAF') }}</span>
+                          </div>
+                      </div>
+                  </div>
+
+                  <div class="rounded-lg border border-gray-200 p-4">
+                      <h5 class="font-semibold text-gray-900 mb-3">{{ t('admin.settings.annualDiscountHistoryTitle') }}</h5>
+                      <div v-if="billingSettingsHistory.length === 0" class="text-sm text-gray-500">
+                          {{ t('admin.settings.annualDiscountHistoryEmpty') }}
+                      </div>
+                      <div v-else class="space-y-2">
+                          <div v-for="h in billingSettingsHistory" :key="h.id" class="flex items-center justify-between text-sm">
+                              <div class="text-gray-700">
+                                  <span class="font-medium text-gray-900">{{ Number(h.old_annual_discount_percent ?? 0) }}%</span>
+                                  <span class="mx-2 text-gray-400">→</span>
+                                  <span class="font-medium text-green-700">{{ Number(h.new_annual_discount_percent ?? 0) }}%</span>
+                              </div>
+                              <div class="text-gray-500">
+                                  {{ new Date(h.changed_at).toLocaleString() }}
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
           <!-- Plans Grid -->
           <div class="grid md:grid-cols-3 gap-6">
               <div v-for="plan in plans" :key="plan.id" class="border rounded-lg p-6 relative flex flex-col" :class="{'border-green-500 ring-1 ring-green-500': subscription?.plan_id === plan.id, 'bg-white': true}">
@@ -529,8 +623,18 @@
                   </div>
                   <h4 class="text-lg font-semibold text-gray-900">{{ plan.name }}</h4>
                   <div class="mt-2 flex items-baseline text-gray-900">
-                      <span class="text-3xl font-bold tracking-tight">{{ plan.price.toLocaleString() }}</span>
-                      <span class="ml-1 text-sm font-semibold text-gray-500">{{ t('admin.settings.billingPerMonth') }}</span>
+                      <template v-if="billingInterval === 'month'">
+                          <span class="text-3xl font-bold tracking-tight">{{ formatMoney(amountFromPlan(plan), plan.currency || 'XAF') }}</span>
+                          <span class="ml-2 text-sm font-semibold text-gray-500">{{ t('admin.settings.billingPerMonth') }}</span>
+                      </template>
+                      <template v-else>
+                          <span class="text-3xl font-bold tracking-tight">{{ formatMoney(annualAfterForPlan(plan), plan.currency || 'XAF') }}</span>
+                          <span class="ml-2 text-sm font-semibold text-gray-500">{{ t('admin.settings.billingPerYear') }}</span>
+                      </template>
+                  </div>
+                  <div v-if="billingInterval === 'year'" class="mt-2 text-sm text-gray-600">
+                      <span class="line-through">{{ formatMoney(annualBeforeForPlan(plan), plan.currency || 'XAF') }}</span>
+                      <span class="ml-2 font-semibold text-green-700">{{ t('admin.settings.billingSaveAmount', { amount: formatMoney(annualSavingsForPlan(plan), plan.currency || 'XAF') }) }}</span>
                   </div>
                   <p class="mt-4 text-sm text-gray-500 flex-grow">
                      {{ plan.id === 'free' ? t('admin.settings.billingPlanDescFree') : (plan.id === 'premium' ? t('admin.settings.billingPlanDescPremium') : t('admin.settings.billingPlanDescBusiness')) }}
@@ -545,8 +649,16 @@
                       </li>
                   </ul>
 
-                  <button :disabled="subscription?.plan_id === plan.id" class="w-full mt-auto bg-gray-900 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed">
-                      {{ subscription?.plan_id === plan.id ? t('admin.settings.billingButtonCurrent') : t('admin.settings.billingButtonChoose') }}
+                  <button
+                    type="button"
+                    :disabled="subscription?.plan_id === plan.id || checkoutLoadingPlanId === plan.id || !enterpriseId"
+                    class="w-full mt-auto bg-gray-900 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    @click="startCheckout(plan)"
+                  >
+                      <Loader2 v-if="checkoutLoadingPlanId === plan.id" class="h-4 w-4 animate-spin" />
+                      <span>
+                        {{ subscription?.plan_id === plan.id ? t('admin.settings.billingButtonCurrent') : t('admin.settings.billingButtonChooseInterval', { interval: billingInterval === 'year' ? t('admin.settings.billingIntervalAnnualShort') : t('admin.settings.billingIntervalMonthlyShort') }) }}
+                      </span>
                   </button>
               </div>
           </div>
@@ -724,6 +836,149 @@ const enterpriseId = ref('')
 const subscription = ref<any>(null)
 const plans = ref<any[]>([])
 const productCount = ref(0)
+
+const billingInterval = ref<'month' | 'year'>('month')
+const billingSettings = ref<any>(null)
+const billingSettingsHistory = ref<any[]>([])
+const annualDiscountDraft = ref<number>(30)
+const savingBillingSettings = ref(false)
+const checkoutLoadingPlanId = ref<string>('')
+
+function clampAnnualDiscountPercent(v: any) {
+  const n = Number(v)
+  if (!Number.isFinite(n)) return 30
+  const rounded = Math.round(n)
+  if (rounded < 0) return 0
+  if (rounded > 90) return 90
+  return rounded
+}
+
+const annualDiscountPercent = computed(() => {
+  return clampAnnualDiscountPercent(billingSettings.value?.annual_discount_percent ?? annualDiscountDraft.value ?? 30)
+})
+
+function amountFromPlan(plan: any): bigint {
+  const raw = plan?.price
+  if (raw == null) return 0n
+  if (typeof raw === 'number') return BigInt(Math.round(raw))
+  if (typeof raw === 'string') {
+    const s = raw.replace(/[,\s]/g, '')
+    if (!s) return 0n
+    const m = s.match(/^-?\d+/)
+    if (!m) return 0n
+    return BigInt(m[0])
+  }
+  return 0n
+}
+
+function formatMoney(amount: bigint, _currency: string) {
+  return Number(amount).toLocaleString()
+}
+
+function annualBeforeForPlan(plan: any) {
+  return amountFromPlan(plan) * 12n
+}
+
+function annualAfterForPlan(plan: any) {
+  const before = annualBeforeForPlan(plan)
+  const p = BigInt(annualDiscountPercent.value)
+  const numerator = before * (100n - p)
+  return (numerator + 50n) / 100n
+}
+
+function annualSavingsForPlan(plan: any) {
+  const before = annualBeforeForPlan(plan)
+  const after = annualAfterForPlan(plan)
+  return before - after
+}
+
+const annualPreviewMonthly = computed(() => {
+  const paid = plans.value.find((p) => p?.id === 'premium') || plans.value.find((p) => Number(p?.price || 0) > 0)
+  return amountFromPlan(paid)
+})
+
+const annualPreviewBefore = computed(() => {
+  return annualPreviewMonthly.value * 12n
+})
+
+const annualPreviewAfter = computed(() => {
+  const p = BigInt(clampAnnualDiscountPercent(annualDiscountDraft.value))
+  const numerator = annualPreviewBefore.value * (100n - p)
+  return (numerator + 50n) / 100n
+})
+
+async function loadBillingSettings() {
+  if (!enterpriseId.value) return
+  const { data } = await supabase
+    .from('enterprise_billing_settings')
+    .select('*')
+    .eq('enterprise_id', enterpriseId.value)
+    .maybeSingle()
+
+  if (!data) {
+    const { data: created } = await supabase
+      .from('enterprise_billing_settings')
+      .insert({ enterprise_id: enterpriseId.value, annual_discount_percent: 30 })
+      .select('*')
+      .maybeSingle()
+    billingSettings.value = created
+    annualDiscountDraft.value = clampAnnualDiscountPercent(created?.annual_discount_percent ?? 30)
+  } else {
+    billingSettings.value = data
+    annualDiscountDraft.value = clampAnnualDiscountPercent(data?.annual_discount_percent ?? 30)
+  }
+
+  const { data: history } = await supabase
+    .from('enterprise_billing_settings_history')
+    .select('*')
+    .eq('enterprise_id', enterpriseId.value)
+    .order('changed_at', { ascending: false })
+    .limit(10)
+  billingSettingsHistory.value = history || []
+}
+
+watch(enterpriseId, (id) => {
+  if (id) loadBillingSettings()
+})
+
+async function saveAnnualDiscount() {
+  if (!enterpriseId.value) return
+  savingBillingSettings.value = true
+  const toast = useToast()
+  try {
+    const percent = clampAnnualDiscountPercent(annualDiscountDraft.value)
+    const { error } = await supabase
+      .from('enterprise_billing_settings')
+      .update({ enterprise_id: enterpriseId.value, annual_discount_percent: percent })
+      .eq('enterprise_id', enterpriseId.value)
+    if (error) throw error
+    await loadBillingSettings()
+    toast.success(t('admin.settings.annualDiscountSavedToast'))
+  } catch (e: any) {
+    toast.error('Erreur: ' + e.message)
+  } finally {
+    savingBillingSettings.value = false
+  }
+}
+
+async function startCheckout(plan: any) {
+  if (!enterpriseId.value || !plan?.id) return
+  checkoutLoadingPlanId.value = String(plan.id)
+  const toast = useToast()
+  try {
+    const { data, error } = await supabase.rpc('create_subscription_checkout_session', {
+      p_enterprise_id: enterpriseId.value,
+      p_plan_id: String(plan.id),
+      p_billing_interval: billingInterval.value
+    })
+    if (error) throw error
+    toast.success(t('admin.settings.checkoutCreatedToast', { id: String(data?.id || '') }))
+  } catch (e: any) {
+    toast.error('Erreur: ' + e.message)
+  } finally {
+    checkoutLoadingPlanId.value = ''
+  }
+}
 
 const isFreePlan = computed(() => {
   return !subscription.value || subscription.value.plan_id === 'free'

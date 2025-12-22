@@ -188,6 +188,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { navigateTo, useHead, useNuxtApp, useRuntimeConfig } from '#app'
 import { useAdminStore } from '~/stores/admin'
 import { useI18n } from '~/composables/i18n'
 import { Lock, Clock, CreditCard } from 'lucide-vue-next'

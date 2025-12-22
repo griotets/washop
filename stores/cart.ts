@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useToast } from '~/composables/useToast'
 
 export const useCartStore = defineStore('cart', {
   state: () => ({ 
