@@ -187,6 +187,7 @@ const cart = useCartStore()
 const slug = computed(() => String(route.params['boutiqueSlug'] || ''))
 const loading = ref(true)
 const activeCategory = ref('all')
+const searchQuery = ref('')
 
 // State
 const storeInfo = reactive({

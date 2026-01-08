@@ -2,14 +2,12 @@
   <main class="min-h-screen w-full bg-background-light flex items-center">
     <div class="mx-auto w-full max-w-7xl px-6 py-8 md:py-0 grid gap-8 md:grid-cols-2 md:h-screen md:items-center">
       <div class="rounded-2xl bg-white p-6 shadow-sm">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <NuxtLink to="/" class="inline-block mb-4">
-              <img src="/logo.svg" alt="Wa-Shop" class="h-12 w-12" />
-            </NuxtLink>
-            <h1 class="text-2xl font-bold mb-1">{{ t('register.start') }}</h1>
-            <p class="text-gray-600">{{ t('register.subtitle') }}</p>
-          </div>
+        <div class="mb-6 text-center">
+          <NuxtLink to="/" class="inline-block mb-4">
+            <img src="/logo.svg" alt="Wa-Shop" class="h-12 w-12 mx-auto" />
+          </NuxtLink>
+          <h1 class="text-2xl font-bold mb-1">{{ t('register.start') }}</h1>
+          <p class="text-gray-600">{{ t('register.subtitle') }}</p>
         </div>
 
 
@@ -19,7 +17,8 @@
             <label class="block text-sm font-medium">{{ t('register.emailLabel') }}</label>
             <input v-model.trim="email" type="email"
               class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none"
-              placeholder="vous@exemple.com" />
+              placeholder="vous@exemple.com"
+              @keyup.enter="mountedReady && emailValid && !authLoading ? submitEmail() : null" />
           </div>
           <button :disabled="!mountedReady || !emailValid || authLoading" class="w-full rounded-lg bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50" @click="submitEmail">{{ authLoading ? t('common.sending') : t('register.continueEmail') }}</button>
           <p v-if="authError" class="text-sm text-red-600">{{ authError }}</p>
@@ -104,11 +103,12 @@
         <div class="mx-auto max-w-sm">
           <div
             class="relative aspect-[11/18] rounded-[2rem] border-8 border-gray-900 bg-white shadow-xl overflow-hidden">
-            <div v-if="step === 1" class="p-6 space-y-4">
-              <div class="h-4 w-1/2 bg-gray-100 rounded"></div>
-              <div class="h-3 w-full bg-gray-200 rounded"></div>
+            <div v-if="step === 1" class="p-6 space-y-4 relative">
+              <div class="h-4 w-1/2 bg-gray-100 rounded animate-float"></div>
+              <div class="h-3 w-full bg-gray-200 rounded animate-float"></div>
               <div class="h-3 w-5/6 bg-gray-200 rounded"></div>
-              <div class="h-10 w-full bg-primary/10 rounded animate-pulse"></div>
+              <div :class="['h-10 w-full rounded transition-all', emailValid ? 'bg-green-600 animate-pulse' : 'bg-primary/10']"></div>
+              <div v-if="emailValid" class="absolute right-4 bottom-4 h-6 w-6 rounded-full bg-green-500 shadow-md animate-float"></div>
             </div>
             <div v-else-if="step === 2" class="p-6 space-y-5">
               <div class="h-4 w-2/3 bg-gray-100 rounded"></div>
@@ -129,13 +129,15 @@
               </div>
               <div class="grid grid-cols-2 gap-2">
                 <div v-for="(p, idx) in 6" :key="idx"
-                  :class="['rounded-xl border p-2 space-y-2', animTick === idx ? 'border-primary animate-pulse' : 'border-gray-200']">
+                  :class="['relative rounded-xl border p-2 space-y-2 transition-transform duration-500', animTick === idx ? 'border-primary scale-[1.03] shadow-md ring-2 ring-primary/40' : 'border-gray-200']">
+                  <div v-if="animTick === idx" class="absolute top-2 right-2 h-5 w-5 rounded-full bg-green-500"></div>
                   <div class="h-20 bg-gray-100 rounded"></div>
                   <div class="h-3 w-2/3 bg-gray-200 rounded"></div>
                   <div class="flex items-center justify-between">
                     <div class="h-3 w-12 bg-gray-200 rounded"></div>
-                    <div class="h-6 w-12 rounded bg-green-100 text-green-700 text-xs flex items-center justify-center">
-                      Add +</div>
+                    <div :class="['h-6 w-12 rounded text-xs flex items-center justify-center transition-colors', animTick === idx ? 'bg-green-600 text-white' : 'bg-green-100 text-green-700']">
+                      Add +
+                    </div>
                   </div>
                 </div>
               </div>
@@ -144,7 +146,7 @@
               <div class="flex items-center justify-between border-b pb-2">
                 <span class="font-bold text-sm">{{ t('preview.order') }}</span>
                 <span
-                  :class="['px-2 py-1 text-xs rounded', animTick % 2 === 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800']">{{
+                  :class="['px-2 py-1 text-xs rounded transition-all', animTick % 2 === 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-600 text-white animate-pulse']">{{
                     animTick % 2 === 0 ? t('preview.pending') : t('preview.accepted') }}</span>
               </div>
               <div class="space-y-2">
@@ -152,18 +154,18 @@
                 <div class="h-2 bg-gray-200 rounded w-1/2"></div>
               </div>
               <div class="mt-2 flex gap-2">
-                <button class="flex-1 bg-primary text-white text-xs py-2 rounded">{{ t('preview.accept') }}</button>
-                <button class="flex-1 bg-gray-200 text-gray-700 text-xs py-2 rounded">{{ t('preview.decline')
+                <button :class="['flex-1 bg-primary text-white text-xs py-2 rounded transition-transform', animTick % 2 !== 0 ? 'ring-2 ring-primary scale-[1.02]' : '']">{{ t('preview.accept') }}</button>
+                <button :class="['flex-1 bg-gray-200 text-gray-700 text-xs py-2 rounded transition-transform', animTick % 2 === 0 ? 'ring-2 ring-gray-400 scale-[1.01]' : '']">{{ t('preview.decline')
                   }}</button>
               </div>
             </div>
             <div v-else class="p-6 space-y-3">
               <div class="flex items-center gap-2 justify-center">
-                <div class="px-3 py-1 rounded-full bg-gray-100 text-sm">bali dining.com</div>
-                <div class="h-5 w-5 rounded bg-gray-200"></div>
+                <div class="px-3 py-1 rounded-full bg-gray-100 text-sm animate-float max-w-[70%] truncate">{{ previewDomain }}</div>
+                <div class="h-5 w-5 rounded bg-gray-200 animate-float"></div>
               </div>
               <div class="flex flex-col items-center pt-2">
-                <div class="h-20 w-20 rounded-full bg-primary/20 flex items-center justify-center">
+                <div class="h-20 w-20 rounded-full bg-primary/20 flex items-center justify-center animate-float">
                   <div class="h-10 w-10 rounded-full bg-white"></div>
                 </div>
                 <div class="mt-3 h-3 w-24 bg-gray-200 rounded"></div>
@@ -192,6 +194,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { navigateTo, useHead, useNuxtApp, useRuntimeConfig } from '#app'
 import { useAdminStore } from '~/stores/admin'
 import { useI18n } from '~/composables/i18n'
+import { useToast } from '~/composables/useToast'
 import { Lock, Clock, CreditCard } from 'lucide-vue-next'
 
 const store = useAdminStore()
@@ -265,6 +268,13 @@ const goalsList = computed(() => {
   if (locale.value === 'it') return goalsIt
   return goalsEn
 })
+
+const previewSlug = computed(() => {
+  const local = String(email.value || '').split('@')[0].trim()
+  const base = local || (locale.value === 'fr' ? 'ma-boutique' : 'my-store')
+  return base.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+})
+const previewDomain = computed(() => `${previewSlug.value}.wa-shop.cm`)
 
 function goStep(n: number) { step.value = n }
 import { useAuth } from '~/composables/auth'

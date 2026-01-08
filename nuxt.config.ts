@@ -1,7 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  buildModules: [],
   extends: [],
   runtimeConfig: {
     huggingfaceApiKey: process.env.HUGGINGFACE_API_KEY,

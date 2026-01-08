@@ -1,10 +1,10 @@
 <template>
   <div>
     <div class="print:hidden">
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between flex-wrap gap-3">
       <h1 class="text-2xl font-bold">{{ t('admin.ordersPage.title') }}</h1>
-      <div class="flex items-center gap-2">
-        <select v-model="statusFilter" class="rounded border px-3 py-2 text-sm">
+      <div class="flex items-center gap-2 flex-wrap">
+        <select v-model="statusFilter" class="rounded border px-3 py-2 text-sm w-full sm:w-auto">
           <option value="">{{ t('admin.ordersPage.statusAll') }}</option>
           <option value="new">{{ t('admin.ordersPage.status.new') }}</option>
           <option value="sent_to_whatsapp">{{ t('admin.ordersPage.status.sent_to_whatsapp') }}</option>
@@ -12,8 +12,8 @@
           <option value="completed">{{ t('admin.ordersPage.status.completed') }}</option>
           <option value="cancelled">{{ t('admin.ordersPage.status.cancelled') }}</option>
         </select>
-        <input type="date" v-model="startDateStr" class="rounded border px-3 py-2 text-sm" />
-        <div class="flex items-center rounded-lg border bg-white px-3 py-2 w-full max-w-xl">
+        <input type="date" v-model="startDateStr" class="rounded border px-3 py-2 text-sm w-full sm:w-auto" />
+        <div class="flex items-center rounded-lg border bg-white px-3 py-2 w-full max-w-xl min-w-0">
           <Search class="h-4 w-4 text-gray-500" />
           <input v-model.trim="search" type="text" :placeholder="t('admin.ordersPage.searchPlaceholder')" class="ml-2 w-full bg-transparent text-sm outline-none" />
         </div>
@@ -23,7 +23,7 @@
       </div>
     </div>
 
-    <div class="mt-4 overflow-hidden rounded-xl border">
+    <div class="mt-4 overflow-x-auto rounded-xl border">
       <table class="min-w-full bg-white">
         <thead class="bg-gray-50 text-sm text-gray-600">
           <tr>

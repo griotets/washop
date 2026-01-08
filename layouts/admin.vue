@@ -184,10 +184,10 @@
                     </div>
                   </div>
 
-                  <div class="hidden sm:block">
+                  <div class="hidden sm:block min-w-0">
                     <h1 class="font-bold text-gray-900 leading-tight">{{ store.name || t('admin.storeFallback') }}</h1>
                     <a v-if="publicUrl" :href="`https://${publicUrl}`" target="_blank"
-                      class="flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-green-600 transition-colors">
+                      class="flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-green-600 transition-colors truncate">
                       {{ publicUrl }}
                       <ExternalLink class="h-3 w-3" />
                     </a>

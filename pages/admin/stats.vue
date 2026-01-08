@@ -1,10 +1,10 @@
 <template>
   <div>
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between flex-wrap gap-3">
       <h1 class="text-2xl font-bold">{{ t('admin.stats.title') }}</h1>
-      <div class="flex items-center gap-2">
-        <input type="date" v-model="startDateStr" class="rounded border px-3 py-2 text-sm" />
-        <input type="date" v-model="endDateStr" class="rounded border px-3 py-2 text-sm" />
+      <div class="flex items-center gap-2 flex-wrap">
+        <input type="date" v-model="startDateStr" class="rounded border px-3 py-2 text-sm w-full sm:w-auto" />
+        <input type="date" v-model="endDateStr" class="rounded border px-3 py-2 text-sm w-full sm:w-auto" />
       </div>
     </div>
 
@@ -26,7 +26,7 @@
     <div class="mt-6 grid gap-6 lg:grid-cols-2">
       <div class="rounded-xl border bg-white p-6">
         <div class="font-semibold">{{ t('admin.stats.topProducts') }}</div>
-        <div class="mt-3">
+        <div class="mt-3 overflow-x-auto">
           <table class="min-w-full">
             <thead class="bg-gray-50 text-sm text-gray-600">
               <tr>

@@ -19,7 +19,7 @@
           <div class="flex items-center gap-4">
             <label class="relative inline-flex h-16 w-16 cursor-pointer items-center justify-center rounded-full bg-gray-100">
               <input type="file" accept="image/*" class="hidden" @change="onLogoChange" />
-              <span v-if="!form.logoUrl" class="material-icons text-gray-500">photo_camera</span>
+              <Camera v-if="!form.logoUrl" class="w-6 h-6 text-gray-500" />
               <img v-else :src="form.logoUrl" alt="logo" class="h-16 w-16 rounded-full object-cover" />
             </label>
             <div class="text-sm text-gray-500">{{ t('create.logo') }}</div>
@@ -37,10 +37,10 @@
 
           <div>
             <label class="mb-1 block text-sm font-medium">{{ t('create.link') }}</label>
-            <div class="flex items-center gap-2">
-              <div class="rounded-lg bg-gray-100 px-3 py-2 text-sm text-gray-700">wa-shop.cm</div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <div class="rounded-lg bg-gray-100 px-3 py-2 text-xs sm:text-sm text-gray-700">{{ baseDomain }}</div>
               <span class="text-gray-400">/</span>
-              <input v-model.trim="form.slug" type="text" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none" />
+              <input v-model.trim="form.slug" type="text" class="min-w-0 flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none" />
             </div>
             <p class="mt-1 text-xs" :class="[slugCheckLoading ? 'text-gray-500' : (slugAvailable ? 'text-gray-500' : 'text-red-600')]">
               <span v-if="slugCheckLoading">{{ t('create.slugChecking') }}</span>
@@ -71,23 +71,30 @@
           </div>
           <div class="h-24 w-full bg-gray-100"></div>
           <div class="-mt-8 flex w-full flex-col items-center px-6">
-            <div class="flex h-24 w-24 items-center justify-center rounded-full" :style="{ backgroundColor: form.color }">
-              <span class="text-sm font-medium text-white">{{ initials }}</span>
+            <div class="flex h-24 w-24 items-center justify-center rounded-full overflow-hidden ring-2 ring-white" :style="{ backgroundColor: form.color }">
+              <img v-if="form.logoUrl" :src="form.logoUrl" alt="logo" class="h-24 w-24 object-cover" />
+              <span v-else class="text-sm font-medium text-white">{{ initials }}</span>
             </div>
             <div class="mt-4 text-xl font-extrabold">{{ displayName }}</div>
             <div class="mt-2 flex w-full items-center gap-6 border-b px-6 pb-3">
-              <div class="flex items-center gap-2 text-gray-600"><span class="material-icons text-base">home</span><span>{{ t('common.home') }}</span></div>
-              <div class="flex items-center gap-2 text-gray-600"><span class="material-icons text-base">search</span><span>{{ t('common.search') }}</span></div>
+              <div class="flex items-center gap-2 text-gray-600">
+                <HomeIcon class="w-4 h-4" /><span>{{ t('common.home') }}</span>
+              </div>
+              <div class="flex items-center gap-2 text-gray-600">
+                <SearchIcon class="w-4 h-4" /><span>{{ t('common.search') }}</span>
+              </div>
             </div>
             <div class="px-6 py-6">
               <div class="grid gap-4 sm:grid-cols-2">
-                <div class="rounded-xl border border-gray-200 p-4">
-                  <div class="h-4 w-24 rounded bg-gray-100"></div>
-                  <div class="mt-2 h-3 w-32 rounded bg-gray-100"></div>
+                <div class="rounded-xl border border-gray-200 p-4 space-y-2">
+                  <div class="text-xs text-gray-500">Produit</div>
+                  <div class="h-20 w-full rounded bg-gray-100"></div>
+                  <div class="h-3 w-24 rounded bg-gray-100"></div>
                 </div>
-                <div class="rounded-xl border border-gray-200 p-4">
-                  <div class="h-4 w-24 rounded bg-gray-100"></div>
-                  <div class="mt-2 h-3 w-32 rounded bg-gray-100"></div>
+                <div class="rounded-xl border border-gray-200 p-4 space-y-2">
+                  <div class="text-xs text-gray-500">Catégorie</div>
+                  <div class="h-20 w-full rounded bg-gray-100"></div>
+                  <div class="h-3 w-24 rounded bg-gray-100"></div>
                 </div>
               </div>
             </div>
@@ -103,11 +110,16 @@ import { useI18n } from '~/composables/i18n'
 import PhoneInput from '~/components/PhoneInput.vue'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
+import { Camera, Home as HomeIcon, Search as SearchIcon } from 'lucide-vue-next'
 const { t } = useI18n()
 const colors = ['#111827', '#ef4444', '#f59e0b', '#10b981', '#06b6d4', '#3b82f6', '#8b5cf6']
 const form = reactive({ name: '', phoneFull: '', slug: '', color: colors[0], logoUrl: '' })
 const canCreate = ref(true)
 const limitReachedMsg = ref('')
+const baseDomain = computed(() => {
+  if (process.client) return window.location.hostname || 'wa-shop.cm'
+  return 'wa-shop.cm'
+})
 
 onMounted(async () => {
   const nuxt = useNuxtApp()

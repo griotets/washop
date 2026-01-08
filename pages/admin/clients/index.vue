@@ -1,9 +1,9 @@
 <template>
   <div>
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between flex-wrap gap-3">
       <h1 class="text-2xl font-bold">{{ t('admin.clientsPage.title') }}</h1>
-      <div class="flex items-center gap-2">
-        <div class="flex items-center rounded-lg border bg-white px-3 py-2 w-full max-w-xl">
+      <div class="flex items-center gap-2 flex-wrap">
+        <div class="flex items-center rounded-lg border bg-white px-3 py-2 w-full max-w-xl min-w-0">
           <Search class="h-4 w-4 text-gray-500" />
           <input v-model.trim="search" type="text" :placeholder="t('admin.clientsPage.searchPlaceholder')" class="ml-2 w-full bg-transparent text-sm outline-none" />
         </div>
@@ -11,7 +11,7 @@
       </div>
     </div>
 
-    <div class="mt-4 overflow-hidden rounded-xl border">
+    <div class="mt-4 overflow-x-auto rounded-xl border">
       <table class="min-w-full bg-white">
         <thead class="bg-gray-50 text-sm text-gray-600">
           <tr>
