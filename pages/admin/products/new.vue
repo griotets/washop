@@ -1,95 +1,95 @@
 <template>
   <div>
     <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-bold">Ajouter un produit</h1>
+      <h1 class="text-2xl font-bold">{{ t('admin.productsNew.title') }}</h1>
       <div class="flex items-center gap-2">
-        <NuxtLink to="/admin/products" class="rounded-lg border bg-white px-3 py-2 text-sm">Retour à la liste</NuxtLink>
-        <button class="rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white" :disabled="saving || !isValid" @click="save">Sauvegarder</button>
+        <NuxtLink to="/admin/products" class="rounded-lg border bg-white px-3 py-2 text-sm">{{ t('admin.productsNew.backToList') }}</NuxtLink>
+        <button class="rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white" :disabled="saving || !isValid" @click="save">{{ t('admin.productsNew.save') }}</button>
       </div>
     </div>
 
     <div class="mt-6 grid gap-6 lg:grid-cols-[2fr_1fr]">
       <div class="space-y-6">
         <div class="rounded-xl border bg-white p-6">
-          <label class="block text-sm font-medium">Nom *</label>
+          <label class="block text-sm font-medium">{{ t('admin.productsNew.fields.name') }}</label>
           <input v-model.trim="form.name" type="text" class="mt-1 w-full rounded-lg border px-3 py-2" />
           <div class="mt-4 grid gap-4 sm:grid-cols-3">
             <div>
-              <label class="block text-sm font-medium">Type</label>
+              <label class="block text-sm font-medium">{{ t('admin.productsNew.fields.type') }}</label>
               <select v-model="form.type" class="mt-1 w-full rounded-lg border px-3 py-2">
-                <option value="physical">Physique</option>
-                <option value="digital">Numérique</option>
-                <option value="reservation">Réservation</option>
-                <option value="subscription">Abonnement</option>
-                <option value="other">Autre</option>
+                <option value="physical">{{ t('admin.productsNew.type.physical') }}</option>
+                <option value="digital">{{ t('admin.productsNew.type.digital') }}</option>
+                <option value="reservation">{{ t('admin.productsNew.type.reservation') }}</option>
+                <option value="subscription">{{ t('admin.productsNew.type.subscription') }}</option>
+                <option value="other">{{ t('admin.productsNew.type.other') }}</option>
               </select>
             </div>
             <div>
-              <label class="block text-sm font-medium">Prix *</label>
+              <label class="block text-sm font-medium">{{ t('admin.productsNew.fields.price') }}</label>
               <input v-model.number="form.price" type="number" min="0" step="0.01" class="mt-1 w-full rounded-lg border px-3 py-2" />
             </div>
             <div>
-              <label class="block text-sm font-medium">Prix original</label>
+              <label class="block text-sm font-medium">{{ t('admin.productsNew.fields.original_price') }}</label>
               <input v-model.number="form.original_price" type="number" min="0" step="0.01" class="mt-1 w-full rounded-lg border px-3 py-2" />
             </div>
             <div class="sm:col-span-3 grid gap-4 sm:grid-cols-3 mt-2">
               <label class="inline-flex items-center gap-2">
                 <input type="checkbox" v-model="form.show_estimated_price" />
-                <span class="text-sm">Affichage du prix estimé</span>
+                <span class="text-sm">{{ t('admin.productsNew.fields.showEstimatedPrice') }}</span>
               </label>
               <label class="inline-flex items-center gap-2">
                 <input type="checkbox" v-model="form.track_cost" />
-                <span class="text-sm">Coût par article</span>
+                <span class="text-sm">{{ t('admin.productsNew.fields.trackCost') }}</span>
               </label>
               <label class="inline-flex items-center gap-2">
                 <input type="checkbox" v-model="form.show_net_price" />
-                <span class="text-sm">Prix net par unité</span>
+                <span class="text-sm">{{ t('admin.productsNew.fields.showNetPrice') }}</span>
               </label>
             </div>
             <div>
-              <label class="block text-sm font-medium">UGS</label>
+              <label class="block text-sm font-medium">{{ t('admin.productsNew.fields.sku') }}</label>
               <input v-model.trim="form.sku" type="text" class="mt-1 w-full rounded-lg border px-3 py-2" />
             </div>
             <div>
-              <label class="block text-sm font-medium">Poids</label>
+              <label class="block text-sm font-medium">{{ t('admin.productsNew.fields.weight') }}</label>
               <div class="flex items-center gap-2">
                 <input v-model.number="form.weight" type="number" min="0" step="0.01" class="mt-1 w-full rounded-lg border px-3 py-2" />
-                <span class="text-sm text-gray-600">g</span>
+                <span class="text-sm text-gray-600">{{ t('admin.productsNew.fields.weightUnit') }}</span>
               </div>
             </div>
           </div>
           <div class="mt-4">
             <div class="flex items-center justify-between mb-1">
-              <label class="block text-sm font-medium">Description</label>
+              <label class="block text-sm font-medium">{{ t('admin.productsNew.fields.description') }}</label>
               <button @click="generateDescription" :disabled="generatingDesc" class="text-xs flex items-center gap-1 text-purple-600 hover:text-purple-700 font-medium disabled:opacity-50">
-                <Sparkles class="h-3 w-3" /> {{ generatingDesc ? 'Rédaction...' : 'Générer avec IA' }}
+                <Sparkles class="h-3 w-3" /> {{ generatingDesc ? t('admin.productsNew.description.writing') : t('admin.productsNew.description.generate') }}
               </button>
             </div>
-            <textarea v-model.trim="form.description" rows="4" class="mt-1 w-full rounded-lg border px-3 py-2" placeholder='Decorate with **bold**, ~strike~, _italic_'></textarea>
+            <textarea v-model.trim="form.description" rows="4" class="mt-1 w-full rounded-lg border px-3 py-2" :placeholder="t('admin.productsNew.description.placeholder')"></textarea>
           </div>
           <div class="mt-4 grid gap-4 sm:grid-cols-2">
             <div>
-              <label class="block text-sm font-medium">Catégorie</label>
+              <label class="block text-sm font-medium">{{ t('admin.productsNew.category.label') }}</label>
               <div class="relative">
-                <input v-model.trim="categorySearch" @focus="categoryOpen=true" @input="categoryOpen=true" @blur="closeCategoryDropdownLater" placeholder="Rechercher ou créer une catégorie" class="mt-1 w-full rounded-lg border px-3 py-2" />
+                <input v-model.trim="categorySearch" @focus="categoryOpen=true" @input="categoryOpen=true" @blur="closeCategoryDropdownLater" :placeholder="t('admin.productsNew.category.searchPlaceholder')" class="mt-1 w-full rounded-lg border px-3 py-2" />
                 <div v-if="categoryOpen" class="absolute z-20 mt-1 w-full rounded-lg border bg-white shadow">
-                  <button class="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100" @click="selectCategory(null)">Aucune</button>
+                  <button class="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100" @click="selectCategory(null)">{{ t('admin.productsNew.category.none') }}</button>
                   <button v-for="c in filteredCategories" :key="c.id" class="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100" @click="selectCategory(c)">{{ c.name }}</button>
                   <div class="border-t px-3 py-2">
-                    <div class="text-xs text-gray-600 mb-1">Créer “{{ categorySearch || '...' }}”</div>
-                    <button class="rounded-lg border bg-white px-3 py-2 text-xs" @click="createCategoryFromSearch">Créer la catégorie</button>
+                    <div class="text-xs text-gray-600 mb-1">{{ t('admin.productsNew.category.create', { name: (categorySearch || '...') }) }}</div>
+                    <button class="rounded-lg border bg-white px-3 py-2 text-xs" @click="createCategoryFromSearch">{{ t('admin.productsNew.category.createButton') }}</button>
                   </div>
                 </div>
               </div>
             </div>
             <div>
-              <label class="block text-sm font-medium">Tags</label>
+              <label class="block text-sm font-medium">{{ t('admin.productsNew.tags.label') }}</label>
               <div class="mt-1 flex flex-wrap gap-2">
                 <button v-for="t in tags" :key="t.id" class="rounded-full border px-3 py-1 text-xs" :class="selectedTags.has(Number(t.id))?'bg-green-100 border-green-300':'bg-white'" @click="toggleTag(Number(t.id))">{{ t.name }}</button>
               </div>
               <div class="mt-2 flex items-center gap-2">
-                <input v-model.trim="newTagName" placeholder="Ajouter une étiquette" class="flex-1 rounded-lg border px-3 py-2 text-sm" />
-                <button class="rounded-lg border bg-white px-3 py-2 text-sm" @click="createTag" :disabled="tagCreating">{{ tagCreating ? '...' : 'Créer' }}</button>
+                <input v-model.trim="newTagName" :placeholder="t('admin.productsNew.tags.addPlaceholder')" class="flex-1 rounded-lg border px-3 py-2 text-sm" />
+                <button class="rounded-lg border bg-white px-3 py-2 text-sm" @click="createTag" :disabled="tagCreating">{{ tagCreating ? '...' : t('admin.productsNew.tags.create') }}</button>
               </div>
             </div>
           </div>
@@ -97,7 +97,32 @@
 
         <div class="rounded-xl border bg-white p-6">
           <div class="flex items-center justify-between">
-            <div class="font-semibold">Images</div>
+            <div class="font-semibold">{{ t('admin.productsNew.generatePro.title') }}</div>
+            <div class="flex items-center gap-2">
+              <button 
+                v-if="!admin.isFreePlan" 
+                class="inline-flex items-center gap-1 rounded bg-purple-600 px-3 py-2 text-sm font-semibold text-white"
+                @click="showGenerateModal = true"
+              >
+                <Sparkles class="h-4 w-4" /> {{ t('admin.productsNew.generatePro.button') }}
+              </button>
+              <NuxtLink 
+                v-else 
+                to="/admin/settings?tab=billing" 
+                class="inline-flex items-center gap-1 rounded bg-gray-300 px-3 py-2 text-sm font-semibold text-gray-600"
+              >
+                <Sparkles class="h-4 w-4" /> {{ t('admin.productsNew.generatePro.locked') }}
+              </NuxtLink>
+            </div>
+          </div>
+          <div class="mt-3 text-sm text-gray-600">
+            {{ t('admin.productsNew.generatePro.desc') }}
+          </div>
+        </div>
+
+        <div class="rounded-xl border bg-white p-6">
+          <div class="flex items-center justify-between">
+            <div class="font-semibold">{{ t('admin.productsNew.images.title') }}</div>
             <input ref="imageFileInput" type="file" accept="image/*" class="hidden" multiple @change="onImageFile" />
           </div>
           <div class="mt-3 relative">
@@ -107,23 +132,23 @@
             <div class="flex items-center justify-center rounded-lg border-2 border-dashed px-4 py-10 text-center cursor-pointer" :class="dropActive?'border-green-400 bg-green-50':'border-gray-300 bg-gray-50'" @click="triggerImageInput" @dragenter.prevent="onImageDragEnter" @dragover.prevent="onImageDragOver" @dragleave.prevent="onImageDragLeave" @drop.prevent="onImageDrop">
               <div>
                 <Upload class="mx-auto h-8 w-8 text-gray-400" />
-                <div class="mt-2 text-sm font-medium text-gray-800">Faites glisser un fichier ici ou cliquez pour en sélectionner un</div>
-                <div class="mt-1 text-xs text-gray-500">Le fichier ne doit pas dépasser 10 mb. Le rapport recommandé est de 1:1.</div>
+                <div class="mt-2 text-sm font-medium text-gray-800">{{ t('admin.productsNew.images.dropTitle') }}</div>
+                <div class="mt-1 text-xs text-gray-500">{{ t('admin.productsNew.images.dropHint') }}</div>
               </div>
             </div>
           </div>
           <div class="mt-4 flex items-center gap-3">
-            <input v-model.trim="imageUrl" placeholder="https://..." class="flex-1 rounded-lg border px-3 py-2 text-sm" />
-            <button class="rounded-lg border bg-white px-3 py-2 text-sm" @click="addImageUrl">Ajouter l'URL</button>
+            <input v-model.trim="imageUrl" :placeholder="t('common.urlPlaceholder')" class="flex-1 rounded-lg border px-3 py-2 text-sm" />
+            <button class="rounded-lg border bg-white px-3 py-2 text-sm" @click="addImageUrl">{{ t('admin.productsNew.images.addUrl') }}</button>
             <button class="rounded-lg border bg-white px-3 py-2 text-sm flex items-center gap-2 hover:bg-gray-50" @click="generateImage" :disabled="generatingImage">
               <Wand2 class="h-4 w-4 text-purple-600" /> 
-              <span>{{ generatingImage ? '...' : 'Générer IA' }}</span>
+              <span>{{ generatingImage ? '...' : t('admin.productsNew.images.generateAi') }}</span>
             </button>
           </div>
           <div class="mt-4 grid gap-3 sm:grid-cols-3">
             <div v-for="(img,i) in form.images" :key="i" class="relative" draggable="true" @dragstart="onImageTileDragStart(i)" @dragover.prevent @drop="onImageTileDrop(i)">
               <img :src="img" alt="" class="h-24 w-full rounded object-cover bg-gray-100" />
-              <button class="absolute right-2 top-2 rounded bg-white/80 px-2 py-1 text-xs" @click="removeImage(i)">Supprimer</button>
+              <button class="absolute right-2 top-2 rounded bg-white/80 px-2 py-1 text-xs" @click="removeImage(i)">{{ t('admin.productsNew.images.remove') }}</button>
             </div>
           </div>
         </div>
@@ -132,33 +157,33 @@
           <div class="grid gap-4 sm:grid-cols-3">
             <label class="inline-flex items-center gap-2">
               <input type="checkbox" v-model="form.track_inventory" />
-              <span class="text-sm">Suivre l'inventaire</span>
+              <span class="text-sm">{{ t('admin.productsNew.inventory.track') }}</span>
             </label>
             <div>
-              <label class="block text-sm font-medium">Inventaire</label>
+              <label class="block text-sm font-medium">{{ t('admin.productsNew.inventory.quantity') }}</label>
               <input v-model.number="form.stock_quantity" type="number" min="0" class="mt-1 w-full rounded-lg border px-3 py-2" />
             </div>
             <label class="inline-flex items-center gap-2">
               <input type="checkbox" v-model="form.is_visible" />
-              <span class="text-sm">Visible</span>
+              <span class="text-sm">{{ t('admin.productsNew.visibility.visible') }}</span>
             </label>
           </div>
           <div class="mt-4 grid gap-4 sm:grid-cols-3">
             <label class="inline-flex items-center gap-2">
               <input type="checkbox" v-model="form.is_out_of_stock" />
-              <span class="text-sm">Marquer comme épuisé</span>
+              <span class="text-sm">{{ t('admin.productsNew.outOfStock') }}</span>
             </label>
             <div>
-              <label class="block text-sm font-medium">Capacité journalière</label>
+              <label class="block text-sm font-medium">{{ t('admin.productsNew.dailyCapacity') }}</label>
               <input v-model.number="form.daily_capacity" type="number" min="0" class="mt-1 w-full rounded-lg border px-3 py-2" />
             </div>
             <div class="grid gap-2 sm:grid-cols-2">
               <div>
-                <label class="block text-sm font-medium">Qté max par commande</label>
+                <label class="block text-sm font-medium">{{ t('admin.productsNew.maxOrderQty') }}</label>
                 <input v-model.number="form.max_order_qty" type="number" min="0" class="mt-1 w-full rounded-lg border px-3 py-2" />
               </div>
               <div>
-                <label class="block text-sm font-medium">Qté min par commande</label>
+                <label class="block text-sm font-medium">{{ t('admin.productsNew.minOrderQty') }}</label>
                 <input v-model.number="form.min_order_qty" type="number" min="0" class="mt-1 w-full rounded-lg border px-3 py-2" />
               </div>
             </div>
@@ -166,10 +191,10 @@
           <div class="mt-4 grid gap-4 sm:grid-cols-2">
             <label class="inline-flex items-center gap-2">
               <input type="checkbox" v-model="form.tax_exempt" />
-              <span class="text-sm">Dérogation fiscale</span>
+              <span class="text-sm">{{ t('admin.productsNew.tax.exempt') }}</span>
             </label>
             <div>
-              <label class="block text-sm font-medium">Motif</label>
+              <label class="block text-sm font-medium">{{ t('admin.productsNew.tax.reason') }}</label>
               <input v-model.trim="form.tax_exempt_reason" type="text" class="mt-1 w-full rounded-lg border px-3 py-2" />
             </div>
           </div>
@@ -178,7 +203,7 @@
         <div class="rounded-xl border bg-white p-6">
           <div class="grid gap-4 sm:grid-cols-3">
             <div>
-              <label class="block text-sm font-medium">Unité</label>
+              <label class="block text-sm font-medium">{{ t('admin.productsNew.unit.label') }}</label>
               <select v-model="unit" class="mt-1 w-full rounded-lg border px-3 py-2">
                 <option value="G">Grammes (G)</option>
                 <option value="KG">Kilogrammes (KG)</option>
@@ -196,30 +221,30 @@
               </select>
             </div>
             <div>
-              <label class="block text-sm font-medium">Valeur par unité</label>
+              <label class="block text-sm font-medium">{{ t('admin.productsNew.unit.value') }}</label>
               <input v-model.number="unitValue" type="number" min="0" step="0.01" class="mt-1 w-full rounded-lg border px-3 py-2" />
             </div>
             <label class="inline-flex items-center gap-2 mt-6 sm:mt-0">
               <input type="checkbox" v-model="requiresShipping" />
-              <span class="text-sm">Nécessite une livraison</span>
+              <span class="text-sm">{{ t('admin.productsNew.shipping.required') }}</span>
             </label>
           </div>
           <div class="mt-4">
-            <div class="text-sm font-medium">Méthodes de livraison</div>
+            <div class="text-sm font-medium">{{ t('admin.productsNew.shipping.methods') }}</div>
             <div class="mt-2 flex flex-wrap gap-2">
-              <button class="rounded px-3 py-1 text-xs border" :class="deliveryMethods.has('pickup')?'bg-green-100 border-green-300':'bg-white'" @click="toggleDelivery('pickup')">À emporter</button>
-              <button class="rounded px-3 py-1 text-xs border" :class="deliveryMethods.has('delivery')?'bg-green-100 border-green-300':'bg-white'" @click="toggleDelivery('delivery')">Livraison</button>
-              <button class="rounded px-3 py-1 text-xs border" :class="deliveryMethods.has('dine_in')?'bg-green-100 border-green-300':'bg-white'" @click="toggleDelivery('dine_in')">Sur place</button>
+              <button class="rounded px-3 py-1 text-xs border" :class="deliveryMethods.has('pickup')?'bg-green-100 border-green-300':'bg-white'" @click="toggleDelivery('pickup')">{{ t('admin.productsNew.delivery.pickup') }}</button>
+              <button class="rounded px-3 py-1 text-xs border" :class="deliveryMethods.has('delivery')?'bg-green-100 border-green-300':'bg-white'" @click="toggleDelivery('delivery')">{{ t('admin.productsNew.delivery.delivery') }}</button>
+              <button class="rounded px-3 py-1 text-xs border" :class="deliveryMethods.has('dine_in')?'bg-green-100 border-green-300':'bg-white'" @click="toggleDelivery('dine_in')">{{ t('admin.productsNew.delivery.dine_in') }}</button>
             </div>
           </div>
         </div>
 
         <div class="rounded-xl border bg-white p-6">
           <div class="flex items-center justify-between">
-            <div class="font-semibold">Variantes</div>
+            <div class="font-semibold">{{ t('product.variants') }}</div>
             <div class="flex items-center gap-2">
-              <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="addVariant">Ajouter</button>
-              <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="reorderModeVariants=!reorderModeVariants">Modifier la séquence</button>
+              <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="addVariant">{{ t('admin.productsNew.variants.add') }}</button>
+              <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="reorderModeVariants=!reorderModeVariants">{{ t('admin.productsNew.variants.reorder') }}</button>
             </div>
           </div>
           <div class="mt-4 space-y-3">
@@ -227,9 +252,9 @@
               <div class="hidden sm:flex items-center">
                 <GripVertical class="h-4 w-4 text-gray-400" />
               </div>
-              <input v-model.trim="v.name" type="text" placeholder="Nom" class="rounded border px-2 py-1 text-sm" />
-              <input v-model.number="v.price" type="number" min="0" step="0.01" placeholder="Prix" class="rounded border px-2 py-1 text-sm" />
-              <input v-model.number="v.original_price" type="number" min="0" step="0.01" placeholder="Prix original" class="rounded border px-2 py-1 text-sm" />
+              <input v-model.trim="v.name" type="text" :placeholder="t('admin.productsNew.variants.namePlaceholder')" class="rounded border px-2 py-1 text-sm" />
+              <input v-model.number="v.price" type="number" min="0" step="0.01" :placeholder="t('admin.productsNew.variants.pricePlaceholder')" class="rounded border px-2 py-1 text-sm" />
+              <input v-model.number="v.original_price" type="number" min="0" step="0.01" :placeholder="t('admin.productsNew.variants.originalPricePlaceholder')" class="rounded border px-2 py-1 text-sm" />
               <div class="flex items-center gap-2">
                 <div class="relative">
                    <img :src="v.image_url||''" class="h-10 w-10 rounded object-cover bg-gray-100" />
@@ -240,7 +265,7 @@
               <div class="flex items-center gap-2">
                 <button v-if="reorderModeVariants" class="rounded border px-2 py-1 text-xs" @click="moveVariantUp(i)" :disabled="i===0">↑</button>
                 <button v-if="reorderModeVariants" class="rounded border px-2 py-1 text-xs" @click="moveVariantDown(i)" :disabled="i===variants.length-1">↓</button>
-                <button class="rounded border px-2 py-1 text-xs" @click="removeVariant(i)">Supprimer</button>
+                <button class="rounded border px-2 py-1 text-xs" @click="removeVariant(i)">{{ t('admin.productsNew.variants.remove') }}</button>
               </div>
             </div>
           </div>
@@ -248,10 +273,10 @@
 
         <div class="rounded-xl border bg-white p-6">
           <div class="flex items-center justify-between">
-            <div class="font-semibold">Options</div>
+            <div class="font-semibold">{{ t('product.options') }}</div>
             <div class="flex items-center gap-2">
-              <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="addOption">Ajouter</button>
-              <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="reorderModeOptions=!reorderModeOptions">Modifier l'ordre</button>
+              <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="addOption">{{ t('admin.productsNew.options.add') }}</button>
+              <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="reorderModeOptions=!reorderModeOptions">{{ t('admin.productsNew.options.reorder') }}</button>
             </div>
           </div>
           <div class="mt-4 space-y-3">
@@ -259,23 +284,23 @@
               <div class="hidden sm:flex items-center">
                 <GripVertical class="h-4 w-4 text-gray-400" />
               </div>
-              <input v-model.trim="o.name" type="text" placeholder="Nom" class="rounded border px-2 py-1 text-sm" />
+              <input v-model.trim="o.name" type="text" :placeholder="t('admin.productsNew.options.namePlaceholder')" class="rounded border px-2 py-1 text-sm" />
               <select v-model="o.type" class="rounded border px-2 py-1 text-sm">
-                <option value="text">Texte</option>
-                <option value="number">Nombre</option>
-                <option value="date">Date</option>
-                <option value="checkbox">Case</option>
-                <option value="select">Choix</option>
+                <option value="text">{{ t('admin.productsNew.options.type.text') }}</option>
+                <option value="number">{{ t('admin.productsNew.options.type.number') }}</option>
+                <option value="date">{{ t('admin.productsNew.options.type.date') }}</option>
+                <option value="checkbox">{{ t('admin.productsNew.options.type.checkbox') }}</option>
+                <option value="select">{{ t('admin.productsNew.options.type.select') }}</option>
               </select>
-              <input v-model="o.values" type="text" placeholder="Valeurs (séparées par des virgules)" class="rounded border px-2 py-1 text-sm" />
+              <input v-model="o.values" type="text" :placeholder="t('admin.productsNew.options.valuesPlaceholder')" class="rounded border px-2 py-1 text-sm" />
               <label class="inline-flex items-center gap-2">
                 <input type="checkbox" v-model="o.is_required" />
-                <span class="text-sm">Obligatoire</span>
+                <span class="text-sm">{{ t('admin.productsNew.options.required') }}</span>
               </label>
               <div class="flex items-center gap-2">
                 <button v-if="reorderModeOptions" class="rounded border px-2 py-1 text-xs" @click="moveOptionUp(i)" :disabled="i===0">↑</button>
                 <button v-if="reorderModeOptions" class="rounded border px-2 py-1 text-xs" @click="moveOptionDown(i)" :disabled="i===options.length-1">↓</button>
-                <button class="rounded border px-2 py-1 text-xs" @click="removeOption(i)">Supprimer</button>
+                <button class="rounded border px-2 py-1 text-xs" @click="removeOption(i)">{{ t('admin.productsNew.options.remove') }}</button>
               </div>
             </div>
           </div>
@@ -284,7 +309,7 @@
 
       <div class="space-y-6">
         <div class="rounded-xl border bg-white p-6">
-          <div class="font-semibold">Aperçu (téléphone)</div>
+          <div class="font-semibold">{{ t('admin.productsNew.previewPhoneTitle') }}</div>
           <div class="mt-4 flex justify-center">
             <div class="w-[360px] rounded-3xl border bg-gray-50 p-4">
               <div class="rounded-xl bg-white shadow overflow-hidden">
@@ -293,8 +318,8 @@
                     <span class="text-xs font-semibold text-gray-700">{{ storeInitials || 'SB' }}</span>
                   </div>
                   <div class="flex-1">
-                    <div class="text-sm font-semibold">{{ storeName || 'Votre boutique' }}</div>
-                    <div class="text-xs text-gray-500">en ligne</div>
+                    <div class="text-sm font-semibold">{{ storeName || t('catalog.storeFallback') }}</div>
+                    <div class="text-xs text-gray-500">{{ t('industryIndex.status.online') }}</div>
                   </div>
                   <a v-if="waLink" :href="waLink" target="_blank" class="rounded bg-green-500 px-2 py-1 text-xs font-semibold text-white">WhatsApp</a>
                 </div>
@@ -304,12 +329,12 @@
                   <div class="mt-1 text-sm text-gray-600" style="white-space: pre-line">{{ form.description || 'Description du produit' }}</div>
                   <div class="mt-2 text-sm font-semibold">FCFA {{ Number(form.price || 0).toLocaleString('fr-FR') }}</div>
                   <div class="mt-3">
-                    <a v-if="waLink" :href="waLink" target="_blank" class="block rounded bg-green-500 px-3 py-2 text-sm font-semibold text-white text-center">Contacter sur WhatsApp</a>
-                    <span v-else class="block rounded border bg-white px-3 py-2 text-sm text-center text-gray-600">Numéro non disponible</span>
+                    <a v-if="waLink" :href="waLink" target="_blank" class="block rounded bg-green-500 px-3 py-2 text-sm font-semibold text-white text-center">{{ t('admin.productsNew.preview.whatsappCta') }}</a>
+                    <span v-else class="block rounded border bg-white px-3 py-2 text-sm text-center text-gray-600">{{ t('admin.productsNew.preview.noNumber') }}</span>
                   </div>
                 </div>
                 <div class="border-t p-3 text-sm text-gray-700">
-                  WhatsApp: {{ storePhone || '—' }}
+                  {{ t('admin.productsNew.preview.whatsAppLabel') }} {{ storePhone || '—' }}
                 </div>
               </div>
             </div>
@@ -321,7 +346,31 @@
   <div v-if="saving" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 backdrop-blur-sm">
     <div class="rounded-xl bg-gray-900/90 px-6 py-5 text-center text-white shadow-xl">
       <div class="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-white/30 border-t-white"></div>
-      <div class="mt-3 text-sm font-semibold">Création du produit…</div>
+      <div class="mt-3 text-sm font-semibold">{{ t('admin.productsNew.overlay.creating') }}</div>
+    </div>
+  </div>
+  <div v-if="showGenerateModal" class="fixed inset-0 z-[110] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+    <div class="w-full max-w-xl rounded-xl bg-white shadow-xl">
+      <div class="flex items-center justify-between border-b p-4">
+        <div class="font-semibold">{{ t('admin.productsNew.generateModal.title') }}</div>
+        <button @click="showGenerateModal=false" class="rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700">
+          <X class="h-5 w-5" />
+        </button>
+      </div>
+      <div class="p-4">
+        <textarea v-model.trim="generateText" rows="6" class="w-full rounded-lg border px-3 py-2 text-sm" :placeholder="t('admin.productsNew.generateModal.placeholder')"></textarea>
+        <div class="mt-3 text-xs text-gray-500">{{ t('admin.productsNew.generateModal.note') }}</div>
+      </div>
+      <div class="flex items-center justify-end gap-2 border-t p-4">
+        <button @click="showGenerateModal=false" class="rounded-lg border bg-white px-3 py-2 text-sm">{{ t('admin.productsNew.generateModal.cancel') }}</button>
+        <button 
+          @click="submitGenerate" 
+          :disabled="generatingProduct || !generateText || admin.isFreePlan" 
+          class="rounded-lg bg-purple-600 px-3 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {{ generatingProduct ? t('admin.productsNew.generateModal.generating') : t('admin.productsNew.generateModal.submit') }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -329,14 +378,19 @@
 <script setup lang="ts">
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
-import { Upload, GripVertical, Sparkles, Wand2 } from 'lucide-vue-next'
+import { useI18n } from '~/composables/i18n'
+import { Upload, GripVertical, Sparkles, Wand2, X } from 'lucide-vue-next'
 definePageMeta({ layout: 'admin', alias: ['/admin/product/new'] })
 const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
 const admin = useAdminStore()
+const { t } = useI18n()
 const saving = ref(false)
 const generatingDesc = ref(false)
 const generatingImage = ref(false)
+const showGenerateModal = ref(false)
+const generateText = ref('')
+const generatingProduct = ref(false)
 const toast = useToast()
 
 const form = reactive<any>({
@@ -387,15 +441,15 @@ function selectCategory(c: any) {
   categorySearch.value = c ? String(c.name || '') : ''
   categoryOpen.value = false
 }
-function createCategoryFromSearch() {
-  const v = String(categorySearch.value || '').trim()
-  if (!v) return
-  const exists = filteredCategories.value.find((c: any) => String(c.name || '').toLowerCase() === v.toLowerCase())
-  if (exists) { toast.error('Cette catégorie existe déjà'); return }
-  newCategoryName.value = v
-  createCategory()
-  categoryOpen.value = false
-}
+  function createCategoryFromSearch() {
+    const v = String(categorySearch.value || '').trim()
+    if (!v) return
+    const exists = filteredCategories.value.find((c: any) => String(c.name || '').toLowerCase() === v.toLowerCase())
+    if (exists) { toast.error(t('admin.productsNew.category.exists')); return }
+    newCategoryName.value = v
+    createCategory()
+    categoryOpen.value = false
+  }
 function closeCategoryDropdownLater() { setTimeout(() => categoryOpen.value = false, 150) }
 const variants = ref<any[]>([])
 const options = ref<any[]>([])
@@ -429,22 +483,22 @@ async function createTag() {
     }
   } finally { tagCreating.value = false }
 }
-function createCategory() {
-  const name = String(newCategoryName.value || '').trim()
-  if (!name) { toast.error('Nom de catégorie invalide'); return }
-  const storeId = admin.selectedShopId
-  if (!storeId) { toast.error('Sélectionnez une boutique'); return }
-  ;(async () => {
-    const { data, error } = await supabase.from('categories').insert({ store_id: storeId, name }).select('id').maybeSingle()
-    if (error) { toast.error('Erreur de création de catégorie'); newCategoryName.value = ''; return }
-    if (data?.id) {
-      form.category_id = Number(data.id)
-      toast.success('Catégorie créée')
-      await loadFilters()
-    }
-    newCategoryName.value = ''
-  })()
-}
+  function createCategory() {
+    const name = String(newCategoryName.value || '').trim()
+    if (!name) { toast.error(t('admin.productsNew.category.invalidName')); return }
+    const storeId = admin.selectedShopId
+    if (!storeId) { toast.error(t('admin.productsNew.toast.selectStore')); return }
+    ;(async () => {
+      const { data, error } = await supabase.from('categories').insert({ store_id: storeId, name }).select('id').maybeSingle()
+      if (error) { toast.error(t('admin.productsNew.category.createError')); newCategoryName.value = ''; return }
+      if (data?.id) {
+        form.category_id = Number(data.id)
+        toast.success(t('admin.productsNew.category.created'))
+        await loadFilters()
+      }
+      newCategoryName.value = ''
+    })()
+  }
 const imageUploadLoading = ref(false)
 const tagCreating = ref(false)
 const imageUrl = ref('')
@@ -467,23 +521,23 @@ function removeImage(i: string | number) {
   form.images.splice(idx, 1)
 }
 
-async function onImageFile(e: any) {
-  const files = e.target.files
-  if (!files || files.length === 0) return
-  const MAX = 10 * 1024 * 1024
-  for (const f of Array.from(files) as File[]) {
-    if (f.size > MAX) { toast.error(`Fichier trop volumineux: ${f.name} (>10MB)`); continue }
-    await uploadImage(f)
+  async function onImageFile(e: any) {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+    const MAX = 10 * 1024 * 1024
+    for (const f of Array.from(files) as File[]) {
+      if (f.size > MAX) { toast.error(t('admin.productsNew.images.fileTooLargeName', { name: f.name })); continue }
+      await uploadImage(f)
+    }
   }
-}
 function triggerImageInput() { imageFileInput.value?.click() }
 function onImageDragEnter() { dropActive.value = true }
 function onImageDragOver() { dropActive.value = true }
 function onImageDragLeave() { dropActive.value = false }
-async function onImageDrop(e: DragEvent) {
-  dropActive.value = false
-  const files: File[] = []
-  const dt = e.dataTransfer
+  async function onImageDrop(e: DragEvent) {
+    dropActive.value = false
+    const files: File[] = []
+    const dt = e.dataTransfer
   if (dt?.items && dt.items.length) {
     for (const item of Array.from(dt.items)) {
       if (item.kind === 'file') {
@@ -494,12 +548,12 @@ async function onImageDrop(e: DragEvent) {
   } else if (dt?.files && dt.files.length) {
     files.push(...Array.from(dt.files))
   }
-  const MAX = 10 * 1024 * 1024
-  for (const f of files) {
-    if (f.size > MAX) { toast.error('Fichier trop volumineux (>10MB)'); continue }
-    await uploadImage(f)
+    const MAX = 10 * 1024 * 1024
+    for (const f of files) {
+      if (f.size > MAX) { toast.error(t('admin.productsNew.images.fileTooLarge')); continue }
+      await uploadImage(f)
+    }
   }
-}
 const isValid = computed(() => !!form.name && Number(form.price) >= 0)
 const pendingUploads = ref(new Map<string, File>())
 
@@ -575,13 +629,13 @@ function onOptionDrop(i: number) {
   dragOptionIndex = null
 }
 
-async function generateDescription() {
-  if (!form.name) {
-    toast.error('Veuillez entrer un nom de produit d\'abord')
-    return
-  }
-  generatingDesc.value = true
-  try {
+  async function generateDescription() {
+    if (!form.name) {
+      toast.error(t('admin.productsNew.description.enterName'))
+      return
+    }
+    generatingDesc.value = true
+    try {
     const { description } = await $fetch<{ description?: string }>('/api/ai/generate-description', {
       method: 'POST',
       body: { 
@@ -589,24 +643,24 @@ async function generateDescription() {
         keywords: [form.sku].filter(Boolean).join(', ')
       }
     })
-    if (description) {
-      form.description = description
-      toast.success('Description générée !')
+      if (description) {
+        form.description = description
+        toast.success(t('admin.productsNew.description.generated'))
+      }
+    } catch (e: any) {
+      toast.error(e.statusMessage || t('admin.productsNew.description.error'))
+    } finally {
+      generatingDesc.value = false
     }
-  } catch (e: any) {
-    toast.error(e.statusMessage || 'Erreur lors de la génération')
-  } finally {
-    generatingDesc.value = false
   }
-}
 
-async function generateImage() {
-  if (!form.name) {
-    toast.error('Entrez un nom de produit pour guider l\'IA')
-    return
-  }
-  generatingImage.value = true
-  try {
+  async function generateImage() {
+    if (!form.name) {
+      toast.error(t('admin.productsNew.image.enterName'))
+      return
+    }
+    generatingImage.value = true
+    try {
     const { imageUrl } = await $fetch<{ imageUrl?: string }>('/api/ai/generate-image', {
       method: 'POST',
       body: { 
@@ -618,10 +672,10 @@ async function generateImage() {
       const blob = await res.blob()
       const file = new File([blob], "ai-generated.jpg", { type: "image/jpeg" })
       uploadImage(file)
-      toast.success('Image générée !')
+      toast.success(t('admin.productsNew.image.generated'))
     }
   } catch (e: any) {
-    toast.error(e.statusMessage || 'Erreur lors de la génération')
+    toast.error(e.statusMessage || t('admin.productsNew.image.error'))
   } finally {
     generatingImage.value = false
   }
@@ -764,6 +818,30 @@ async function save() {
     toast.error(e.message || 'Erreur lors de la création du produit')
   } finally { saving.value = false }
 }
+async function submitGenerate() {
+  if (!admin.selectedShopId) { toast.error(t('admin.productsNew.toast.selectStore')); return }
+  if (admin.isFreePlan) { return navigateTo('/admin/settings?tab=billing') }
+  const txt = String(generateText.value || '').trim()
+  if (!txt) { toast.error(t('admin.productsNew.toast.enterText')); return }
+  generatingProduct.value = true
+  try {
+    const r = await $fetch<{ id: string }>('/api/ai/generate-product', {
+      method: 'POST',
+      body: { storeId: admin.selectedShopId, text: txt }
+    })
+    if (r?.id) {
+      toast.success(t('admin.productsNew.toast.success'))
+      showGenerateModal.value = false
+      generateText.value = ''
+      setTimeout(() => navigateTo(`/admin/products/${r.id}`), 500)
+    }
+  } catch (e: any) {
+    const msg = e?.statusMessage ? String(e.statusMessage) : t('admin.productsNew.toast.error')
+    toast.error(msg)
+  } finally {
+    generatingProduct.value = false
+  }
+}
 async function loadFilters() {
   const storeId = admin.selectedShopId
   if (!storeId) return
@@ -790,6 +868,7 @@ onMounted(async () => {
     storePhone.value = String(sone?.phone || '')
     storeName.value = String(sone?.name || '')
   }
+  await admin.fetchSubscription(supabase)
 })
 
 onUnmounted(() => {
