@@ -19,7 +19,7 @@
       </div>
       <div class="rounded-xl border bg-white p-6">
         <div class="text-sm text-gray-500">{{ t('admin.stats.sales') }}</div>
-        <div class="mt-2 text-3xl font-semibold">FCFA {{ Number(metrics.sales || 0).toLocaleString('fr-FR') }}</div>
+        <div class="mt-2 text-3xl font-semibold">XAF {{ Number(metrics.sales || 0).toLocaleString('fr-FR') }}</div>
       </div>
     </div>
 
@@ -39,7 +39,7 @@
               <tr v-for="p in topProducts" :key="p.name" class="border-t">
                 <td class="px-4 py-3">{{ p.name }}</td>
                 <td class="px-4 py-3">{{ p.qty }}</td>
-                <td class="px-4 py-3">FCFA {{ Number(p.revenue || 0).toLocaleString('fr-FR') }}</td>
+                <td class="px-4 py-3">XAF {{ Number(p.revenue || 0).toLocaleString('fr-FR') }}</td>
               </tr>
               <tr v-if="topProducts.length===0">
                 <td colspan="3" class="px-4 py-6 text-center text-sm text-gray-500">{{ t('admin.stats.noData') }}</td>

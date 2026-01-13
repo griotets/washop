@@ -38,34 +38,61 @@
             <div class="mt-3">
               <div class="text-xl font-bold">{{ product.name || t('storefront.productFallback') }}</div>
               <div class="mt-2 text-gray-700" style="white-space: pre-line">{{ product.description || '' }}</div>
-              <div class="mt-3 text-lg font-semibold">FCFA {{ Number(displayPrice || 0).toLocaleString(getNumberLocale()) }}</div>
+              <div class="mt-3 text-lg font-semibold">XAF {{ Number(displayPrice || 0).toLocaleString(getNumberLocale()) }}</div>
               <div v-if="showStockHint" class="mt-1 text-xs font-semibold text-red-600">{{ t('product.stockLeft', { n: stockLeft }) }}</div>
               
               <div v-if="variants.length > 0" class="mt-4">
                 <div class="mb-2 text-sm font-medium text-gray-700">{{ t('product.variants') }}</div>
-                <div class="grid grid-cols-2 gap-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <label v-for="v in variants" :key="v.id" :class="['flex items-center gap-2 rounded border px-3 py-2', selectedVariantId===String(v.id) ? 'border-primary bg-primary/5' : 'border-gray-200', variantUnavailable(v) ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer']">
                     <input type="radio" class="sr-only" :value="String(v.id)" v-model="selectedVariantId" :disabled="variantUnavailable(v)" />
-                    <span class="font-medium">{{ v.name }}</span>
+                    <img v-if="v.image_url" :src="v.image_url" class="h-8 w-8 rounded object-cover bg-gray-100" />
+                    <span class="font-medium text-sm">{{ v.name }}</span>
                     <span v-if="variantUnavailable(v)" class="rounded bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">{{ t('storefront.soldOut') }}</span>
-                    <span class="ml-auto text-xs text-gray-600">FCFA {{ Number(v.price || 0).toLocaleString(getNumberLocale()) }}</span>
+                    <span class="ml-auto text-xs text-gray-600">XAF {{ Number(v.price || 0).toLocaleString(getNumberLocale()) }}</span>
                   </label>
                 </div>
               </div>
 
-              <div v-if="optionsList.length > 0" class="mt-4 space-y-3">
+              <div v-if="optionsList.length > 0" class="mt-4 space-y-4">
                 <div class="text-sm font-medium text-gray-700">{{ t('product.options') }}</div>
-                <div v-for="opt in optionsList" :key="opt.id" class="space-y-1">
+                <div v-for="opt in optionsList" :key="opt.id" class="space-y-2">
                   <label class="block text-xs font-medium text-gray-600">
                     {{ opt.name }} <span v-if="opt.is_required" class="text-red-600">*</span>
                   </label>
+                  
+                  <!-- Select -->
                   <select v-if="opt.type==='select'" v-model="selectedOptions[opt.name]" class="w-full rounded border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary">
                     <option value="" disabled>{{ t('product.selectOption') }}</option>
                     <option v-for="val in (Array.isArray(opt.values)?opt.values:[])" :key="val" :value="val">{{ val }}</option>
                   </select>
+
+                  <!-- Color -->
+                  <div v-else-if="opt.type==='color'" class="flex flex-wrap gap-2">
+                    <label v-for="val in (Array.isArray(opt.values)?opt.values:[])" :key="val" class="cursor-pointer relative">
+                      <input type="radio" :name="'opt-'+opt.id" :value="val" v-model="selectedOptions[opt.name]" class="peer sr-only" />
+                      <span class="block h-8 w-8 rounded-full border border-gray-200 shadow-sm peer-checked:ring-2 peer-checked:ring-primary peer-checked:ring-offset-1" :style="{ backgroundColor: val }"></span>
+                    </label>
+                  </div>
+
+                  <!-- Radio (Pills) -->
+                  <div v-else-if="opt.type==='radio'" class="flex flex-wrap gap-2">
+                    <label v-for="val in (Array.isArray(opt.values)?opt.values:[])" :key="val" class="cursor-pointer">
+                      <input type="radio" :name="'opt-'+opt.id" :value="val" v-model="selectedOptions[opt.name]" class="peer sr-only" />
+                      <span class="block rounded border border-gray-200 px-3 py-1.5 text-sm font-medium peer-checked:border-primary peer-checked:bg-primary peer-checked:text-white transition-colors">{{ val }}</span>
+                    </label>
+                  </div>
+
+                  <!-- Text -->
                   <input v-else-if="opt.type==='text'" v-model="selectedOptions[opt.name]" type="text" class="w-full rounded border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary" />
+                  
+                  <!-- Number -->
                   <input v-else-if="opt.type==='number'" v-model.number="selectedOptions[opt.name]" type="number" class="w-full rounded border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary" />
+                  
+                  <!-- Date -->
                   <input v-else-if="opt.type==='date'" v-model="selectedOptions[opt.name]" type="date" class="w-full rounded border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary" />
+                  
+                  <!-- Checkbox -->
                   <label v-else-if="opt.type==='checkbox'" class="inline-flex items-center gap-2 text-sm">
                     <input type="checkbox" v-model="selectedOptions[opt.name]" />
                     {{ t('common.continue') }}

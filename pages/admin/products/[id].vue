@@ -92,55 +92,114 @@
         </div>
 
         <div class="rounded-xl border bg-white p-6">
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between mb-4">
             <div class="font-semibold">{{ t('admin.productForm.variantsTitle') }}</div>
-            <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="addVariant"><Plus class="h-4 w-4" /><span>{{ t('admin.productForm.add') }}</span></button>
+            <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm hover:bg-gray-50" @click="addVariant"><Plus class="h-4 w-4" /><span>{{ t('admin.productForm.add') }}</span></button>
           </div>
-          <div class="mt-4 space-y-3">
-            <div v-for="(v,i) in variants" :key="v.id||i" class="grid gap-3 sm:grid-cols-5 items-center">
-              <input v-model.trim="v.name" type="text" :placeholder="t('admin.productForm.variantNamePlaceholder')" class="rounded border px-2 py-1 text-sm" />
-              <input v-model.number="v.price" type="number" min="0" step="0.01" :placeholder="t('admin.productForm.variantPricePlaceholder')" class="rounded border px-2 py-1 text-sm" />
-              <input v-model.number="v.original_price" type="number" min="0" step="0.01" :placeholder="t('admin.productForm.variantOriginalPricePlaceholder')" class="rounded border px-2 py-1 text-sm" />
-              <div class="flex items-center gap-2">
-                <div class="relative">
-                  <img :src="v.image_url||''" class="h-10 w-10 rounded object-cover bg-gray-100" />
-                  <div v-if="v._imgLoading" class="absolute inset-0 flex items-center justify-center bg-black/50 rounded"><div class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div></div>
-                </div>
-                <input type="file" accept="image/*" @change="(e:any)=>uploadVariantImage(e,v)" />
-              </div>
-              <div class="flex items-center gap-2">
-                <button class="rounded border px-2 py-1 text-xs" @click="saveVariant(v,i)" :disabled="v._loading">{{ v._loading ? '...' : t('admin.productForm.save') }}</button>
-                <button class="rounded border px-2 py-1 text-xs" @click="deleteVariant(v,i)" :disabled="v._loading">{{ t('admin.productForm.delete') }}</button>
-              </div>
+          <div class="space-y-4">
+            <div v-for="(v,i) in variants" :key="v.id||i" class="rounded-lg border p-4 bg-gray-50/50">
+               <div class="flex flex-col sm:flex-row gap-4">
+                  <!-- Image -->
+                  <div class="relative h-20 w-20 shrink-0 group">
+                    <img :src="v.image_url||''" class="h-full w-full rounded-lg object-cover bg-white border" />
+                    <div v-if="v._imgLoading" class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg"><div class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div></div>
+                    <label class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-lg">
+                      <Upload class="h-5 w-5 text-white" />
+                      <input type="file" accept="image/*" class="hidden" @change="(e:any)=>uploadVariantImage(e,v)" />
+                    </label>
+                  </div>
+
+                  <!-- Fields -->
+                  <div class="flex-1 grid gap-4 sm:grid-cols-3">
+                     <div>
+                        <label class="mb-1 block text-xs font-medium text-gray-500">{{ t('admin.productForm.variantNamePlaceholder') }}</label>
+                        <input v-model.trim="v.name" type="text" class="w-full rounded border px-2 py-1.5 text-sm" />
+                     </div>
+                     <div>
+                        <label class="mb-1 block text-xs font-medium text-gray-500">{{ t('admin.productForm.variantPricePlaceholder') }}</label>
+                        <input v-model.number="v.price" type="number" min="0" step="0.01" class="w-full rounded border px-2 py-1.5 text-sm" />
+                     </div>
+                     <div>
+                        <label class="mb-1 block text-xs font-medium text-gray-500">{{ t('admin.productForm.variantOriginalPricePlaceholder') }}</label>
+                        <input v-model.number="v.original_price" type="number" min="0" step="0.01" class="w-full rounded border px-2 py-1.5 text-sm" />
+                     </div>
+                  </div>
+
+                  <!-- Actions -->
+                  <div class="flex items-start gap-1 sm:pt-6">
+                    <button class="text-gray-500 hover:text-blue-600 p-1" @click="cloneVariant(v)" :title="t('admin.productForm.clone')">
+                      <Copy class="h-4 w-4" />
+                    </button>
+                    <button class="text-gray-500 hover:text-red-600 p-1" @click="deleteVariant(v,i)" :title="t('admin.productForm.delete')">
+                      <Trash class="h-4 w-4" />
+                    </button>
+                  </div>
+               </div>
             </div>
+            <div v-if="variants.length === 0" class="text-center text-sm text-gray-500 py-4">{{ t('admin.productForm.noVariants') }}</div>
           </div>
         </div>
 
         <div class="rounded-xl border bg-white p-6">
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between mb-4">
             <div class="font-semibold">{{ t('admin.productForm.optionsTitle') }}</div>
-            <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="addOption"><Plus class="h-4 w-4" /><span>{{ t('admin.productForm.add') }}</span></button>
+            <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm hover:bg-gray-50" @click="addOption"><Plus class="h-4 w-4" /><span>{{ t('admin.productForm.add') }}</span></button>
           </div>
-          <div class="mt-4 space-y-3">
-            <div v-for="(o,i) in options" :key="o.id||i" class="grid gap-3 sm:grid-cols-5 items-center">
-              <input v-model.trim="o.name" type="text" :placeholder="t('admin.productForm.optionNamePlaceholder')" class="rounded border px-2 py-1 text-sm" />
-              <select v-model="o.type" class="rounded border px-2 py-1 text-sm">
-                <option value="text">{{ t('admin.productForm.optionType.text') }}</option>
-                <option value="number">{{ t('admin.productForm.optionType.number') }}</option>
-                <option value="date">{{ t('admin.productForm.optionType.date') }}</option>
-                <option value="checkbox">{{ t('admin.productForm.optionType.checkbox') }}</option>
-                <option value="select">{{ t('admin.productForm.optionType.select') }}</option>
-              </select>
-              <input v-model="o.values" type="text" :placeholder="t('admin.productForm.optionValuesPlaceholder')" class="rounded border px-2 py-1 text-sm" />
-              <label class="inline-flex items-center gap-2">
-                <input type="checkbox" v-model="o.is_required" />
-                <span class="text-sm">{{ t('admin.productForm.required') }}</span>
-              </label>
-              <div class="flex items-center gap-2">
-                <button class="rounded border px-2 py-1 text-xs" @click="saveOption(o,i)" :disabled="o._loading">{{ o._loading ? '...' : t('admin.productForm.save') }}</button>
-                <button class="rounded border px-2 py-1 text-xs" @click="deleteOption(o,i)" :disabled="o._loading">{{ t('admin.productForm.delete') }}</button>
+          <div class="space-y-4">
+            <div v-for="(o,i) in options" :key="o.id||i" class="rounded-lg border p-4 bg-gray-50/50">
+              <div class="grid gap-4 sm:grid-cols-3 mb-3">
+                 <div>
+                    <label class="mb-1 block text-xs font-medium text-gray-500">{{ t('admin.productForm.optionNamePlaceholder') }}</label>
+                    <input v-model.trim="o.name" type="text" class="w-full rounded border px-2 py-1.5 text-sm" />
+                 </div>
+                 <div>
+                    <label class="mb-1 block text-xs font-medium text-gray-500">{{ t('admin.productForm.optionTypeLabel') }}</label>
+                    <select v-model="o.type" class="w-full rounded border px-2 py-1.5 text-sm">
+                      <option value="text">{{ t('admin.productForm.optionType.text') }}</option>
+                      <option value="number">{{ t('admin.productForm.optionType.number') }}</option>
+                      <option value="date">{{ t('admin.productForm.optionType.date') }}</option>
+                      <option value="checkbox">{{ t('admin.productForm.optionType.checkbox') }}</option>
+                      <option value="select">{{ t('admin.productForm.optionType.select') }}</option>
+                      <option value="color">{{ t('admin.productForm.optionType.color') }}</option>
+                    </select>
+                 </div>
+                 <div class="flex items-center gap-2 sm:pt-6">
+                    <input v-model="o.is_required" type="checkbox" class="h-4 w-4 rounded border-gray-300" :id="'req-'+i" />
+                    <label :for="'req-'+i" class="text-sm cursor-pointer select-none">{{ t('admin.productForm.required') }}</label>
+                    
+                    <div class="ml-auto flex items-center gap-1">
+                      <button class="text-gray-500 hover:text-blue-600 p-1" @click="cloneOption(o)" :title="t('admin.productForm.clone')">
+                        <Copy class="h-4 w-4" />
+                      </button>
+                      <button class="text-gray-500 hover:text-red-600 p-1" @click="deleteOption(o,i)" :title="t('admin.productForm.delete')">
+                        <Trash class="h-4 w-4" />
+                      </button>
+                    </div>
+                 </div>
+              </div>
+
+              <!-- Values for Select/Color/Radio -->
+              <div v-if="['select','color','radio'].includes(o.type)" class="mt-2 border-t pt-2">
+                 <label class="mb-2 block text-xs font-medium text-gray-500">{{ t('admin.productForm.optionValuesPlaceholder') }}</label>
+                 <div class="flex flex-wrap gap-2 mb-2">
+                    <div v-for="(val, vIdx) in (Array.isArray(o.values) ? o.values : [])" :key="vIdx" class="inline-flex items-center gap-1 rounded bg-white border px-2 py-1 text-sm">
+                       <div v-if="o.type==='color'" class="w-3 h-3 rounded-full border" :style="{backgroundColor: val}"></div>
+                       <span>{{ val }}</span>
+                       <button @click="removeOptionValue(o, vIdx)" class="text-gray-400 hover:text-red-500"><X class="h-3 w-3" /></button>
+                    </div>
+                 </div>
+                 <div class="flex gap-2">
+                    <input 
+                      type="text" 
+                      :placeholder="t('admin.productForm.addValuePlaceholder')" 
+                      class="flex-1 rounded border px-2 py-1.5 text-sm"
+                      @keydown.enter.prevent="addOptionValue(o, $event)"
+                    />
+                    <div class="text-xs text-gray-400 self-center hidden sm:block">{{ t('admin.productForm.addValueHint') }}</div>
+                 </div>
               </div>
             </div>
+            <div v-if="options.length === 0" class="text-center text-sm text-gray-500 py-4">{{ t('admin.productForm.noOptions') }}</div>
           </div>
         </div>
       </div>
@@ -152,7 +211,7 @@
             <img :src="form.images[0] || ''" class="h-16 w-16 rounded object-cover bg-gray-100" />
             <div>
               <div class="font-medium">{{ form.name || t('admin.productForm.previewNameFallback') }}</div>
-              <div class="text-sm text-gray-600">FCFA {{ Number(form.price || 0).toLocaleString(getNumberLocale()) }}</div>
+              <div class="text-sm text-gray-600">XAF {{ Number(form.price || 0).toLocaleString(getNumberLocale()) }}</div>
             </div>
           </div>
         </div>
@@ -171,7 +230,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
 import { useI18n } from '~/composables/i18n'
-import { Plus, Trash, Upload } from 'lucide-vue-next'
+import { Plus, Trash, Upload, X, Copy } from 'lucide-vue-next'
 definePageMeta({ layout: 'admin', alias: ['/admin/product/:id'] })
 const route = useRoute()
 const id = computed(() => String(route.params.id || ''))
@@ -193,6 +252,8 @@ const form = reactive<any>({
 })
 const variants = ref<any[]>([])
 const options = ref<any[]>([])
+const variantsToDelete = ref<number[]>([])
+const optionsToDelete = ref<number[]>([])
 const categories = ref<any[]>([])
 const tags = ref<any[]>([])
 const productTagIds = ref<Set<number>>(new Set())
@@ -313,7 +374,7 @@ async function save() {
   if (!storeId) return
   saving.value = true
   try {
-    // Process pending uploads
+    // Process pending uploads for main product images
     const uploadedImages = []
     for (const img of form.images) {
       if (pendingUploads.value.has(img)) {
@@ -322,7 +383,6 @@ async function save() {
         const path = `stores/${storeId}/products/${id.value}/${Date.now()}-${sanitizedName}`
         const publicUrl = await uploadFileToStorage(file, path)
         uploadedImages.push(publicUrl)
-        // Cleanup
         URL.revokeObjectURL(img)
         pendingUploads.value.delete(img)
       } else {
@@ -331,6 +391,7 @@ async function save() {
     }
     form.images = uploadedImages
 
+    // 1. Update Product
     const payload = {
       name: form.name,
       price: form.price,
@@ -343,6 +404,59 @@ async function save() {
     }
     const { error } = await supabase.from('products').update(payload).eq('id', id.value).eq('store_id', storeId)
     if (error) throw error
+
+    // 2. Handle Deletions
+    if (variantsToDelete.value.length) await supabase.from('variants').delete().in('id', variantsToDelete.value)
+    if (optionsToDelete.value.length) await supabase.from('options').delete().in('id', optionsToDelete.value)
+    variantsToDelete.value = []
+    optionsToDelete.value = []
+
+    // 3. Upsert Variants
+    for (const v of variants.value) {
+       if (v._pendingFile) {
+          const file = v._pendingFile
+          const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
+          const path = `stores/${storeId}/products/${id.value}/variants/${Date.now()}-${sanitizedName}`
+          const publicUrl = await uploadFileToStorage(file, path)
+          if (v.image_url && v.image_url.startsWith('blob:')) {
+             URL.revokeObjectURL(v.image_url)
+          }
+          v.image_url = publicUrl
+          delete v._pendingFile
+       }
+       const vPayload = {
+         product_id: id.value,
+         name: v.name,
+         price: v.price,
+         original_price: v.original_price,
+         image_url: v.image_url
+       }
+       if (v.id) {
+         await supabase.from('variants').update(vPayload).eq('id', v.id)
+       } else {
+         const { data } = await supabase.from('variants').insert(vPayload).select('id').maybeSingle()
+         if (data) v.id = data.id
+       }
+    }
+
+    // 4. Upsert Options
+    for (const o of options.value) {
+       const vals = Array.isArray(o.values) ? o.values : String(o.values || '').split(',').map((s: string) => s.trim()).filter(Boolean)
+       const oPayload = {
+         product_id: id.value,
+         name: o.name,
+         type: o.type,
+         values: vals,
+         is_required: o.is_required
+       }
+       if (o.id) {
+         await supabase.from('options').update(oPayload).eq('id', o.id)
+       } else {
+         const { data } = await supabase.from('options').insert(oPayload).select('id').maybeSingle()
+         if (data) o.id = data.id
+       }
+    }
+
     const toast = useToast()
     toast.success(t('admin.productEdit.updated'))
   } catch (e: any) {
@@ -392,41 +506,19 @@ function onImageTileDrop(i: string | number) {
 async function addVariant() {
   variants.value.push({ id: null, name: '', price: 0, original_price: 0, image_url: '' })
 }
-async function saveVariant(v: any, index: number) {
-  if (!v.name) return
-  v._loading = true
-  try {
-    if (v._pendingFile) {
-        const file = v._pendingFile
-        const storeId = admin.selectedShopId
-        const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
-        const path = `stores/${storeId}/products/${id.value}/variants/${Date.now()}-${sanitizedName}`
-        const publicUrl = await uploadFileToStorage(file, path)
-        if (v.image_url && v.image_url.startsWith('blob:')) {
-           URL.revokeObjectURL(v.image_url)
-        }
-        v.image_url = publicUrl
-        delete v._pendingFile
-    }
-
-    if (!v.id) {
-      const { data } = await supabase.from('variants').insert({ product_id: id.value, name: v.name, price: v.price, original_price: v.original_price, image_url: v.image_url }).select('id').maybeSingle()
-      v.id = data?.id
-    } else {
-      await supabase.from('variants').update({ name: v.name, price: v.price, original_price: v.original_price, image_url: v.image_url }).eq('id', v.id)
-    }
-    variants.value[index] = { ...v }
-  } finally { v._loading = false }
+function cloneVariant(v: any) {
+  variants.value.push({
+    id: null,
+    name: v.name + ' (Copy)',
+    price: v.price,
+    original_price: v.original_price,
+    image_url: v.image_url,
+    _imgLoading: false
+  })
 }
-async function deleteVariant(v: any, index: number) {
-  if (v.id) {
-    v._loading = true
-    try {
-      await supabase.from('variants').delete().eq('id', v.id)
-    } catch {
-      v._loading = false; return
-    }
-  }
+
+function deleteVariant(v: any, index: number) {
+  if (v.id) variantsToDelete.value.push(v.id)
   if (v.image_url && v.image_url.startsWith('blob:')) {
     URL.revokeObjectURL(v.image_url)
   }
@@ -450,30 +542,28 @@ async function uploadVariantImage(e: any, v: any) {
   v.image_url = previewUrl
   v._pendingFile = f
 }
-async function addOption() { options.value.push({ id: null, name: '', type: 'text', values: [], is_required: false }) }
-async function saveOption(o: any, index: number) {
-  if (!o.name) return
-  const vals = Array.isArray(o.values) ? o.values : String(o.values || '').split(',').map((s: string) => s.trim()).filter(Boolean)
-  o._loading = true
-  try {
-    if (!o.id) {
-      const { data } = await supabase.from('options').insert({ product_id: id.value, name: o.name, type: o.type, values: vals, is_required: o.is_required }).select('id').maybeSingle()
-      o.id = data?.id
-    } else {
-      await supabase.from('options').update({ name: o.name, type: o.type, values: vals, is_required: o.is_required }).eq('id', o.id)
-    }
-    options.value[index] = { ...o, values: vals }
-  } finally { o._loading = false }
+function addOptionValue(o: any, e: any) {
+  const val = e.target.value.trim()
+  if (!val) return
+  if (!Array.isArray(o.values)) o.values = []
+  if (!o.values.includes(val)) o.values.push(val)
+  e.target.value = ''
 }
-async function deleteOption(o: any, index: number) {
-  if (o.id) {
-    o._loading = true
-    try {
-      await supabase.from('options').delete().eq('id', o.id)
-    } catch {
-      o._loading = false; return
-    }
-  }
+function removeOptionValue(o: any, index: number) {
+  if (Array.isArray(o.values)) o.values.splice(index, 1)
+}
+async function addOption() { options.value.push({ id: null, name: '', type: 'text', values: [], is_required: false }) }
+function cloneOption(o: any) {
+  options.value.push({
+    id: null,
+    name: o.name + ' (Copy)',
+    type: o.type,
+    values: Array.isArray(o.values) ? [...o.values] : [],
+    is_required: o.is_required
+  })
+}
+function deleteOption(o: any, index: number) {
+  if (o.id) optionsToDelete.value.push(o.id)
   options.value.splice(index, 1)
 }
 async function setCategory(categoryId: number | null) {
