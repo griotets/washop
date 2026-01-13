@@ -496,7 +496,7 @@ onMounted(async () => {
         .from('variants')
         .select('product_id,track_inventory,stock_quantity,is_out_of_stock')
         .in('product_id', ids)
-      const map: Record<string, boolean> = {}
+      const map: Record<string, boolean> = {};
       (vars || []).forEach(v => {
         const ok = !v.is_out_of_stock && (!v.track_inventory || Number(v.stock_quantity || 0) > 0)
         const key = String(v.product_id)
