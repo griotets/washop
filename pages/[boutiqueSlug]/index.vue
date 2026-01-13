@@ -1,8 +1,23 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <CatalogHeader :store="storeInfo" />
+    <CatalogHeader v-if="canRenderCatalog" :store="storeInfo" />
     
-    <main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+    <div v-if="loading" class="flex items-center justify-center min-h-[60vh]">
+      <div class="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-primary"></div>
+    </div>
+    
+    <div v-else-if="error" class="flex flex-col items-center justify-center py-20 text-center">
+      <div class="rounded-full bg-red-100 p-3 text-red-600 mb-4">
+        <AlertCircle class="h-8 w-8" />
+      </div>
+      <h3 class="text-lg font-medium text-gray-900">{{ t('storefront.errorTitle') }}</h3>
+      <p class="mt-2 text-gray-500">{{ error }}</p>
+      <button @click="reloadPage" class="mt-6 rounded-lg px-6 py-2 text-white hover:opacity-90 transition-opacity" :style="{ backgroundColor: appearance.primary }">
+        {{ t('storefront.reload') }}
+      </button>
+    </div>
+    
+    <main v-if="canRenderCatalog" class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
       <!-- Hero Section -->
       <div class="relative overflow-hidden rounded-2xl bg-white shadow-sm mb-12">
         <div class="absolute inset-0 bg-gradient-to-r from-gray-900/10 to-gray-900/5"></div>
@@ -58,24 +73,7 @@
         </div>
       </div>
 
-      <!-- Loading State -->
-      <div v-if="loading" class="flex justify-center py-20">
-        <div class="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-primary" :style="{ borderTopColor: appearance.primary }"></div>
-      </div>
-
-      <!-- Error State -->
-      <div v-else-if="error" class="flex flex-col items-center justify-center py-20 text-center">
-        <div class="rounded-full bg-red-100 p-3 text-red-600 mb-4">
-          <AlertCircle class="h-8 w-8" />
-        </div>
-        <h3 class="text-lg font-medium text-gray-900">{{ t('storefront.errorTitle') }}</h3>
-        <p class="mt-2 text-gray-500">{{ error }}</p>
-        <button @click="reloadPage" class="mt-6 rounded-lg px-6 py-2 text-white hover:opacity-90 transition-opacity" :style="{ backgroundColor: appearance.primary }">
-          {{ t('storefront.reload') }}
-        </button>
-      </div>
-
-      <div v-else class="space-y-16">
+      <div class="space-y-16">
         <div v-for="group in productGroups" :key="group.categoryId" :id="`category-${group.categoryId}`" class="scroll-mt-32">
           <div class="flex items-center justify-between mb-6">
             <h2 class="text-2xl font-bold text-gray-900">{{ group.categoryName }}</h2>
@@ -90,7 +88,7 @@
                   :alt="product.name" 
                   class="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
                 />
-                <div class="absolute top-2 right-2 transition-opacity" :class="getCartQuantity(product.id) > 0 ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'">
+                <div v-if="isProductAvailable(product)" class="absolute top-2 right-2 transition-opacity" :class="getCartQuantity(product.id) > 0 ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'">
                   <div v-if="getCartQuantity(product.id) > 0" class="flex items-center gap-2 rounded-full bg-white p-1 shadow">
                   <button @click.prevent="handleUpdateQuantity(product, -1)" class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200">-</button>
                   <span class="text-sm font-semibold">{{ getCartQuantity(product.id) }}</span>
@@ -111,10 +109,10 @@
                 <p class="mt-1 text-sm text-gray-500 line-clamp-2">{{ product.description }}</p>
                 <div class="mt-4 flex flex-1 items-end justify-between">
                   <div class="flex flex-col">
-                    <p class="text-lg font-bold text-gray-900">{{ formatPrice(product.price) }}</p>
+                    <p v-if="isProductAvailable(product)" class="text-lg font-bold text-gray-900">{{ formatPrice(product.price) }}</p>
                     <p v-if="product.original_price > product.price" class="text-sm text-gray-500 line-through">{{ formatPrice(product.original_price) }}</p>
                   </div>
-                  <div v-if="product.is_out_of_stock" class="rounded bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-800">
+                  <div v-if="!isProductAvailable(product)" class="rounded bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-800">
                     {{ t('storefront.soldOut') }}
                   </div>
                 </div>
@@ -146,7 +144,7 @@
     
     <!-- Popup -->
     <!-- Footer -->
-    <CatalogFooter :social="storeInfo.social" />
+    <CatalogFooter v-if="canRenderCatalog" :social="storeInfo.social" />
 
     <!-- Popup -->
     <div v-if="showPopup" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
@@ -177,6 +175,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { ShoppingCart, PackageSearch, X, AlertCircle } from 'lucide-vue-next'
 import { useCartStore } from '~/stores/cart'
 import { useI18n } from '~/composables/i18n'
+import { showError, createError } from '#app'
 const { t, locale } = useI18n()
 
 const route = useRoute()
@@ -221,8 +220,10 @@ const appearance = reactive({
 const categories = ref<any[]>([])
 const products = ref<any[]>([])
 const showPopup = ref(false)
+const variantAvailability = ref<Record<string, boolean>>({})
 
 // Computed
+const canRenderCatalog = computed(() => !loading.value && !error.value && !!storeInfo.id)
 const productGroups = computed(() => {
   const groups: Record<string, any[]> = {}
   const categoryMap: Record<string, string> = {}
@@ -352,6 +353,13 @@ function addToCart(product: any) {
   handleUpdateQuantity(product, 1)
 }
 
+function isProductAvailable(product: any) {
+  const v = variantAvailability.value[String(product.id)]
+  const base = !product.is_out_of_stock
+  if (v === undefined) return base
+  return base && v
+}
+
 function closePopup() {
   showPopup.value = false
   try { localStorage.setItem(`popupShown:${slug.value}`, '1') } catch {}
@@ -410,7 +418,7 @@ onMounted(async () => {
 
     if (!store) {
       console.error('Store not found')
-      error.value = t('storefront.storeNotFound')
+      showError(createError({ statusCode: 404, statusMessage: t('storefront.storeNotFound') }))
       return
     }
 
@@ -481,6 +489,21 @@ onMounted(async () => {
     
     if (prodError) console.error('Error fetching products:', prodError)
     products.value = prods || []
+
+    if ((products.value || []).length > 0) {
+      const ids = products.value.map(p => p.id)
+      const { data: vars } = await supabase
+        .from('variants')
+        .select('product_id,track_inventory,stock_quantity,is_out_of_stock')
+        .in('product_id', ids)
+      const map: Record<string, boolean> = {}
+      (vars || []).forEach(v => {
+        const ok = !v.is_out_of_stock && (!v.track_inventory || Number(v.stock_quantity || 0) > 0)
+        const key = String(v.product_id)
+        map[key] = map[key] || ok
+      })
+      variantAvailability.value = map
+    }
 
     // Handle Popup
     const shown = localStorage.getItem(`popupShown:${slug.value}`)

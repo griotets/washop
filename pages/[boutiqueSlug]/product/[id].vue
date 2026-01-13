@@ -38,9 +38,43 @@
             <div class="mt-3">
               <div class="text-xl font-bold">{{ product.name || t('storefront.productFallback') }}</div>
               <div class="mt-2 text-gray-700" style="white-space: pre-line">{{ product.description || '' }}</div>
-              <div class="mt-3 text-lg font-semibold">FCFA {{ Number(product.price || 0).toLocaleString(getNumberLocale()) }}</div>
+              <div class="mt-3 text-lg font-semibold">FCFA {{ Number(displayPrice || 0).toLocaleString(getNumberLocale()) }}</div>
+              <div v-if="showStockHint" class="mt-1 text-xs font-semibold text-red-600">{{ t('product.stockLeft', { n: stockLeft }) }}</div>
+              
+              <div v-if="variants.length > 0" class="mt-4">
+                <div class="mb-2 text-sm font-medium text-gray-700">{{ t('product.variants') }}</div>
+                <div class="grid grid-cols-2 gap-2">
+                  <label v-for="v in variants" :key="v.id" :class="['flex items-center gap-2 rounded border px-3 py-2', selectedVariantId===String(v.id) ? 'border-primary bg-primary/5' : 'border-gray-200', variantUnavailable(v) ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer']">
+                    <input type="radio" class="sr-only" :value="String(v.id)" v-model="selectedVariantId" :disabled="variantUnavailable(v)" />
+                    <span class="font-medium">{{ v.name }}</span>
+                    <span v-if="variantUnavailable(v)" class="rounded bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">{{ t('storefront.soldOut') }}</span>
+                    <span class="ml-auto text-xs text-gray-600">FCFA {{ Number(v.price || 0).toLocaleString(getNumberLocale()) }}</span>
+                  </label>
+                </div>
+              </div>
+
+              <div v-if="optionsList.length > 0" class="mt-4 space-y-3">
+                <div class="text-sm font-medium text-gray-700">{{ t('product.options') }}</div>
+                <div v-for="opt in optionsList" :key="opt.id" class="space-y-1">
+                  <label class="block text-xs font-medium text-gray-600">
+                    {{ opt.name }} <span v-if="opt.is_required" class="text-red-600">*</span>
+                  </label>
+                  <select v-if="opt.type==='select'" v-model="selectedOptions[opt.name]" class="w-full rounded border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary">
+                    <option value="" disabled>{{ t('product.selectOption') }}</option>
+                    <option v-for="val in (Array.isArray(opt.values)?opt.values:[])" :key="val" :value="val">{{ val }}</option>
+                  </select>
+                  <input v-else-if="opt.type==='text'" v-model="selectedOptions[opt.name]" type="text" class="w-full rounded border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary" />
+                  <input v-else-if="opt.type==='number'" v-model.number="selectedOptions[opt.name]" type="number" class="w-full rounded border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary" />
+                  <input v-else-if="opt.type==='date'" v-model="selectedOptions[opt.name]" type="date" class="w-full rounded border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary" />
+                  <label v-else-if="opt.type==='checkbox'" class="inline-flex items-center gap-2 text-sm">
+                    <input type="checkbox" v-model="selectedOptions[opt.name]" />
+                    {{ t('common.continue') }}
+                  </label>
+                </div>
+              </div>
+
               <div class="mt-4 flex flex-col gap-3">
-                <button class="block w-full rounded bg-primary px-4 py-3 text-sm font-bold text-white shadow hover:brightness-110" @click="buyNow">
+                <button class="block w-full rounded bg-primary px-4 py-3 text-sm font-bold text-white shadow hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed" :disabled="isSelectedVariantUnavailable" @click="buyNow">
                   {{ t('storefront.buyNow') }}
                 </button>
                 <div v-if="getCartQuantity() > 0" class="flex items-center gap-3 rounded-lg border border-primary p-1">
@@ -48,8 +82,11 @@
                   <div class="flex-1 text-center font-bold text-lg">{{ getCartQuantity() }}</div>
                   <button class="flex h-10 w-12 items-center justify-center rounded-md bg-primary font-bold text-white hover:brightness-110" @click="handleUpdateQuantity(1)">+</button>
                 </div>
-                <button v-else class="block w-full rounded border border-primary px-4 py-3 text-sm font-bold text-primary hover:bg-primary/5" @click="addToCart">
+                <button v-else-if="!isSelectedVariantUnavailable" class="block w-full rounded border border-primary px-4 py-3 text-sm font-bold text-primary hover:bg-primary/5" @click="addToCart">
                   {{ t('storefront.addToCart') }}
+                </button>
+                <button v-else class="block w-full rounded border border-red-300 px-4 py-3 text-sm font-bold text-red-600 bg-red-50" disabled>
+                  {{ t('storefront.soldOut') }}
                 </button>
               </div>
             </div>
@@ -132,6 +169,35 @@ const waLink = computed(() => {
   return `https://wa.me/${phone.replace(/\D/g, '')}?text=${text}`
 })
 
+const variants = ref<Array<{ id: number; name: string; price: number; original_price?: number; image_url?: string; track_inventory?: boolean; stock_quantity?: number; max_order_quantity?: number; is_out_of_stock?: boolean }>>([])
+const selectedVariantId = ref<string>('')
+const selectedVariant = computed(() => variants.value.find(v => String(v.id) === selectedVariantId.value))
+const optionsList = ref<Array<{ id: number; name: string; type: string; values?: any; is_required?: boolean }>>([])
+const selectedOptions = reactive<Record<string, any>>({})
+const displayPrice = computed(() => selectedVariant.value ? (selectedVariant.value.price || 0) : (product.price || 0))
+function variantUnavailable(v: any) {
+  if (!v) return false
+  if (v.is_out_of_stock) return true
+  if (v.track_inventory && Number(v.stock_quantity || 0) <= 0) return true
+  return false
+}
+const isSelectedVariantUnavailable = computed(() => variantUnavailable(selectedVariant.value))
+const stockLeft = computed(() => {
+  if (selectedVariant.value) return Number(selectedVariant.value.stock_quantity || 0)
+  return Number(product.stock_quantity || 0)
+})
+const showStockHint = computed(() => {
+  if (selectedVariant.value) return !!selectedVariant.value.track_inventory && stockLeft.value > 0 && stockLeft.value <= 5
+  return !!product.track_inventory && stockLeft.value > 0 && stockLeft.value <= 5
+})
+function optionsSignature() {
+  const keys = Object.keys(selectedOptions).sort()
+  const obj: Record<string, any> = {}
+  keys.forEach(k => obj[k] = selectedOptions[k])
+  return JSON.stringify(obj)
+}
+const currentItemKey = computed(() => `${productId.value}|${selectedVariantId.value || ''}|${optionsSignature()}`)
+
 function trackWaClick() {
   if (store.id) {
     supabase.from('analytics_log').insert({
@@ -142,7 +208,7 @@ function trackWaClick() {
 }
 
 function getCartQuantity() {
-  const item = cart.items.find(i => i.id === productId.value)
+  const item = cart.items.find(i => i.id === currentItemKey.value)
   return item ? item.quantity : 0
 }
 
@@ -154,6 +220,12 @@ function handleUpdateQuantity(delta: number) {
   if (newQty < 0) return
 
   // Check Max Order Qty
+  const vMax = selectedVariant.value?.max_order_quantity || 0
+  if ((vMax || 0) > 0 && newQty > (vMax || 0)) {
+    const toast = useToast()
+    toast.error(t('storefront.maxQtyError', { max: vMax }))
+    return
+  }
   if ((product.max_order_quantity || 0) > 0 && newQty > (product.max_order_quantity || 0)) {
     const toast = useToast()
     toast.error(t('storefront.maxQtyError', { max: product.max_order_quantity }))
@@ -161,6 +233,13 @@ function handleUpdateQuantity(delta: number) {
   }
 
   // Check Stock
+  const vTrack = !!selectedVariant.value?.track_inventory
+  const vStock = selectedVariant.value?.stock_quantity || 0
+  if (vTrack && newQty > vStock) {
+    const toast = useToast()
+    toast.error(t('storefront.stockError', { max: vStock }))
+    return
+  }
   if (product.track_inventory && newQty > (product.stock_quantity || 0)) {
     const toast = useToast()
     toast.error(t('storefront.stockError', { max: product.stock_quantity }))
@@ -178,15 +257,19 @@ function handleUpdateQuantity(delta: number) {
        }).then(({ error }) => { if(error) console.error('Track add_to_cart error', error) })
     }
 
+    const vName = selectedVariant.value?.name ? ` - ${selectedVariant.value.name}` : ''
     cart.add({
-      id: productId.value,
-      name: product.name || t('storefront.productFallback'),
-      price: product.price || 0,
-      image: images.value[0]
+      id: currentItemKey.value,
+      productId: productId.value,
+      variantId: selectedVariantId.value || undefined,
+      options: { ...selectedOptions },
+      name: (product.name || t('storefront.productFallback')) + vName,
+      price: displayPrice.value || 0,
+      image: selectedVariant.value?.image_url || images.value[0]
     })
   } else {
     console.log('Updating quantity:', productId.value, newQty)
-    cart.setQuantity(productId.value, newQty)
+    cart.setQuantity(currentItemKey.value, newQty)
   }
 }
 
@@ -260,6 +343,25 @@ onMounted(async () => {
     product.is_out_of_stock = !!p?.is_out_of_stock
     images.value = Array.isArray(p?.images) ? p?.images : (typeof p?.images === 'string' ? JSON.parse(p?.images || '[]') : [])
     
+    const { data: v, error: vErr } = await supabase.from('variants')
+      .select('id,name,price,original_price,image_url,track_inventory,stock_quantity,max_order_quantity,is_out_of_stock')
+      .eq('product_id', productId.value)
+    if (vErr) console.error(vErr)
+    variants.value = Array.isArray(v) ? v : []
+    if (variants.value.length > 0) {
+      selectedVariantId.value = String(variants.value[0].id)
+    }
+
+    const { data: opts, error: oErr } = await supabase.from('options')
+      .select('id,name,type,values,is_required')
+      .eq('product_id', productId.value)
+    if (oErr) console.error(oErr)
+    optionsList.value = Array.isArray(opts) ? opts : []
+    optionsList.value.forEach(opt => {
+      if (opt.type === 'checkbox') selectedOptions[opt.name] = false
+      else selectedOptions[opt.name] = ''
+    })
+
     // Track Product View
     supabase.from('analytics_log').insert({
       store_id: storeId,

@@ -42,6 +42,13 @@
             </div>
             <div class="flex-1">
               <div class="font-semibold">{{ item.name }}</div>
+              <div v-if="item.variantId" class="text-xs text-gray-500">{{ t('product.variant') }} #{{ item.variantId }}</div>
+              <div v-if="item.options && Object.keys(item.options || {}).length > 0" class="mt-1 text-xs text-gray-500">
+                {{ t('product.options') }}:
+                <span v-for="(val,key,idx) in item.options" :key="key">
+                  {{ key }}={{ String(val) }}<span v-if="idx < Object.keys(item.options).length - 1">, </span>
+                </span>
+              </div>
               <div class="text-sm font-medium text-primary">{{ formatMoney(item.price) }}</div>
             </div>
             <div class="flex items-center gap-3 rounded-lg bg-gray-50 p-1">
@@ -123,7 +130,15 @@
             <h3 class="mb-4 font-semibold text-gray-900">{{ t('checkout.summaryTitle') }}</h3>
             <div class="space-y-3">
               <div v-for="item in cart.items" :key="item.id" class="flex justify-between text-sm">
-                <span class="text-gray-600">{{ item.quantity }}x {{ item.name }}</span>
+                <span class="text-gray-600">
+                  {{ item.quantity }}x {{ item.name }}
+                  <span v-if="item.options && Object.keys(item.options || {}).length > 0" class="ml-1 text-gray-500">
+                    ({{ t('product.options') }}:
+                    <span v-for="(val,key,idx) in item.options" :key="key">
+                      {{ key }}={{ String(val) }}<span v-if="idx < Object.keys(item.options).length - 1">, </span>
+                    </span>)
+                  </span>
+                </span>
                 <span class="font-medium">{{ formatMoney(item.price * item.quantity) }}</span>
               </div>
             </div>
@@ -334,11 +349,12 @@ async function submitOrder() {
     // 2. Create Order Items
     const itemsPayload = cart.items.map(item => ({
       order_id: order.id,
+      product_id: item.productId ? Number(item.productId) : null,
+      variant_id: item.variantId ? Number(item.variantId) : null,
       product_name: item.name,
       quantity: item.quantity,
       unit_price: item.price,
-      // product_id: item.id // If product_id column exists and is UUID. item.id might be string or int.
-      // safely omitting product_id for now as it's not strictly required for the bill display
+      options: item.options ? item.options : null
     }))
 
     const { error: itemsErr } = await supabase

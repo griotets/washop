@@ -3,7 +3,16 @@ import { useToast } from '~/composables/useToast'
 
 export const useCartStore = defineStore('cart', {
   state: () => ({ 
-    items: [] as Array<{ id: string; name: string; price: number; quantity: number; image?: string }>,
+    items: [] as Array<{ 
+      id: string; // composite key: productId|variantId|optionsSig
+      productId?: string;
+      variantId?: string;
+      options?: Record<string, any>;
+      name: string; 
+      price: number; 
+      quantity: number; 
+      image?: string 
+    }>,
     currentSlug: ''
   }),
   getters: {
@@ -11,7 +20,7 @@ export const useCartStore = defineStore('cart', {
     total: (s) => s.items.reduce((a, i) => a + (i.price || 0) * (i.quantity || 1), 0)
   },
   actions: {
-    add(item: { id: string; name: string; price: number; image?: string }) {
+    add(item: { id: string; productId?: string; variantId?: string; options?: Record<string, any>; name: string; price: number; image?: string }) {
       console.log('Cart add:', item)
       try {
         const x = this.items.find((i) => i.id === item.id)

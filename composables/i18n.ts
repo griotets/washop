@@ -3,6 +3,13 @@ export function useI18n() {
 
   const dict: Record<string, Record<string, string>> = {
     fr: {
+      'product.stockLeft': 'Plus que {n} en stock',
+      'product.variants': 'Variantes',
+      'product.variant': 'Variante',
+      'product.options': 'Options',
+      'product.selectVariant': 'Choisir une variante',
+      'product.selectOption': 'Choisir une option',
+      'product.optionRequired': 'Option requise',
       'home.title': 'Wa-Shop',
       'home.description': 'Créez votre boutique WhatsApp en quelques minutes.',
       'home.cta': 'Commencer',
@@ -853,8 +860,19 @@ export function useI18n() {
       'checkout.whatsapp.newOrderTitle': 'Nouvelle commande {id}',
       'checkout.whatsapp.invoice': 'Facture',
       'checkout.whatsapp.store': 'Boutique'
+      ,
+      'error.notFoundTitle': 'Page introuvable',
+      'error.notFoundDesc': 'La page demandée n’existe pas ou a été déplacée.',
+      'error.backHome': 'Retour à l’accueil'
     },
     en: {
+      'product.stockLeft': 'Only {n} left in stock',
+      'product.variants': 'Variants',
+      'product.variant': 'Variant',
+      'product.options': 'Options',
+      'product.selectVariant': 'Select a variant',
+      'product.selectOption': 'Select an option',
+      'product.optionRequired': 'Option required',
       'home.title': 'Wa-Shop Cameroon',
       'home.description': 'Create your WhatsApp store in minutes.',
       'home.cta': 'Get Started',
@@ -1705,8 +1723,19 @@ export function useI18n() {
       'checkout.whatsapp.newOrderTitle': 'New order {id}',
       'checkout.whatsapp.invoice': 'Invoice',
       'checkout.whatsapp.store': 'Store'
+      ,
+      'error.notFoundTitle': 'Page not found',
+      'error.notFoundDesc': 'The page you requested does not exist or was moved.',
+      'error.backHome': 'Back to Home'
     },
     it: {
+      'product.stockLeft': 'Solo {n} rimasti in stock',
+      'product.variants': 'Varianti',
+      'product.variant': 'Variante',
+      'product.options': 'Opzioni',
+      'product.selectVariant': 'Seleziona una variante',
+      'product.selectOption': 'Seleziona un\'opzione',
+      'product.optionRequired': 'Opzione obbligatoria',
       'home.title': 'Wa-Shop Camerun',
       'home.description': 'Crea il tuo negozio WhatsApp in pochi minuti.',
       'home.cta': 'Inizia',
@@ -2557,6 +2586,10 @@ export function useI18n() {
       'checkout.whatsapp.newOrderTitle': 'Nuovo ordine {id}',
       'checkout.whatsapp.invoice': 'Fattura',
       'checkout.whatsapp.store': 'Negozio'
+      ,
+      'error.notFoundTitle': 'Pagina non trovata',
+      'error.notFoundDesc': 'La pagina richiesta non esiste o è stata spostata.',
+      'error.backHome': 'Torna alla Home'
     }
   }
 
