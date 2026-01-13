@@ -933,13 +933,22 @@ async function startCheckout(plan: any) {
   checkoutLoadingPlanId.value = String(plan.id)
   const toast = useToast()
   try {
-    const { data, error } = await supabase.rpc('create_subscription_checkout_session', {
-      p_enterprise_id: enterpriseId.value,
-      p_plan_id: String(plan.id),
-      p_billing_interval: billingInterval.value
+    const { data: sessionData } = await supabase.auth.getSession()
+    const accessToken = String(sessionData?.session?.access_token || '')
+    const res: any = await $fetch('/api/billing/payoneer/create', {
+      method: 'POST',
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+      body: {
+        enterpriseId: enterpriseId.value,
+        planId: String(plan.id),
+        billingInterval: billingInterval.value
+      }
     })
-    if (error) throw error
-    toast.success(t('admin.settings.checkoutCreatedToast', { id: String(data?.id || '') }))
+    if (res?.paymentUrl) {
+      window.location.href = String(res.paymentUrl)
+      return
+    }
+    toast.success(t('admin.settings.checkoutCreatedToast', { id: String(res?.checkoutSessionId || '') }))
   } catch (e: any) {
     toast.error('Erreur: ' + e.message)
   } finally {

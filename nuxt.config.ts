@@ -4,6 +4,11 @@ export default defineNuxtConfig({
   extends: [],
   runtimeConfig: {
     huggingfaceApiKey: process.env.HUGGINGFACE_API_KEY,
+    supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    payoneerCheckoutBaseUrl: process.env.PAYONEER_CHECKOUT_BASE_URL,
+    payoneerPaymentPageBaseUrl: process.env.PAYONEER_PAYMENT_PAGE_BASE_URL,
+    payoneerMerchantCode: process.env.PAYONEER_MERCHANT_CODE,
+    payoneerPaymentToken: process.env.PAYONEER_PAYMENT_TOKEN,
     public: {
       supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
       supabaseAnonKey: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY,
