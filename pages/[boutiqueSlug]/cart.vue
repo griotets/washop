@@ -379,7 +379,14 @@ async function submitOrder() {
       const storeUrl = `${baseUrl}/${slug.value}`
       
       // Construct detailed message
-      const lines = cart.items.map(i => `- ${i.quantity}x ${i.name} (${formatMoney(i.price * i.quantity)})`).join('\n')
+      const lines = cart.items.map(i => {
+        let text = `- ${i.quantity}x ${i.name} (${formatMoney(i.price * i.quantity)})`
+        if (i.options && Object.keys(i.options).length > 0) {
+           const opts = Object.entries(i.options).map(([k, v]) => `${k}: ${v}`).join(', ')
+           text += `\n   ${t('product.options')}: ${opts}`
+        }
+        return text
+      }).join('\n')
       
       let deliveryDetails = ''
       if (form.method === 'pickup') {
