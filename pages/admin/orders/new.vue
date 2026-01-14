@@ -376,8 +376,21 @@ function selectProduct(product: any) {
 async function submitOrder() {
   const storeId = admin.selectedShopId
   if (!storeId) return
+  if (orderItems.value.length === 0) {
+    alert(t('admin.ordersNew.noProducts'))
+    return
+  }
+  if (!form.phone || form.phone.length < 5) {
+    alert(t('admin.ordersNew.phonePlaceholder'))
+    return
+  }
+  if (!form.name) {
+    alert(t('admin.ordersNew.fullNameLabel'))
+    return
+  }
   
   submitting.value = true
+  let createdOrderId: string | null = null
   try {
     // 1. Handle Client
     let clientId = existingClientId.value
@@ -435,6 +448,7 @@ async function submitOrder() {
       .single()
       
     if (orderError) throw orderError
+    createdOrderId = order.id
     
     // 3. Create Order Items
     const itemsToInsert = orderItems.value.map(item => ({
@@ -456,6 +470,14 @@ async function submitOrder() {
     
   } catch (e: any) {
     console.error('Error submitting order:', e)
+    try {
+      if (createdOrderId) {
+        await supabase.from('order_items').delete().eq('order_id', createdOrderId)
+        await supabase.from('orders').delete().eq('id', createdOrderId)
+      }
+    } catch (cleanupError) {
+      console.error('Error cleaning up failed order creation:', cleanupError)
+    }
     alert(t('admin.ordersNew.createError', { msg: e.message || e }))
   } finally {
     submitting.value = false

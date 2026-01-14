@@ -333,7 +333,15 @@ async function onImageDrop(e: DragEvent) {
     await uploadImage(f)
   }
 }
-const isValid = computed(() => !!form.name && Number(form.price) >= 0)
+const isValid = computed(() => {
+  const price = Number(form.price)
+  if (!form.name || !Number.isFinite(price) || price <= 0) return false
+  if (form.track_inventory) {
+    const stock = Number(form.stock_quantity)
+    if (!Number.isFinite(stock) || stock < 0) return false
+  }
+  return true
+})
 onMounted(async () => {
   const storeId = admin.selectedShopId
   if (!storeId) return navigateTo('/admin/stores/create')
@@ -393,14 +401,16 @@ async function save() {
     form.images = uploadedImages
 
     // 1. Update Product
+    const price = Number(form.price || 0)
+    const stock = Number(form.stock_quantity || 0)
     const payload = {
       name: form.name,
-      price: form.price,
+      price: Number.isFinite(price) && price > 0 ? price : 0,
       sku: form.sku,
       description: form.description,
       images: form.images,
       track_inventory: form.track_inventory,
-      stock_quantity: form.stock_quantity,
+      stock_quantity: form.track_inventory && Number.isFinite(stock) && stock >= 0 ? stock : 0,
       is_visible: form.is_visible
     }
     const { error } = await supabase.from('products').update(payload).eq('id', id.value).eq('store_id', storeId)
@@ -414,6 +424,8 @@ async function save() {
 
     // 3. Upsert Variants
     for (const v of variants.value) {
+       const name = String(v.name || '').trim()
+       if (!name) continue
        if (v._pendingFile) {
           const file = v._pendingFile
           const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
@@ -425,11 +437,13 @@ async function save() {
           v.image_url = publicUrl
           delete v._pendingFile
        }
+       const vPrice = Number(v.price || 0)
+       const vOriginal = Number(v.original_price || 0)
        const vPayload = {
          product_id: id.value,
-         name: v.name,
-         price: v.price,
-         original_price: v.original_price,
+         name,
+         price: Number.isFinite(vPrice) && vPrice >= 0 ? vPrice : 0,
+         original_price: Number.isFinite(vOriginal) && vOriginal >= 0 ? vOriginal : 0,
          image_url: v.image_url
        }
        if (v.id) {
@@ -442,10 +456,12 @@ async function save() {
 
     // 4. Upsert Options
     for (const o of options.value) {
+       const name = String(o.name || '').trim()
        const vals = Array.isArray(o.values) ? o.values : String(o.values || '').split(',').map((s: string) => s.trim()).filter(Boolean)
+       if (!name && vals.length === 0) continue
        const oPayload = {
          product_id: id.value,
-         name: o.name,
+         name,
          type: o.type,
          values: vals,
          is_required: o.is_required

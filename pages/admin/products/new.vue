@@ -597,7 +597,15 @@ function onImageDragLeave() { dropActive.value = false }
       await uploadImage(f)
     }
   }
-const isValid = computed(() => !!form.name && Number(form.price) >= 0)
+const isValid = computed(() => {
+  const price = Number(form.price)
+  if (!form.name || !Number.isFinite(price) || price <= 0) return false
+  if (form.track_inventory) {
+    const stock = Number(form.stock_quantity)
+    if (!Number.isFinite(stock) || stock < 0) return false
+  }
+  return true
+})
 const pendingUploads = ref(new Map<string, File>())
 
 async function uploadFileToStorage(file: File, path: string) {
@@ -744,9 +752,20 @@ function removeOptionValue(o: any, index: number) {
 
 async function save() {
   if (!isValid.value) return
+  for (const o of options.value) {
+    const type = o?.type || 'text'
+    const baseVals = Array.isArray(o?.values)
+      ? o.values.map((s: any) => String(s)).filter((s: string) => !!s)
+      : String(o?.values || '').split(',').map((s: string) => s.trim()).filter(Boolean)
+    if (['select', 'multiselect', 'color'].includes(type) && baseVals.length === 0) {
+      toast.error(t('admin.productForm.optionSelectValuesRequired'))
+      return
+    }
+  }
   const storeId = admin.selectedShopId
   if (!storeId) return navigateTo('/admin/stores/create')
   saving.value = true
+  let createdProductId: string | null = null
   try {
     const hashTags = Array.from(new Set((String(form.description||'').match(/#([A-Za-z0-9_-]+)/g)||[]).map((h:string)=>h.slice(1).toLowerCase())))
     const existingNames = new Set((Array.isArray(tags.value)?tags.value:[]).map((t:any)=>String(t.name||'').toLowerCase()))
@@ -762,32 +781,38 @@ async function save() {
     // Filter out blob URLs from form.images for the initial insert
     const initialImages = form.images.filter((img: string) => !pendingUploads.value.has(img))
     
+    const price = Number(form.price || 0)
+    const originalPrice = Number(form.original_price || 0)
+    const stock = Number(form.stock_quantity || 0)
+    const maxQty = Number(form.max_order_qty || 0)
+    const minQty = Number(form.min_order_qty || 0)
+    const costPerItem = Number(form.cost_per_item || 0)
     const payload = {
       store_id: storeId,
       name: form.name,
-      price: form.price,
-      original_price: form.original_price,
+      price: Number.isFinite(price) && price > 0 ? price : 0,
+      original_price: Number.isFinite(originalPrice) && originalPrice >= 0 ? originalPrice : 0,
       type: form.type,
       sku: form.sku,
       description: form.description,
       images: initialImages,
       track_inventory: form.track_inventory,
-      stock_quantity: form.stock_quantity,
+      stock_quantity: form.track_inventory && Number.isFinite(stock) && stock >= 0 ? stock : 0,
       is_visible: form.is_visible,
       is_out_of_stock: form.is_out_of_stock,
       daily_capacity: form.daily_capacity,
-      max_order_quantity: form.max_order_qty,
-      min_order_quantity: form.min_order_qty,
+      max_order_quantity: Number.isFinite(maxQty) && maxQty > 0 ? maxQty : 0,
+      min_order_quantity: Number.isFinite(minQty) && minQty > 0 ? minQty : 0,
       tax_exempt: form.tax_exempt,
       tax_exempt_reason: form.tax_exempt_reason || null,
       show_estimated_price: form.show_estimated_price,
       track_cost: form.track_cost,
-      cost_price: form.cost_per_item || null,
+      cost_price: form.track_cost && Number.isFinite(costPerItem) && costPerItem > 0 ? costPerItem : null,
       show_net_price: form.show_net_price,
       // weight: form.weight || null,
       category_id: form.category_id,
       unit: unit.value,
-      unit_value: unitValue.value,
+      unit_value: unitValue.value && Number.isFinite(unitValue.value) && unitValue.value > 0 ? unitValue.value : null,
       requires_shipping: requiresShipping.value,
       delivery_methods: Array.from(deliveryMethods)
     }
@@ -801,6 +826,7 @@ async function save() {
       throw new Error('No ID returned from insert')
     }
     const pid = String(data.id)
+    createdProductId = pid
 
     // Now upload pending images using the pid
     const newImagesList = []
@@ -852,15 +878,20 @@ async function save() {
       if (tagIds.includes(tid) && pid) await supabase.from('product_tags').insert({ product_id: Number(pid), tag_id: tid })
     }
     for (const v of variants.value) {
+      const name = String(v.name || '').trim()
+      if (!name) continue
+      const vPrice = Number(v.price || 0)
+      const vOriginal = Number(v.original_price || 0)
       await supabase.from('variants').insert({
         product_id: Number(pid),
-        name: v.name,
-        price: Number(v.price || 0),
-        original_price: Number(v.original_price || 0),
+        name,
+        price: Number.isFinite(vPrice) && vPrice >= 0 ? vPrice : 0,
+        original_price: Number.isFinite(vOriginal) && vOriginal >= 0 ? vOriginal : 0,
         image_url: v.image_url || null
       })
     }
     for (const o of options.value) {
+      const name = String(o.name || '').trim()
       const base = Array.isArray(o.values)
         ? o.values.map((s: any) => String(s)).filter((s: string) => !!s)
         : String(o.values || '').split(',').map((s: string) => s.trim()).filter(Boolean)
@@ -869,21 +900,30 @@ async function save() {
       if (arr.length > 10) {
         toast.error(t('admin.productsNew.options.valuesMax10'))
       }
+      if (!name && limited.length === 0) continue
       await supabase.from('options').insert({
         product_id: Number(pid),
-        name: o.name,
+        name,
         type: o.type || 'text',
         values: limited.length ? limited : null,
         is_required: !!o.is_required
       })
     }
-    const toast = useToast()
-    toast.success('Produit créé')
+    toast.success(t('admin.productsNew.toast.productCreated'))
     setTimeout(() => navigateTo(`/admin/products/${pid}`), 600)
   } catch (e: any) {
     console.error('Error saving product:', e)
-    const toast = useToast()
-    toast.error(e.message || 'Erreur lors de la création du produit')
+    if (createdProductId) {
+      try {
+        await supabase.from('options').delete().eq('product_id', Number(createdProductId))
+        await supabase.from('variants').delete().eq('product_id', Number(createdProductId))
+        await supabase.from('product_tags').delete().eq('product_id', Number(createdProductId))
+        await supabase.from('products').delete().eq('id', createdProductId)
+      } catch (cleanupError) {
+        console.error('Error cleaning up failed product creation:', cleanupError)
+      }
+    }
+    toast.error(t('admin.productsNew.toast.createError', { msg: e.message || '' }))
   } finally { saving.value = false }
 }
 async function submitGenerate() {

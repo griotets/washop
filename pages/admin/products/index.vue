@@ -730,12 +730,12 @@ async function finalizeImport() {
     store_id: storeId,
     name: r[columnMapping.name],
     sku: columnMapping.sku ? r[columnMapping.sku] : null,
-    price: Number(r[columnMapping.price] || 0),
+    price: Math.max(0, Number(r[columnMapping.price] || 0)),
     description: columnMapping.description ? r[columnMapping.description] : '',
     images: columnMapping.images ? String(r[columnMapping.images] || '').split(';').filter(Boolean) : [],
     is_visible: true,
     track_inventory: !!columnMapping.stock_quantity,
-    stock_quantity: columnMapping.stock_quantity ? Number(r[columnMapping.stock_quantity] || 0) : 0,
+    stock_quantity: columnMapping.stock_quantity ? Math.max(0, Number(r[columnMapping.stock_quantity] || 0)) : 0,
     category_id: columnMapping.category_id ? Number(r[columnMapping.category_id]) : null
   }))
   
