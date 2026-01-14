@@ -1,5 +1,5 @@
 <template>
-  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b">
+  <header class="sticky top-0 z-50 bg-white md:bg-white/90 md:backdrop-blur border-b">
     <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
       <div class="flex items-center gap-3">
         <div class="flex h-10 w-10 items-center justify-center rounded-full" :style="{ backgroundColor: color }">
