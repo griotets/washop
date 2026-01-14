@@ -215,12 +215,9 @@ async function verifyEmailOtp() {
       router.push('/admin/stores/create')
       return
     }
-    if (stores.length === 1) {
-      admin.selectShop(String(stores[0].id))
-    } else {
-      router.push('/admin/stores/switch')
-      return
-    }
+    // S'il y a plusieurs stores, on ne renvoie plus vers une page dédiée.
+    // On sélectionne le premier par défaut, l'utilisateur pourra changer dans le header.
+    admin.selectShop(String(stores[0].id))
     try {
       const raw = localStorage.getItem('postLoginPath')
       localStorage.removeItem('postLoginPath')
