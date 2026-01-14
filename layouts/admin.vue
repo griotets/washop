@@ -184,7 +184,7 @@
                     </div>
                   </div>
 
-                  <div class="hidden sm:flex flex-col min-w-0 relative">
+                  <div class="flex flex-col min-w-0 relative max-w-[55vw] sm:max-w-none">
                     <div class="flex items-center gap-2">
                       <button type="button" @click="isStoreMenuOpen = !isStoreMenuOpen"
                         class="flex items-center gap-1">

@@ -160,6 +160,7 @@
                       <option value="date">{{ t('admin.productForm.optionType.date') }}</option>
                       <option value="checkbox">{{ t('admin.productForm.optionType.checkbox') }}</option>
                       <option value="select">{{ t('admin.productForm.optionType.select') }}</option>
+                      <option value="multiselect">{{ t('admin.productForm.optionType.multiselect') }}</option>
                       <option value="color">{{ t('admin.productForm.optionType.color') }}</option>
                     </select>
                  </div>
@@ -178,8 +179,8 @@
                  </div>
               </div>
 
-              <!-- Values for Select/Color/Radio -->
-              <div v-if="['select','color','radio'].includes(o.type)" class="mt-2 border-t pt-2">
+              <!-- Values for Select/Color/Radio/Checkbox/Multi-select -->
+              <div v-if="['select','color','radio','checkbox','multiselect'].includes(o.type)" class="mt-2 border-t pt-2">
                  <label class="mb-2 block text-xs font-medium text-gray-500">{{ t('admin.productForm.optionValuesPlaceholder') }}</label>
                  <div class="flex flex-wrap gap-2 mb-2">
                     <div v-for="(val, vIdx) in (Array.isArray(o.values) ? o.values : [])" :key="vIdx" class="inline-flex items-center gap-1 rounded bg-white border px-2 py-1 text-sm">
@@ -545,6 +546,11 @@ async function uploadVariantImage(e: any, v: any) {
 function addOptionValue(o: any, e: any) {
   const val = e.target.value.trim()
   if (!val) return
+  if (Array.isArray(o.values) && o.values.length >= 10) {
+    const toast = useToast()
+    toast.error(t('admin.productForm.optionValuesMax10'))
+    return
+  }
   if (!Array.isArray(o.values)) o.values = []
   if (!o.values.includes(val)) o.values.push(val)
   e.target.value = ''

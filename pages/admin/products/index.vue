@@ -71,62 +71,157 @@
       </div>
     </div>
 
-    <div class="mt-4 overflow-x-auto rounded-xl border">
-      <table class="min-w-full bg-white">
-        <thead class="bg-gray-50 text-sm text-gray-600">
-          <tr>
-            <th class="w-12 px-4 py-3 text-left"><input type="checkbox" v-model="selectAll" @change="toggleSelectAll" /></th>
-            <th class="px-4 py-3 text-left">{{ t('admin.productsPage.colName') }}</th>
-            <th class="px-4 py-3 text-left">{{ t('admin.productsPage.colPrice') }}</th>
-            <th class="px-4 py-3 text-left">{{ t('admin.productsPage.colInventory') }}</th>
-            <th class="px-4 py-3 text-left">{{ t('admin.productsPage.colOutOfStock') }}</th>
-            <th class="px-4 py-3 text-left">{{ t('admin.productsPage.colVisibility') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="p in products" :key="p.id" class="border-t">
-            <td class="px-4 py-3"><input type="checkbox" v-model="selected" :value="p.id" /></td>
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-3">
-                <img :src="firstImage(p)" alt="" class="h-10 w-10 rounded object-cover bg-gray-100" />
-                <div>
-                  <div class="font-medium">{{ p.name }}</div>
-                  <div class="text-xs text-gray-500">{{ t('admin.productsPage.skuLabel') }}: {{ p.sku || '—' }}</div>
+    <div class="mt-4 rounded-xl border bg-white">
+      <!-- Desktop table -->
+      <div class="hidden md:block overflow-x-auto">
+        <table class="min-w-full bg-white">
+          <thead class="bg-gray-50 text-sm text-gray-600">
+            <tr>
+              <th class="w-12 px-4 py-3 text-left">
+                <input type="checkbox" v-model="selectAll" @change="toggleSelectAll" />
+              </th>
+              <th class="px-4 py-3 text-left">{{ t('admin.productsPage.colName') }}</th>
+              <th class="px-4 py-3 text-left">{{ t('admin.productsPage.colPrice') }}</th>
+              <th class="px-4 py-3 text-left">{{ t('admin.productsPage.colInventory') }}</th>
+              <th class="px-4 py-3 text-left">{{ t('admin.productsPage.colOutOfStock') }}</th>
+              <th class="px-4 py-3 text-left">{{ t('admin.productsPage.colVisibility') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="p in products" :key="p.id" class="border-t">
+              <td class="px-4 py-3">
+                <input type="checkbox" v-model="selected" :value="p.id" />
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-3">
+                  <img :src="firstImage(p)" alt="" class="h-10 w-10 rounded object-cover bg-gray-100" />
+                  <div>
+                    <div class="font-medium">{{ p.name }}</div>
+                    <div class="text-xs text-gray-500">
+                      {{ t('admin.productsPage.skuLabel') }}: {{ p.sku || '—' }}
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3">
+                <div>FCFA {{ Number(p.price || 0).toLocaleString(getNumberLocale()) }}</div>
+              </td>
+              <td class="px-4 py-3">
+                <label class="inline-flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    v-model="p.track_inventory"
+                    @change="updateField(p.id, { track_inventory: p.track_inventory })"
+                  />
+                  <span class="text-sm text-gray-600">{{ t('admin.productsPage.track') }}</span>
+                </label>
+              </td>
+              <td class="px-4 py-3">
+                <label class="inline-flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    v-model="p.is_out_of_stock"
+                    @change="updateField(p.id, { is_out_of_stock: p.is_out_of_stock })"
+                  />
+                </label>
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-2">
+                  <button
+                    :class="p.is_visible ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'"
+                    class="rounded px-2 py-1 text-xs font-semibold"
+                    @click="toggleVisibility(p)"
+                  >
+                    {{ p.is_visible ? t('admin.productsPage.visible') : t('admin.productsPage.hidden') }}
+                  </button>
+                  <NuxtLink :to="`/admin/products/${p.id}`" class="rounded border px-2 py-1 text-xs">
+                    {{ t('admin.productsPage.edit') }}
+                  </NuxtLink>
+                  <button class="rounded border px-2 py-1 text-xs" @click="deleteRow(p)">
+                    {{ t('admin.productsPage.delete') }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr v-if="loading">
+              <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">
+                {{ t('admin.productsPage.loading') }}
+              </td>
+            </tr>
+            <tr v-if="!loading && products.length===0">
+              <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">
+                {{ t('admin.productsPage.empty') }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile cards -->
+      <div class="md:hidden divide-y divide-gray-100">
+        <div v-for="p in products" :key="p.id" class="px-4 py-3">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-start gap-3 min-w-0">
+              <div class="pt-1">
+                <input type="checkbox" v-model="selected" :value="p.id" />
+              </div>
+              <div class="flex items-center gap-3 min-w-0">
+                <img :src="firstImage(p)" alt="" class="h-12 w-12 rounded object-cover bg-gray-100" />
+                <div class="min-w-0">
+                  <div class="font-medium text-sm truncate">{{ p.name }}</div>
+                  <div class="text-[11px] text-gray-500 truncate">
+                    {{ t('admin.productsPage.skuLabel') }}: {{ p.sku || '—' }}
+                  </div>
+                  <div class="mt-1 text-sm font-semibold">
+                    FCFA {{ Number(p.price || 0).toLocaleString(getNumberLocale()) }}
+                  </div>
+                  <div class="mt-2 flex items-center gap-3 text-xs text-gray-600">
+                    <label class="inline-flex items-center gap-1">
+                      <input
+                        type="checkbox"
+                        v-model="p.track_inventory"
+                        @change="updateField(p.id, { track_inventory: p.track_inventory })"
+                      />
+                      <span>{{ t('admin.productsPage.track') }}</span>
+                    </label>
+                    <label class="inline-flex items-center gap-1">
+                      <input
+                        type="checkbox"
+                        v-model="p.is_out_of_stock"
+                        @change="updateField(p.id, { is_out_of_stock: p.is_out_of_stock })"
+                      />
+                      <span>{{ t('admin.productsPage.colOutOfStock') }}</span>
+                    </label>
+                  </div>
+                  <div class="mt-2">
+                    <button
+                      :class="p.is_visible ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'"
+                      class="rounded px-2 py-1 text-[11px] font-semibold"
+                      @click="toggleVisibility(p)"
+                    >
+                      {{ p.is_visible ? t('admin.productsPage.visible') : t('admin.productsPage.hidden') }}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </td>
-            <td class="px-4 py-3">
-              <div>FCFA {{ Number(p.price || 0).toLocaleString(getNumberLocale()) }}</div>
-            </td>
-            <td class="px-4 py-3">
-              <label class="inline-flex items-center gap-2">
-                <input type="checkbox" v-model="p.track_inventory" @change="updateField(p.id, { track_inventory: p.track_inventory })" />
-                <span class="text-sm text-gray-600">{{ t('admin.productsPage.track') }}</span>
-              </label>
-            </td>
-            <td class="px-4 py-3">
-              <label class="inline-flex items-center gap-2">
-                <input type="checkbox" v-model="p.is_out_of_stock" @change="updateField(p.id, { is_out_of_stock: p.is_out_of_stock })" />
-              </label>
-            </td>
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-2">
-                <button :class="p.is_visible ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'" class="rounded px-2 py-1 text-xs font-semibold" @click="toggleVisibility(p)">
-                  {{ p.is_visible ? t('admin.productsPage.visible') : t('admin.productsPage.hidden') }}
-                </button>
-                <NuxtLink :to="`/admin/products/${p.id}`" class="rounded border px-2 py-1 text-xs">{{ t('admin.productsPage.edit') }}</NuxtLink>
-                <button class="rounded border px-2 py-1 text-xs" @click="deleteRow(p)">{{ t('admin.productsPage.delete') }}</button>
-              </div>
-            </td>
-          </tr>
-          <tr v-if="loading">
-            <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">{{ t('admin.productsPage.loading') }}</td>
-          </tr>
-          <tr v-if="!loading && products.length===0">
-            <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">{{ t('admin.productsPage.empty') }}</td>
-          </tr>
-        </tbody>
-      </table>
+            </div>
+            <div class="flex flex-col items-end gap-1">
+              <NuxtLink :to="`/admin/products/${p.id}`" class="rounded border px-2 py-1 text-[11px]">
+                {{ t('admin.productsPage.edit') }}
+              </NuxtLink>
+              <button class="rounded border px-2 py-1 text-[11px]" @click="deleteRow(p)">
+                {{ t('admin.productsPage.delete') }}
+              </button>
+            </div>
+          </div>
+        </div>
+        <div v-if="loading" class="px-4 py-6 text-center text-sm text-gray-500">
+          {{ t('admin.productsPage.loading') }}
+        </div>
+        <div v-if="!loading && products.length===0" class="px-4 py-6 text-center text-sm text-gray-500">
+          {{ t('admin.productsPage.empty') }}
+        </div>
+      </div>
     </div>
 
     <div class="mt-3 flex items-center justify-end gap-2">

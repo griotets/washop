@@ -11,41 +11,77 @@
       </div>
     </div>
 
-    <div class="mt-4 overflow-x-auto rounded-xl border">
-      <table class="min-w-full bg-white">
-        <thead class="bg-gray-50 text-sm text-gray-600">
-          <tr>
-            <th class="px-4 py-3 text-left">{{ t('admin.clientsPage.colName') }}</th>
-            <th class="px-4 py-3 text-left">{{ t('admin.clientsPage.colPhone') }}</th>
-            <th class="px-4 py-3 text-left">{{ t('admin.clientsPage.colEmail') }}</th>
-            <th class="px-4 py-3 text-left">{{ t('admin.clientsPage.colCreatedAt') }}</th>
-            <th class="px-4 py-3 text-left">{{ t('admin.clientsPage.colActions') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="c in clients" :key="c.id" class="border-t">
-            <td class="px-4 py-3">
-              <div class="font-medium">{{ c.name }}</div>
-              <div class="text-xs text-gray-500">{{ c.address || '—' }}</div>
-            </td>
-            <td class="px-4 py-3">{{ c.phone }}</td>
-            <td class="px-4 py-3">{{ c.email || '—' }}</td>
-            <td class="px-4 py-3">{{ formatDate(c.created_at) }}</td>
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-2">
-                <NuxtLink :to="`/admin/clients/${c.id}`" class="rounded border px-2 py-1 text-xs">{{ t('admin.clientsPage.edit') }}</NuxtLink>
-                <button class="rounded border px-2 py-1 text-xs" @click="deleteClient(c)">{{ t('admin.clientsPage.delete') }}</button>
+    <div class="mt-4 rounded-xl border bg-white">
+      <!-- Desktop table -->
+      <div class="hidden md:block overflow-x-auto">
+        <table class="min-w-full bg-white">
+          <thead class="bg-gray-50 text-sm text-gray-600">
+            <tr>
+              <th class="px-4 py-3 text-left">{{ t('admin.clientsPage.colName') }}</th>
+              <th class="px-4 py-3 text-left">{{ t('admin.clientsPage.colPhone') }}</th>
+              <th class="px-4 py-3 text-left">{{ t('admin.clientsPage.colEmail') }}</th>
+              <th class="px-4 py-3 text-left">{{ t('admin.clientsPage.colCreatedAt') }}</th>
+              <th class="px-4 py-3 text-left">{{ t('admin.clientsPage.colActions') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="c in clients" :key="c.id" class="border-t">
+              <td class="px-4 py-3">
+                <div class="font-medium">{{ c.name }}</div>
+                <div class="text-xs text-gray-500">{{ c.address || '—' }}</div>
+              </td>
+              <td class="px-4 py-3">{{ c.phone }}</td>
+              <td class="px-4 py-3">{{ c.email || '—' }}</td>
+              <td class="px-4 py-3">{{ formatDate(c.created_at) }}</td>
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-2">
+                  <NuxtLink :to="`/admin/clients/${c.id}`" class="rounded border px-2 py-1 text-xs">{{ t('admin.clientsPage.edit') }}</NuxtLink>
+                  <button class="rounded border px-2 py-1 text-xs" @click="deleteClient(c)">{{ t('admin.clientsPage.delete') }}</button>
+                </div>
+              </td>
+            </tr>
+            <tr v-if="loading">
+              <td colspan="5" class="px-4 py-6 text-center text-sm text-gray-500">{{ t('admin.clientsPage.loading') }}</td>
+            </tr>
+            <tr v-if="!loading && clients.length===0">
+              <td colspan="5" class="px-4 py-6 text-center text-sm text-gray-500">{{ t('admin.clientsPage.empty') }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile cards -->
+      <div class="md:hidden divide-y divide-gray-100">
+        <div v-for="c in clients" :key="c.id" class="px-4 py-3">
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <div class="font-medium text-sm truncate">{{ c.name }}</div>
+              <div class="text-xs text-gray-500 truncate">{{ c.address || '—' }}</div>
+              <div class="mt-1 text-xs text-gray-700">
+                <div v-if="c.phone">{{ c.phone }}</div>
+                <div v-if="c.email" class="truncate">{{ c.email }}</div>
               </div>
-            </td>
-          </tr>
-          <tr v-if="loading">
-            <td colspan="5" class="px-4 py-6 text-center text-sm text-gray-500">{{ t('admin.clientsPage.loading') }}</td>
-          </tr>
-          <tr v-if="!loading && clients.length===0">
-            <td colspan="5" class="px-4 py-6 text-center text-sm text-gray-500">{{ t('admin.clientsPage.empty') }}</td>
-          </tr>
-        </tbody>
-      </table>
+              <div class="mt-1 text-[11px] text-gray-400">
+                {{ formatDate(c.created_at) }}
+              </div>
+            </div>
+            <div class="flex flex-col items-end gap-1">
+              <NuxtLink :to="`/admin/clients/${c.id}`" class="rounded border px-2 py-1 text-[11px]">
+                {{ t('admin.clientsPage.edit') }}
+              </NuxtLink>
+              <button class="rounded border px-2 py-1 text-[11px]" @click="deleteClient(c)">
+                {{ t('admin.clientsPage.delete') }}
+              </button>
+            </div>
+          </div>
+        </div>
+        <div v-if="loading" class="px-4 py-6 text-center text-sm text-gray-500">
+          {{ t('admin.clientsPage.loading') }}
+        </div>
+        <div v-if="!loading && clients.length===0" class="px-4 py-6 text-center text-sm text-gray-500">
+          {{ t('admin.clientsPage.empty') }}
+        </div>
+      </div>
     </div>
 
     

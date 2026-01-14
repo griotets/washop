@@ -61,13 +61,18 @@
                     {{ opt.name }} <span v-if="opt.is_required" class="text-red-600">*</span>
                   </label>
                   
-                  <!-- Select -->
                   <select v-if="opt.type==='select'" v-model="selectedOptions[opt.name]" class="w-full rounded border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary">
                     <option value="" disabled>{{ t('product.selectOption') }}</option>
                     <option v-for="val in (Array.isArray(opt.values)?opt.values:[])" :key="val" :value="val">{{ val }}</option>
                   </select>
 
-                  <!-- Color -->
+                  <div v-else-if="opt.type==='multiselect' || opt.type==='checkbox'" class="flex flex-wrap gap-2">
+                    <label v-for="val in (Array.isArray(opt.values)?opt.values:[])" :key="val" class="inline-flex items-center gap-2 text-sm">
+                      <input type="checkbox" :value="val" v-model="selectedOptions[opt.name]" />
+                      <span>{{ val }}</span>
+                    </label>
+                  </div>
+
                   <div v-else-if="opt.type==='color'" class="flex flex-wrap gap-2">
                     <label v-for="val in (Array.isArray(opt.values)?opt.values:[])" :key="val" class="cursor-pointer relative">
                       <input type="radio" :name="'opt-'+opt.id" :value="val" v-model="selectedOptions[opt.name]" class="peer sr-only" />
@@ -75,7 +80,6 @@
                     </label>
                   </div>
 
-                  <!-- Radio (Pills) -->
                   <div v-else-if="opt.type==='radio'" class="flex flex-wrap gap-2">
                     <label v-for="val in (Array.isArray(opt.values)?opt.values:[])" :key="val" class="cursor-pointer">
                       <input type="radio" :name="'opt-'+opt.id" :value="val" v-model="selectedOptions[opt.name]" class="peer sr-only" />
@@ -83,20 +87,11 @@
                     </label>
                   </div>
 
-                  <!-- Text -->
                   <input v-else-if="opt.type==='text'" v-model="selectedOptions[opt.name]" type="text" class="w-full rounded border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary" />
                   
-                  <!-- Number -->
                   <input v-else-if="opt.type==='number'" v-model.number="selectedOptions[opt.name]" type="number" class="w-full rounded border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary" />
                   
-                  <!-- Date -->
                   <input v-else-if="opt.type==='date'" v-model="selectedOptions[opt.name]" type="date" class="w-full rounded border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary" />
-                  
-                  <!-- Checkbox -->
-                  <label v-else-if="opt.type==='checkbox'" class="inline-flex items-center gap-2 text-sm">
-                    <input type="checkbox" v-model="selectedOptions[opt.name]" />
-                    {{ t('common.continue') }}
-                  </label>
                 </div>
               </div>
 
@@ -385,7 +380,7 @@ onMounted(async () => {
     if (oErr) console.error(oErr)
     optionsList.value = Array.isArray(opts) ? opts : []
     optionsList.value.forEach(opt => {
-      if (opt.type === 'checkbox') selectedOptions[opt.name] = false
+      if (opt.type === 'checkbox' || opt.type === 'multiselect') selectedOptions[opt.name] = []
       else selectedOptions[opt.name] = ''
     })
 

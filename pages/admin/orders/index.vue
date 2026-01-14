@@ -19,46 +19,88 @@
       </div>
     </div>
 
-    <div class="mt-4 overflow-x-auto rounded-xl border">
-      <table class="min-w-full bg-white">
-        <thead class="bg-gray-50 text-sm text-gray-600">
-          <tr>
-            <th class="px-4 py-3 text-left">{{ t('admin.ordersPage.colDate') }}</th>
-            <th class="px-4 py-3 text-left">{{ t('admin.ordersPage.colClient') }}</th>
-            <th class="px-4 py-3 text-left">{{ t('admin.ordersPage.colPhone') }}</th>
-            <th class="px-4 py-3 text-left">{{ t('admin.ordersPage.colTotal') }}</th>
-            <th class="px-4 py-3 text-left">{{ t('admin.ordersPage.colStatus') }}</th>
-            <th class="px-4 py-3 text-left">{{ t('admin.ordersPage.colActions') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="o in orders" :key="o.id" class="border-t">
-            <td class="px-4 py-3 text-sm">{{ formatDate(o.created_at) }}</td>
-            <td class="px-4 py-3">
-              <div class="font-medium">{{ o.client_name || o.client?.name || '—' }}</div>
-            </td>
-            <td class="px-4 py-3 text-sm">{{ o.client_phone || o.client?.phone || '—' }}</td>
-            <td class="px-4 py-3 font-medium">FCFA {{ Number(o.total_price || 0).toLocaleString(getNumberLocale()) }}</td>
-            <td class="px-4 py-3">
-              <span class="inline-flex rounded-full px-2 py-1 text-xs font-semibold" :class="statusColor(o.status)">
-                {{ t(`admin.ordersPage.status.${o.status}`) }}
-              </span>
-            </td>
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-2">
-                <NuxtLink :to="`/admin/orders/${o.id}`" class="rounded border px-2 py-1 text-xs">{{ t('admin.ordersPage.details') }}</NuxtLink>
-                <button class="rounded border px-2 py-1 text-xs text-red-600" @click="deleteOrder(o)">{{ t('admin.ordersPage.delete') }}</button>
+    <div class="mt-4 rounded-xl border bg-white">
+      <!-- Desktop table -->
+      <div class="hidden md:block overflow-x-auto">
+        <table class="min-w-full bg-white">
+          <thead class="bg-gray-50 text-sm text-gray-600">
+            <tr>
+              <th class="px-4 py-3 text-left">{{ t('admin.ordersPage.colDate') }}</th>
+              <th class="px-4 py-3 text-left">{{ t('admin.ordersPage.colClient') }}</th>
+              <th class="px-4 py-3 text-left">{{ t('admin.ordersPage.colPhone') }}</th>
+              <th class="px-4 py-3 text-left">{{ t('admin.ordersPage.colTotal') }}</th>
+              <th class="px-4 py-3 text-left">{{ t('admin.ordersPage.colStatus') }}</th>
+              <th class="px-4 py-3 text-left">{{ t('admin.ordersPage.colActions') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="o in orders" :key="o.id" class="border-t">
+              <td class="px-4 py-3 text-sm">{{ formatDate(o.created_at) }}</td>
+              <td class="px-4 py-3">
+                <div class="font-medium">{{ o.client_name || o.client?.name || '—' }}</div>
+              </td>
+              <td class="px-4 py-3 text-sm">{{ o.client_phone || o.client?.phone || '—' }}</td>
+              <td class="px-4 py-3 font-medium">FCFA {{ Number(o.total_price || 0).toLocaleString(getNumberLocale()) }}</td>
+              <td class="px-4 py-3">
+                <span class="inline-flex rounded-full px-2 py-1 text-xs font-semibold" :class="statusColor(o.status)">
+                  {{ t(`admin.ordersPage.status.${o.status}`) }}
+                </span>
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-2">
+                  <NuxtLink :to="`/admin/orders/${o.id}`" class="rounded border px-2 py-1 text-xs">{{ t('admin.ordersPage.details') }}</NuxtLink>
+                  <button class="rounded border px-2 py-1 text-xs text-red-600" @click="deleteOrder(o)">{{ t('admin.ordersPage.delete') }}</button>
+                </div>
+              </td>
+            </tr>
+            <tr v-if="loading">
+              <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">{{ t('admin.ordersPage.loading') }}</td>
+            </tr>
+            <tr v-if="!loading && orders.length===0">
+              <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">{{ t('admin.ordersPage.empty') }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile cards -->
+      <div class="md:hidden divide-y divide-gray-100">
+        <div v-for="o in orders" :key="o.id" class="px-4 py-3">
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <div class="text-xs text-gray-500">{{ formatDate(o.created_at) }}</div>
+              <div class="mt-1 font-medium text-sm truncate">
+                {{ o.client_name || o.client?.name || '—' }}
               </div>
-            </td>
-          </tr>
-          <tr v-if="loading">
-            <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">{{ t('admin.ordersPage.loading') }}</td>
-          </tr>
-          <tr v-if="!loading && orders.length===0">
-            <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">{{ t('admin.ordersPage.empty') }}</td>
-          </tr>
-        </tbody>
-      </table>
+              <div class="mt-1 text-xs text-gray-700">
+                <div>{{ o.client_phone || o.client?.phone || '—' }}</div>
+              </div>
+              <div class="mt-1 text-sm font-semibold">
+                FCFA {{ Number(o.total_price || 0).toLocaleString(getNumberLocale()) }}
+              </div>
+              <div class="mt-1">
+                <span class="inline-flex rounded-full px-2 py-1 text-[11px] font-semibold" :class="statusColor(o.status)">
+                  {{ t(`admin.ordersPage.status.${o.status}`) }}
+                </span>
+              </div>
+            </div>
+            <div class="flex flex-col items-end gap-1">
+              <NuxtLink :to="`/admin/orders/${o.id}`" class="rounded border px-2 py-1 text-[11px]">
+                {{ t('admin.ordersPage.details') }}
+              </NuxtLink>
+              <button class="rounded border px-2 py-1 text-[11px] text-red-600" @click="deleteOrder(o)">
+                {{ t('admin.ordersPage.delete') }}
+              </button>
+            </div>
+          </div>
+        </div>
+        <div v-if="loading" class="px-4 py-6 text-center text-sm text-gray-500">
+          {{ t('admin.ordersPage.loading') }}
+        </div>
+        <div v-if="!loading && orders.length===0" class="px-4 py-6 text-center text-sm text-gray-500">
+          {{ t('admin.ordersPage.empty') }}
+        </div>
+      </div>
     </div>
   </div>
 </template>
