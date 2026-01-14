@@ -25,7 +25,7 @@
               </select>
             </div>
             <div>
-              <label class="block text-sm font-medium">{{ t('admin.productsNew.fields.price') }}</label>
+              <label class="block text-sm font-medium">{{ t('admin.productForm.priceLabel') }}</label>
               <input v-model.number="form.price" type="number" min="0" step="0.01" class="mt-1 w-full rounded-lg border px-3 py-2" />
             </div>
             <div>
@@ -240,134 +240,111 @@
         </div>
 
         <div class="rounded-xl border bg-white p-6">
-          <div class="flex items-center justify-between">
-            <div class="font-semibold">{{ t('product.variants') }}</div>
-            <div class="flex items-center gap-2">
-              <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="addVariant">{{ t('admin.productsNew.variants.add') }}</button>
-              <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="reorderModeVariants=!reorderModeVariants">{{ t('admin.productsNew.variants.reorder') }}</button>
-            </div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="font-semibold">{{ t('admin.productForm.variantsTitle') }}</div>
+            <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm hover:bg-gray-50" @click="addVariant"><Plus class="h-4 w-4" /><span>{{ t('admin.productForm.add') }}</span></button>
           </div>
-          <div class="mt-4 space-y-3">
-            <div v-for="(v,i) in variants" :key="i" class="grid gap-3 sm:grid-cols-5 items-center" draggable="true" @dragstart="onVariantDragStart(i)" @dragover.prevent @drop="onVariantDrop(i)">
-              <div class="hidden sm:flex items-center">
-                <GripVertical class="h-4 w-4 text-gray-400" />
-              </div>
-              <input v-model.trim="v.name" type="text" :placeholder="t('admin.productsNew.variants.namePlaceholder')" class="rounded border px-2 py-1 text-sm" />
-              <input v-model.number="v.price" type="number" min="0" step="0.01" :placeholder="t('admin.productsNew.variants.pricePlaceholder')" class="rounded border px-2 py-1 text-sm" />
-              <input v-model.number="v.original_price" type="number" min="0" step="0.01" :placeholder="t('admin.productsNew.variants.originalPricePlaceholder')" class="rounded border px-2 py-1 text-sm" />
-              <div class="flex items-center gap-2">
-                <div class="relative">
-                   <img :src="v.image_url||''" class="h-10 w-10 rounded object-cover bg-gray-100" />
-                   <div v-if="v._imgLoading" class="absolute inset-0 flex items-center justify-center bg-black/50 rounded"><div class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div></div>
-                </div>
-                <input type="file" accept="image/*" @change="(e:any)=>uploadVariantImage(e,v)" />
-              </div>
-              <div class="flex items-center gap-2">
-                <button v-if="reorderModeVariants" class="rounded border px-2 py-1 text-xs" @click="moveVariantUp(i)" :disabled="i===0">↑</button>
-                <button v-if="reorderModeVariants" class="rounded border px-2 py-1 text-xs" @click="moveVariantDown(i)" :disabled="i===variants.length-1">↓</button>
-                <button class="rounded border px-2 py-1 text-xs" @click="removeVariant(i)">{{ t('admin.productsNew.variants.remove') }}</button>
-              </div>
+          <div class="space-y-4">
+            <div v-for="(v,i) in variants" :key="v.id||i" class="rounded-lg border p-4 bg-gray-50/50">
+               <div class="flex flex-col sm:flex-row gap-4">
+                  <div class="relative h-20 w-20 shrink-0 group">
+                    <img :src="v.image_url||''" class="h-full w-full rounded-lg object-cover bg-white border" />
+                    <div v-if="v._imgLoading" class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg"><div class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div></div>
+                    <label class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-lg">
+                      <Upload class="h-5 w-5 text-white" />
+                      <input type="file" accept="image/*" class="hidden" @change="(e:any)=>uploadVariantImage(e,v)" />
+                    </label>
+                  </div>
+
+                  <div class="flex-1 grid gap-4 sm:grid-cols-3">
+                     <div>
+                        <label class="mb-1 block text-xs font-medium text-gray-500">{{ t('admin.productForm.variantNamePlaceholder') }}</label>
+                        <input v-model.trim="v.name" type="text" class="w-full rounded border px-2 py-1.5 text-sm" />
+                     </div>
+                     <div>
+                        <label class="mb-1 block text-xs font-medium text-gray-500">{{ t('admin.productForm.variantPricePlaceholder') }}</label>
+                        <input v-model.number="v.price" type="number" min="0" step="0.01" class="w-full rounded border px-2 py-1.5 text-sm" />
+                     </div>
+                     <div>
+                        <label class="mb-1 block text-xs font-medium text-gray-500">{{ t('admin.productForm.variantOriginalPricePlaceholder') }}</label>
+                        <input v-model.number="v.original_price" type="number" min="0" step="0.01" class="w-full rounded border px-2 py-1.5 text-sm" />
+                     </div>
+                  </div>
+
+                  <div class="flex items-start gap-1 sm:pt-6">
+                    <button class="text-gray-500 hover:text-blue-600 p-1" @click="cloneVariant(v)" :title="t('admin.productForm.clone')">
+                      <Copy class="h-4 w-4" />
+                    </button>
+                    <button class="text-gray-500 hover:text-red-600 p-1" @click="deleteVariant(v,i)" :title="t('admin.productForm.delete')">
+                      <Trash class="h-4 w-4" />
+                    </button>
+                  </div>
+               </div>
             </div>
+            <div v-if="variants.length === 0" class="text-center text-sm text-gray-500 py-4">{{ t('admin.productForm.noVariants') }}</div>
           </div>
         </div>
 
         <div class="rounded-xl border bg-white p-6">
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between mb-4">
             <div class="font-semibold">{{ t('admin.productForm.optionsTitle') }}</div>
-            <div class="flex items-center gap-2">
-              <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="addOption">{{ t('admin.productsNew.options.add') }}</button>
-              <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm" @click="reorderModeOptions=!reorderModeOptions">{{ t('admin.productsNew.options.reorder') }}</button>
-            </div>
+            <button class="inline-flex items-center gap-1 rounded border px-2 py-1 text-sm hover:bg-gray-50" @click="addOption"><Plus class="h-4 w-4" /><span>{{ t('admin.productForm.add') }}</span></button>
           </div>
-          <div class="mt-4 space-y-3">
-            <div
-              v-for="(o,i) in options"
-              :key="i"
-              class="grid gap-3 sm:grid-cols-5 items-start"
-              draggable="true"
-              @dragstart="onOptionDragStart(i)"
-              @dragover.prevent
-              @drop="onOptionDrop(i)"
-            >
-              <div class="hidden sm:flex items-center">
-                <GripVertical class="h-4 w-4 text-gray-400" />
+          <div class="space-y-4">
+            <div v-for="(o,i) in options" :key="o.id||i" class="rounded-lg border p-4 bg-gray-50/50">
+              <div class="grid gap-4 sm:grid-cols-3 mb-3">
+                 <div>
+                    <label class="mb-1 block text-xs font-medium text-gray-500">{{ t('admin.productForm.optionNamePlaceholder') }}</label>
+                    <input v-model.trim="o.name" type="text" class="w-full rounded border px-2 py-1.5 text-sm" />
+                 </div>
+                 <div>
+                    <label class="mb-1 block text-xs font-medium text-gray-500">{{ t('admin.productForm.optionTypeLabel') }}</label>
+                    <select v-model="o.type" class="w-full rounded border px-2 py-1.5 text-sm">
+                      <option value="text">{{ t('admin.productForm.optionType.text') }}</option>
+                      <option value="number">{{ t('admin.productForm.optionType.number') }}</option>
+                      <option value="date">{{ t('admin.productForm.optionType.date') }}</option>
+                      <option value="checkbox">{{ t('admin.productForm.optionType.checkbox') }}</option>
+                      <option value="select">{{ t('admin.productForm.optionType.select') }}</option>
+                      <option value="multiselect">{{ t('admin.productForm.optionType.multiselect') }}</option>
+                      <option value="color">{{ t('admin.productForm.optionType.color') }}</option>
+                    </select>
+                 </div>
+                 <div class="flex items-center gap-2 sm:pt-6">
+                    <input v-model="o.is_required" type="checkbox" class="h-4 w-4 rounded border-gray-300" :id="'req-'+i" />
+                    <label :for="'req-'+i" class="text-sm cursor-pointer select-none">{{ t('admin.productForm.required') }}</label>
+                    
+                    <div class="ml-auto flex items-center gap-1">
+                      <button class="text-gray-500 hover:text-blue-600 p-1" @click="cloneOption(o)" :title="t('admin.productForm.clone')">
+                        <Copy class="h-4 w-4" />
+                      </button>
+                      <button class="text-gray-500 hover:text-red-600 p-1" @click="deleteOption(o,i)" :title="t('admin.productForm.delete')">
+                        <Trash class="h-4 w-4" />
+                      </button>
+                    </div>
+                 </div>
               </div>
-              <input
-                v-model.trim="o.name"
-                type="text"
-                :placeholder="t('admin.productsNew.options.namePlaceholder')"
-                class="rounded border px-2 py-1 text-sm"
-              />
-              <select v-model="o.type" class="rounded border px-2 py-1 text-sm">
-                <option value="text">{{ t('admin.productsNew.options.type.text') }}</option>
-                <option value="number">{{ t('admin.productsNew.options.type.number') }}</option>
-                <option value="date">{{ t('admin.productsNew.options.type.date') }}</option>
-                <option value="checkbox">{{ t('admin.productsNew.options.type.checkbox') }}</option>
-                <option value="select">{{ t('admin.productsNew.options.type.select') }}</option>
-                <option value="multiselect">{{ t('admin.productsNew.options.type.multiselect') }}</option>
-                <option value="color">{{ t('admin.productsNew.options.type.color') }}</option>
-              </select>
-              <div v-if="['select','multiselect','checkbox','color'].includes(o.type)" class="space-y-1">
-                <div class="flex flex-wrap gap-2">
-                  <div
-                    v-for="(val, vIdx) in normalizedOptionValues(o)"
-                    :key="vIdx"
-                    class="inline-flex items-center gap-1 rounded bg-white border px-2 py-1 text-xs sm:text-sm"
-                  >
-                    <div
-                      v-if="o.type==='color'"
-                      class="w-3 h-3 rounded-full border"
-                      :style="{ backgroundColor: val }"
+
+              <div v-if="['select','color','radio','checkbox','multiselect'].includes(o.type)" class="mt-2 border-t pt-2">
+                 <label class="mb-2 block text-xs font-medium text-gray-500">{{ t('admin.productForm.optionValuesPlaceholder') }}</label>
+                 <div class="flex flex-wrap gap-2 mb-2">
+                    <div v-for="(val, vIdx) in (Array.isArray(o.values) ? o.values : [])" :key="vIdx" class="inline-flex items-center gap-1 rounded bg-white border px-2 py-1 text-sm">
+                       <div v-if="o.type==='color'" class="w-3 h-3 rounded-full border" :style="{backgroundColor: val}"></div>
+                       <span>{{ val }}</span>
+                       <button @click="removeOptionValue(o, vIdx)" class="text-gray-400 hover:text-red-500"><X class="h-3 w-3" /></button>
+                    </div>
+                 </div>
+                 <div class="flex gap-2">
+                    <input 
+                      type="text" 
+                      :placeholder="t('admin.productForm.addValuePlaceholder')" 
+                      class="flex-1 rounded border px-2 py-1.5 text-sm"
+                      @keydown.enter.prevent="addOptionValue(o, $event)"
                     />
-                    <span>{{ val }}</span>
-                    <button
-                      type="button"
-                      class="text-gray-400 hover:text-red-500"
-                      @click="removeNewOptionValue(o, vIdx)"
-                    >
-                      <X class="h-3 w-3" />
-                    </button>
-                  </div>
-                </div>
-                <input
-                  type="text"
-                  :placeholder="t('admin.productsNew.options.valuesPlaceholder')"
-                  class="rounded border px-2 py-1 text-xs sm:text-sm w-full"
-                  @keydown.enter.prevent="addNewOptionValue(o, $event)"
-                />
-                <div class="hidden sm:block text-[11px] text-gray-400">
-                  {{ t('admin.productForm.addValueHint') }}
-                </div>
-              </div>
-              <label class="inline-flex items-center gap-2 mt-1 sm:mt-0">
-                <input type="checkbox" v-model="o.is_required" />
-                <span class="text-sm">{{ t('admin.productsNew.options.required') }}</span>
-              </label>
-              <div class="flex items-center gap-2 mt-1 sm:mt-0">
-                <button
-                  v-if="reorderModeOptions"
-                  class="rounded border px-2 py-1 text-xs"
-                  @click="moveOptionUp(i)"
-                  :disabled="i===0"
-                >
-                  ↑
-                </button>
-                <button
-                  v-if="reorderModeOptions"
-                  class="rounded border px-2 py-1 text-xs"
-                  @click="moveOptionDown(i)"
-                  :disabled="i===options.length-1"
-                >
-                  ↓
-                </button>
-                <button
-                  class="rounded border px-2 py-1 text-xs"
-                  @click="removeOption(i)"
-                >
-                  {{ t('admin.productsNew.options.remove') }}
-                </button>
+                    <div class="text-xs text-gray-400 self-center hidden sm:block">{{ t('admin.productForm.addValueHint') }}</div>
+                 </div>
               </div>
             </div>
+            <div v-if="options.length === 0" class="text-center text-sm text-gray-500 py-4">{{ t('admin.productForm.noOptions') }}</div>
           </div>
         </div>
       </div>
@@ -392,7 +369,7 @@
                 <div class="p-3">
                   <div class="font-semibold">{{ form.name || 'Nom du produit' }}</div>
                   <div class="mt-1 text-sm text-gray-600" style="white-space: pre-line">{{ form.description || 'Description du produit' }}</div>
-                  <div class="mt-2 text-sm font-semibold">FCFA {{ Number(form.price || 0).toLocaleString('fr-FR') }}</div>
+          <div class="mt-2 text-sm font-semibold">XAF {{ Number(form.price || 0).toLocaleString(getNumberLocale()) }}</div>
                   <div class="mt-3">
                     <a v-if="waLink" :href="waLink" target="_blank" class="block rounded bg-green-500 px-3 py-2 text-sm font-semibold text-white text-center">{{ t('admin.productsNew.preview.whatsappCta') }}</a>
                     <span v-else class="block rounded border bg-white px-3 py-2 text-sm text-center text-gray-600">{{ t('admin.productsNew.preview.noNumber') }}</span>
@@ -444,12 +421,12 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
 import { useI18n } from '~/composables/i18n'
-import { Upload, GripVertical, Sparkles, Wand2, X } from 'lucide-vue-next'
+import { Upload, Sparkles, Wand2, X, Plus, Trash, Copy } from 'lucide-vue-next'
 definePageMeta({ layout: 'admin', alias: ['/admin/product/new'] })
 const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
 const admin = useAdminStore()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const saving = ref(false)
 const generatingDesc = ref(false)
 const generatingImage = ref(false)
@@ -497,6 +474,11 @@ const waLink = computed(() => {
   const digits = phone.replace(/[^\d+]/g, '')
   return digits ? `https://wa.me/${digits.replace(/^0+/, '')}` : ''
 })
+function getNumberLocale() {
+  if (locale.value === 'fr') return 'fr-FR'
+  if (locale.value === 'it') return 'it-IT'
+  return 'en-US'
+}
 const filteredCategories = computed(() => {
   const term = String(categorySearch.value || '').toLowerCase()
   return Array.isArray(categories.value) ? categories.value.filter((c: any) => String(c.name || '').toLowerCase().includes(term)) : []
@@ -518,10 +500,6 @@ function selectCategory(c: any) {
 function closeCategoryDropdownLater() { setTimeout(() => categoryOpen.value = false, 150) }
 const variants = ref<any[]>([])
 const options = ref<any[]>([])
-const reorderModeVariants = ref(false)
-const reorderModeOptions = ref(false)
-let dragVariantIndex: number | null = null
-let dragOptionIndex: number | null = null
 const unit = ref('PCS')
 const unitValue = ref<number | null>(null)
 const requiresShipping = ref(true)
@@ -654,77 +632,62 @@ async function uploadVariantImage(e: any, v: any) {
   const file = e.target.files?.[0]
   if (!file) return
   const MAX = 10 * 1024 * 1024
-  if (file.size > MAX) { toast.error('Fichier trop volumineux (>10MB)'); return }
-  
-  // Optimistic preview
+  if (file.size > MAX) {
+    toast.error(t('admin.productForm.fileTooLarge'))
+    return
+  }
   const previewUrl = URL.createObjectURL(file)
   if (v.image_url && v.image_url.startsWith('blob:')) {
-     URL.revokeObjectURL(v.image_url)
+    URL.revokeObjectURL(v.image_url)
   }
   v.image_url = previewUrl
   v._pendingFile = file
 }
-function addVariant() { variants.value.push({ name: '', price: 0, original_price: 0, image_url: '' }) }
-function removeVariant(i: number) {
-  const v = variants.value[i]
+function addVariant() {
+  variants.value.push({ name: '', price: 0, original_price: 0, image_url: '' })
+}
+function cloneVariant(v: any) {
+  variants.value.push({
+    name: v.name + ' (Copy)',
+    price: v.price,
+    original_price: v.original_price,
+    image_url: v.image_url,
+    _imgLoading: false
+  })
+}
+function deleteVariant(v: any, index: number) {
   if (v.image_url && v.image_url.startsWith('blob:')) {
     URL.revokeObjectURL(v.image_url)
   }
-  variants.value.splice(i, 1)
+  variants.value.splice(index, 1)
 }
-
-function moveVariantUp(i: number) { if (i<=0) return; const v = variants.value.splice(i,1)[0]; variants.value.splice(i-1,0,v) }
-function moveVariantDown(i: number) { if (i>=variants.value.length-1) return; const v = variants.value.splice(i,1)[0]; variants.value.splice(i+1,0,v) }
-function onVariantDragStart(i: number) { dragVariantIndex = i }
-function onVariantDrop(i: number) {
-  if (dragVariantIndex === null || dragVariantIndex === i) return
-  const v = variants.value.splice(dragVariantIndex,1)[0]
-  variants.value.splice(i,0,v)
-  dragVariantIndex = null
+function addOption() {
+  options.value.push({ name: '', type: 'text', values: [], is_required: false })
 }
-function addOption() { options.value.push({ name: '', type: 'text', values: [], is_required: false }) }
-function removeOption(i: number) { options.value.splice(i, 1) }
-function moveOptionUp(i: number) { if (i<=0) return; const v = options.value.splice(i,1)[0]; options.value.splice(i-1,0,v) }
-function moveOptionDown(i: number) { if (i>=options.value.length-1) return; const v = options.value.splice(i,1)[0]; options.value.splice(i+1,0,v) }
-function onOptionDragStart(i: number) { dragOptionIndex = i }
-function onOptionDrop(i: number) {
-  if (dragOptionIndex === null || dragOptionIndex === i) return
-  const v = options.value.splice(dragOptionIndex,1)[0]
-  options.value.splice(i,0,v)
-  dragOptionIndex = null
+function cloneOption(o: any) {
+  options.value.push({
+    name: o.name + ' (Copy)',
+    type: o.type,
+    values: Array.isArray(o.values) ? [...o.values] : [],
+    is_required: o.is_required
+  })
 }
-
-function normalizedOptionValues(o: any): string[] {
-  if (Array.isArray(o.values)) {
-    return o.values.map((v: any) => String(v)).filter((v: string) => !!v)
-  }
-  const raw = String(o.values || '')
-  if (!raw) return []
-  return raw.split(',').map((s: string) => s.trim()).filter((s: string) => !!s)
+function deleteOption(o: any, index: number) {
+  options.value.splice(index, 1)
 }
-
-function addNewOptionValue(o: any, e: any) {
+function addOptionValue(o: any, e: any) {
   const val = String(e.target.value || '').trim()
   if (!val) return
-  const arr = normalizedOptionValues(o)
-  if (arr.includes(val)) {
-    e.target.value = ''
+  if (Array.isArray(o.values) && o.values.length >= 10) {
+    toast.error(t('admin.productForm.optionValuesMax10'))
     return
   }
-  if (arr.length >= 10) {
-    toast.error(t('admin.productsNew.options.valuesMax10'))
-    return
-  }
-  arr.push(val)
-  o.values = arr
+  if (!Array.isArray(o.values)) o.values = []
+  if (!o.values.includes(val)) o.values.push(val)
   e.target.value = ''
 }
-
-function removeNewOptionValue(o: any, index: number) {
-  const arr = normalizedOptionValues(o)
-  if (index < 0 || index >= arr.length) return
-  arr.splice(index, 1)
-  o.values = arr
+function removeOptionValue(o: any, index: number) {
+  if (Array.isArray(o.values)) o.values.splice(index, 1)
 }
 
   async function generateDescription() {
