@@ -184,19 +184,68 @@
                     </div>
                   </div>
 
-                <div class="hidden sm:flex flex-col min-w-0">
-                  <div class="flex items-center gap-2">
-                    <h1 class="font-bold text-gray-900 leading-tight truncate">{{ store.name || t('admin.storeFallback') }}</h1>
-                    <NuxtLink to="/admin/stores/switch" class="rounded-full border border-gray-200 px-2 py-0.5 text-[11px] font-medium text-gray-600 hover:border-primary hover:text-primary">
-                      {{ t('admin.store.switchStore') }}
-                    </NuxtLink>
+                  <div class="hidden sm:flex flex-col min-w-0 relative">
+                    <div class="flex items-center gap-2">
+                      <button type="button" @click="isStoreMenuOpen = !isStoreMenuOpen"
+                        class="flex items-center gap-1">
+                        <h1 class="font-bold text-gray-900 leading-tight truncate">
+                          {{ store.name || t('admin.storeFallback') }}
+                        </h1>
+                        <ChevronDown class="h-4 w-4 text-gray-400 transition-transform duration-200"
+                          :class="{ 'rotate-180': isStoreMenuOpen }" />
+                      </button>
+                    </div>
+
+                    <a v-if="publicUrl" :href="`https://${publicUrl}`" target="_blank"
+                      class="mt-0.5 flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-green-600 transition-colors truncate">
+                      {{ publicUrl }}
+                      <ExternalLink class="h-3 w-3" />
+                    </a>
+
+                    <div v-if="isStoreMenuOpen" @click="isStoreMenuOpen = false"
+                      class="fixed inset-0 z-40 cursor-default">
+                    </div>
+
+                    <div v-if="isStoreMenuOpen"
+                      class="absolute left-0 top-full mt-2 w-72 rounded-xl border border-gray-100 bg-white shadow-xl shadow-gray-900/5 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                      <div class="px-4 py-3 border-b border-gray-50 bg-gray-50/60">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                          {{ t('admin.store.switchStore') }}
+                        </p>
+                        <p class="mt-1 text-sm text-gray-700 truncate">
+                          {{ store.name || t('admin.storeFallback') }}
+                        </p>
+                      </div>
+
+                      <div class="max-h-80 overflow-y-auto">
+                        <button v-for="s in stores" :key="s.id" type="button"
+                          class="w-full flex items-center justify-between gap-3 px-4 py-3 text-left text-sm hover:bg-gray-50 transition-colors"
+                          @click="selectStore(s)">
+                          <div class="flex items-center gap-3 min-w-0">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold text-white"
+                              :style="{ backgroundColor: s.color || '#111827' }">
+                              {{ storeInitialsFromName(s.name) }}
+                            </div>
+                            <div class="min-w-0">
+                              <div class="font-medium text-gray-900 truncate">
+                                {{ s.name }}
+                              </div>
+                              <div class="text-xs text-gray-500 truncate">
+                                /{{ s.slug }}
+                              </div>
+                            </div>
+                          </div>
+                          <div class="text-xs text-gray-400">
+                            {{ s.id === store.id ? t('common.current') : '' }}
+                          </div>
+                        </button>
+
+                        <div v-if="stores.length === 0" class="px-4 py-3 text-xs text-gray-500">
+                          {{ t('admin.storeFallback') }}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <a v-if="publicUrl" :href="`https://${publicUrl}`" target="_blank"
-                    class="flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-green-600 transition-colors truncate">
-                    {{ publicUrl }}
-                    <ExternalLink class="h-3 w-3" />
-                  </a>
-                </div>
                 </div>
               </div>
 
@@ -447,6 +496,8 @@ const isLoadingStore = ref(true)
 const search = ref('')
 const userEmail = ref('')
 const isUserMenuOpen = ref(false)
+const isStoreMenuOpen = ref(false)
+const stores = ref<Array<{ id: string; name: string; slug: string; color?: string }>>([])
 
 const userInitials = computed(() => {
   const e = String(userEmail.value || '').trim()
@@ -462,6 +513,7 @@ const storeInitials = computed(() => {
   const n = String(store.name || 'Boutique').trim()
   return n.split(/\s+/).map(s => s[0]).join('.').slice(0, 12)
 })
+const storeInitialsFromName = (name: string) => (name || '').split(/\s+/).map(s => s[0]).join('.').slice(0, 6)
 const publicUrl = computed(() => store.slug ? `${domain}/${store.slug}` : '')
 const isSidebarOpen = ref(false)
 
@@ -469,6 +521,21 @@ const isSidebarOpen = ref(false)
 watch(() => route.path, () => {
   isSidebarOpen.value = false
 })
+
+function selectStore(s: { id: string }) {
+  admin.selectShop(String(s.id))
+  if (s.id !== store.id) {
+    store.id = String(s.id)
+    const found = stores.value.find(x => String(x.id) === String(s.id))
+    if (found) {
+      store.name = String(found.name || '')
+      store.slug = String(found.slug || '')
+      store.color = String(found.color || '')
+    }
+  }
+  isStoreMenuOpen.value = false
+  navigateTo('/admin/dashboard')
+}
 
 onMounted(async () => {
   isLoadingStore.value=true
@@ -479,6 +546,8 @@ onMounted(async () => {
   const { data: ent } = await supabase.from('enterprises').select('id').eq('owner_id', uid).maybeSingle()
   const enterprise_id = ent?.id
   if (!enterprise_id) { await navigateTo('/admin/stores/create'); return }
+  const { data: list } = await supabase.from('stores').select('id,name,slug,color').eq('enterprise_id', enterprise_id)
+  stores.value = Array.isArray(list) ? list : []
   let currentStoreId = admin.selectedShopId
   if (!currentStoreId) {
     const { data: s } = await supabase.from('stores').select('id').eq('enterprise_id', enterprise_id).limit(1)
