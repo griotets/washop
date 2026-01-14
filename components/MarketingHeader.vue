@@ -1,5 +1,5 @@
 <template>
-  <header class="sticky top-0 z-50 bg-white/85 backdrop-blur border-b">
+  <header class="sticky top-0 z-50 bg-white md:bg-white/85 md:backdrop-blur border-b">
     <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
       <NuxtLink to="/" class="flex items-center gap-2">
         <img src="/logo.svg" alt="Wa-Shop" class="h-8 w-8" />
@@ -87,7 +87,7 @@
       </button>
     </div>
 
-    <div v-if="open" class="fixed inset-0 z-[60] bg-black/40" @click="open = false"></div>
+    <div v-if="open" class="fixed inset-0 z-[60] bg-black/60" @click="open = false"></div>
     <div v-if="open" class="fixed right-0 top-0 z-[70] h-full w-72 bg-white shadow-xl">
       <div class="flex items-center justify-between border-b px-4 py-3">
         <div class="flex items-center gap-2">
