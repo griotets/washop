@@ -320,13 +320,15 @@ function scrollToCategory(catId: string) {
 function handleUpdateQuantity(product: any, delta: number) {
   const currentQty = getCartQuantity(product.id)
   const newQty = currentQty + delta
+  const maxQty = Number(product.max_order_quantity || product.max_order_qty || 0)
+  const minQty = Number(product.min_order_quantity || product.min_order_qty || 0)
   
   if (newQty < 0) return
 
   // Check Max Order Qty
-  if (product.max_order_qty > 0 && newQty > product.max_order_qty) {
+  if (maxQty > 0 && newQty > maxQty) {
     const toast = useToast()
-    toast.error(t('storefront.maxQtyError', { max: product.max_order_qty }))
+    toast.error(t('storefront.maxQtyError', { max: maxQty }))
     return
   }
 
@@ -344,6 +346,11 @@ function handleUpdateQuantity(product: any, delta: number) {
       price: product.price,
       image: getProductImage(product)
     })
+    if (minQty > 1) {
+      cart.setQuantity(String(product.id), minQty)
+      const toast = useToast()
+      toast.error(t('storefront.minQtyError', { min: minQty }))
+    }
   } else {
     cart.setQuantity(String(product.id), newQty)
   }

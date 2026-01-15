@@ -27,6 +27,7 @@
             <div>
               <label class="block text-sm font-medium">{{ t('admin.productForm.priceLabel') }}</label>
               <input v-model.number="form.price" type="number" min="0" step="0.01" class="mt-1 w-full rounded-lg border px-3 py-2" />
+              <p v-if="priceError" class="mt-1 text-xs text-red-600">{{ priceError }}</p>
             </div>
             <div>
               <label class="block text-sm font-medium">{{ t('admin.productsNew.fields.original_price') }}</label>
@@ -162,6 +163,7 @@
             <div>
               <label class="block text-sm font-medium">{{ t('admin.productsNew.inventory.quantity') }}</label>
               <input v-model.number="form.stock_quantity" type="number" min="0" class="mt-1 w-full rounded-lg border px-3 py-2" />
+              <p v-if="stockError" class="mt-1 text-xs text-red-600">{{ stockError }}</p>
             </div>
             <label class="inline-flex items-center gap-2">
               <input type="checkbox" v-model="form.is_visible" />
@@ -330,7 +332,7 @@
                     <div v-for="(val, vIdx) in (Array.isArray(o.values) ? o.values : [])" :key="vIdx" class="inline-flex items-center gap-1 rounded bg-white border px-2 py-1 text-sm">
                        <div v-if="o.type==='color'" class="w-3 h-3 rounded-full border" :style="{backgroundColor: val}"></div>
                        <span>{{ val }}</span>
-                       <button @click="removeOptionValue(o, vIdx)" class="text-gray-400 hover:text-red-500"><X class="h-3 w-3" /></button>
+                       <button @click="removeOptionValue(o, Number(vIdx))" class="text-gray-400 hover:text-red-500"><X class="h-3 w-3" /></button>
                     </div>
                  </div>
                  <div class="flex gap-2">
@@ -597,15 +599,29 @@ function onImageDragLeave() { dropActive.value = false }
       await uploadImage(f)
     }
   }
-const isValid = computed(() => {
+const priceError = computed(() => {
   const price = Number(form.price)
-  if (!form.name || !Number.isFinite(price) || price <= 0) return false
-  if (form.track_inventory) {
-    const stock = Number(form.stock_quantity)
-    if (!Number.isFinite(stock) || stock < 0) return false
-  }
-  return true
+  if (!Number.isFinite(price) || price <= 0) return t('admin.productForm.error.priceRequired')
+  return ''
 })
+const stockError = computed(() => {
+  if (!form.track_inventory) return ''
+  const stock = Number(form.stock_quantity)
+  if (!Number.isFinite(stock) || stock < 0) return t('admin.productForm.error.stockNegative')
+  return ''
+})
+const nameError = computed(() => {
+  const name = String(form.name || '').trim()
+  if (!name) return t('admin.productForm.error.nameRequired')
+  return ''
+})
+const quantityError = computed(() => {
+  const minQty = Number(form.min_order_qty || 0)
+  const maxQty = Number(form.max_order_qty || 0)
+  if (minQty > 0 && maxQty > 0 && minQty > maxQty) return t('admin.productForm.error.minMaxInvalid')
+  return ''
+})
+const isValid = computed(() => !nameError.value && !priceError.value && !stockError.value && !quantityError.value)
 const pendingUploads = ref(new Map<string, File>())
 
 async function uploadFileToStorage(file: File, path: string) {
@@ -694,8 +710,10 @@ function addOptionValue(o: any, e: any) {
   if (!o.values.includes(val)) o.values.push(val)
   e.target.value = ''
 }
-function removeOptionValue(o: any, index: number) {
-  if (Array.isArray(o.values)) o.values.splice(index, 1)
+function removeOptionValue(o: any, index: number | string) {
+  const idx = typeof index === 'string' ? Number(index) : index
+  if (!Number.isFinite(idx)) return
+  if (Array.isArray(o.values)) o.values.splice(idx, 1)
 }
 
   async function generateDescription() {
@@ -812,7 +830,10 @@ async function save() {
       // weight: form.weight || null,
       category_id: form.category_id,
       unit: unit.value,
-      unit_value: unitValue.value && Number.isFinite(unitValue.value) && unitValue.value > 0 ? unitValue.value : null,
+      unit_value: (() => {
+        const unitValNum = Number(unitValue.value || 0)
+        return Number.isFinite(unitValNum) && unitValNum > 0 ? unitValNum : null
+      })(),
       requires_shipping: requiresShipping.value,
       delivery_methods: Array.from(deliveryMethods)
     }

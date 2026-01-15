@@ -826,16 +826,16 @@ const annualDiscountPercent = computed(() => {
 
 function amountFromPlan(plan: any): bigint {
   const raw = plan?.price
-  if (raw == null) return 0n
+  if (raw == null) return BigInt(0)
   if (typeof raw === 'number') return BigInt(Math.round(raw))
   if (typeof raw === 'string') {
     const s = raw.replace(/[,\s]/g, '')
-    if (!s) return 0n
+    if (!s) return BigInt(0)
     const m = s.match(/^-?\d+/)
-    if (!m) return 0n
+    if (!m) return BigInt(0)
     return BigInt(m[0])
   }
-  return 0n
+  return BigInt(0)
 }
 
 function formatMoney(amount: bigint, _currency: string) {
@@ -843,14 +843,14 @@ function formatMoney(amount: bigint, _currency: string) {
 }
 
 function annualBeforeForPlan(plan: any) {
-  return amountFromPlan(plan) * 12n
+  return amountFromPlan(plan) * BigInt(12)
 }
 
 function annualAfterForPlan(plan: any) {
   const before = annualBeforeForPlan(plan)
   const p = BigInt(annualDiscountPercent.value)
-  const numerator = before * (100n - p)
-  return (numerator + 50n) / 100n
+  const numerator = before * (BigInt(100) - p)
+  return (numerator + BigInt(50)) / BigInt(100)
 }
 
 function annualSavingsForPlan(plan: any) {
@@ -865,13 +865,13 @@ const annualPreviewMonthly = computed(() => {
 })
 
 const annualPreviewBefore = computed(() => {
-  return annualPreviewMonthly.value * 12n
+  return annualPreviewMonthly.value * BigInt(12)
 })
 
 const annualPreviewAfter = computed(() => {
   const p = BigInt(clampAnnualDiscountPercent(annualDiscountDraft.value))
-  const numerator = annualPreviewBefore.value * (100n - p)
-  return (numerator + 50n) / 100n
+  const numerator = annualPreviewBefore.value * (BigInt(100) - p)
+  return (numerator + BigInt(50)) / BigInt(100)
 })
 
 async function loadBillingSettings() {

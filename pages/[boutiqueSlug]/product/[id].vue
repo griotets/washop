@@ -160,6 +160,7 @@ const product = reactive<{
   track_inventory?: boolean;
   stock_quantity?: number;
   max_order_quantity?: number;
+  min_order_quantity?: number;
   is_out_of_stock?: boolean;
 }>({})
 const images = ref<string[]>([])
@@ -289,6 +290,14 @@ function handleUpdateQuantity(delta: number) {
       price: displayPrice.value || 0,
       image: selectedVariant.value?.image_url || images.value[0]
     })
+    const pMin = Number(product.min_order_quantity || 0)
+    const minQty = pMin > 0 ? pMin : 1
+    if (minQty > 1) {
+      cart.setQuantity(currentItemKey.value, minQty)
+      const toast = useToast()
+      toast.error(t('storefront.minQtyError', { min: minQty }))
+      return
+    }
   } else {
     console.log('Updating quantity:', productId.value, newQty)
     cart.setQuantity(currentItemKey.value, newQty)
@@ -346,7 +355,7 @@ onMounted(async () => {
   store.phone = String(sone?.phone || '')
   if (storeId) {
     const { data: p, error: pErr } = await supabase.from('products')
-      .select('id,name,description,price,images,track_inventory,stock_quantity,max_order_quantity,is_out_of_stock')
+      .select('id,name,description,price,images,track_inventory,stock_quantity,max_order_quantity,min_order_quantity,is_out_of_stock')
       .eq('id', productId.value)
       .eq('store_id', storeId)
       .maybeSingle()
@@ -362,6 +371,7 @@ onMounted(async () => {
     product.track_inventory = !!p?.track_inventory
     product.stock_quantity = Number(p?.stock_quantity || 0)
     product.max_order_quantity = Number(p?.max_order_quantity || 0)
+    product.min_order_quantity = Number((p as any)?.min_order_quantity || 0)
     product.is_out_of_stock = !!p?.is_out_of_stock
     images.value = Array.isArray(p?.images) ? p?.images : (typeof p?.images === 'string' ? JSON.parse(p?.images || '[]') : [])
     

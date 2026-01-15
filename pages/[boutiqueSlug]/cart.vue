@@ -52,11 +52,11 @@
               <div class="text-sm font-medium text-primary">{{ formatMoney(item.price) }}</div>
             </div>
             <div class="flex items-center gap-3 rounded-lg bg-gray-50 p-1">
-              <button class="h-7 w-7 rounded bg-white shadow-sm hover:bg-gray-100 disabled:opacity-50" @click="cart.setQuantity(item.id, item.quantity - 1)" :disabled="item.quantity <= 1">
+              <button class="h-7 w-7 rounded bg-white shadow-sm hover:bg-gray-100 disabled:opacity-50" @click="updateItemQty(item, -1)" :disabled="item.quantity <= 1">
                 -
               </button>
               <span class="w-4 text-center text-sm font-medium">{{ item.quantity }}</span>
-              <button class="h-7 w-7 rounded bg-white shadow-sm hover:bg-gray-100" @click="cart.setQuantity(item.id, item.quantity + 1)">
+              <button class="h-7 w-7 rounded bg-white shadow-sm hover:bg-gray-100" @click="updateItemQty(item, 1)">
                 +
               </button>
             </div>
@@ -261,6 +261,7 @@ const availableMethods = computed(() => {
 onMounted(async () => {
   cart.load(slug.value)
   loadStoreConfig()
+  await loadConstraints()
   
   // Fetch store info
   const { data, error } = await supabase.from('stores').select('id, name, phone, color, image_url, social_whatsapp, social_facebook, social_instagram, social_telegram').eq('slug', slug.value).maybeSingle()
@@ -427,6 +428,88 @@ async function submitOrder() {
 function formatMoney(amount: number) {
   const l = locale.value === 'it' ? 'it-IT' : locale.value === 'en' ? 'en-US' : 'fr-FR'
   return new Intl.NumberFormat(l, { style: 'currency', currency: 'XAF' }).format(amount)
+}
+
+// Cart constraints
+const productConstraints = reactive<Record<string, { max: number; min: number; stock: number; track: boolean; out: boolean }>>({})
+const variantConstraints = reactive<Record<string, { max: number; min: number; stock: number; track: boolean; out: boolean }>>({})
+
+function parseProductId(item: any) {
+  if (item.productId) return String(item.productId)
+  const parts = String(item.id || '').split('|')
+  return parts[0] || String(item.id || '')
+}
+
+async function loadConstraints() {
+  try {
+    const productIds = Array.from(new Set(cart.items.map(parseProductId))).filter(Boolean)
+    const variantIds = Array.from(new Set(cart.items.map(i => i.variantId).filter(Boolean)))
+    if (productIds.length > 0) {
+      const { data, error } = await supabase
+        .from('products')
+        .select('id,track_inventory,stock_quantity,max_order_quantity,min_order_quantity,is_out_of_stock,max_order_qty,min_order_qty')
+        .in('id', productIds.map(id => Number(id)))
+      if (error) console.error('loadConstraints products error', error)
+      const prods: any[] = Array.isArray(data) ? data : []
+      prods.forEach((p: any) => {
+        const max = Number(p.max_order_quantity || p.max_order_qty || 0)
+        const min = Number(p.min_order_quantity || p.min_order_qty || 0)
+        productConstraints[String(p.id)] = { max, min, stock: Number(p.stock_quantity || 0), track: !!p.track_inventory, out: !!p.is_out_of_stock }
+      })
+    }
+    if (variantIds.length > 0) {
+      const { data, error } = await supabase
+        .from('variants')
+        .select('id,track_inventory,stock_quantity,max_order_quantity,is_out_of_stock')
+        .in('id', variantIds.map(id => Number(id)))
+      if (error) console.error('loadConstraints variants error', error)
+      const vars: any[] = Array.isArray(data) ? data : []
+      vars.forEach((v: any) => {
+        const max = Number(v.max_order_quantity || 0)
+        const min = Number(v.min_order_quantity || 0)
+        variantConstraints[String(v.id)] = { max, min, stock: Number(v.stock_quantity || 0), track: !!v.track_inventory, out: !!v.is_out_of_stock }
+      })
+    }
+  } catch (e) {
+    console.error('loadConstraints error', e)
+  }
+}
+
+watch(() => cart.items.map(i => i.id), async () => {
+  await loadConstraints()
+})
+
+function updateItemQty(item: any, delta: number) {
+  const toast = useToast()
+  const current = Number(item.quantity || 0)
+  const next = current + delta
+  if (next < 0) return
+  const pid = parseProductId(item)
+  const p = productConstraints[pid] || { max: 0, min: 0, stock: 0, track: false, out: false }
+  const v = item.variantId ? (variantConstraints[String(item.variantId)] || { max: 0, min: 0, stock: 0, track: false, out: false }) : null
+  
+  const max = v ? v.max : p.max
+  if (max > 0 && next > max) {
+    toast.error(t('storefront.maxQtyError', { max }))
+    return
+  }
+  const track = v ? v.track : p.track
+  const stock = v ? v.stock : p.stock
+  if (track && next > stock) {
+    toast.error(t('storefront.stockError', { max: stock }))
+    return
+  }
+  if (current === 0 && delta > 0) {
+    const min = v ? v.min : p.min
+    cart.setQuantity(item.id, 1)
+    if (min > 1) {
+      cart.setQuantity(item.id, min)
+      toast.error(t('storefront.minQtyError', { min }))
+      return
+    }
+    return
+  }
+  cart.setQuantity(item.id, next)
 }
 
 
