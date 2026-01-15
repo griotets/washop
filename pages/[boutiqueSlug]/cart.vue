@@ -220,7 +220,7 @@
 
 <script setup lang="ts">
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { ShoppingCart, Trash2, Package, Store, Truck, MessageCircle } from 'lucide-vue-next'
+import { ShoppingCart, Trash2, Store, Truck, MessageCircle } from 'lucide-vue-next'
 import { useCartStore } from '~/stores/cart'
 import PhoneInput from '~/components/PhoneInput.vue'
 import { useI18n } from '~/composables/i18n'

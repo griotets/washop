@@ -330,6 +330,8 @@ function shareProduct() {
   }
 }
 
+shareProduct
+
 onMounted(async () => {
   if (!supabase) return
   cart.load(slug.value)
