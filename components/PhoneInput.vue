@@ -1,33 +1,100 @@
 <template>
-  <div class="grid grid-cols-3 gap-3">
-    <div>
-      <label v-if="label" class="block text-sm">{{ label }}</label>
-      <select v-model="code" class="mt-1 w-full rounded border px-3 py-2">
-        <option v-for="c in countryList" :key="c.code" :value="c.code">{{ c.name }} ({{ c.code }})</option>
+  <div class="flex gap-2">
+    <div class="w-32">
+      <select
+        v-model="selectedCode"
+        class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm bg-white"
+      >
+        <option
+          v-for="c in countries"
+          :key="c.code"
+          :value="c.code"
+        >
+          {{ c.dial }} {{ c.label }}
+        </option>
       </select>
     </div>
-    <div class="col-span-2">
-      <label v-if="labelNumber" class="block text-sm">{{ labelNumber }}</label>
-      <input v-model="number" inputmode="numeric" pattern="[0-9]*" type="tel" :placeholder="placeholder" class="mt-1 w-full rounded border px-3 py-2" />
+    <div class="flex-1">
+      <input
+        v-model="localNumber"
+        type="tel"
+        class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+      />
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
-const props = defineProps<{ modelValue?: string, codes?: string[], label?: string, labelNumber?: string, placeholder?: string }>()
-const emit = defineEmits<{ (e: 'update:modelValue', v: string): void }>()
-import { countries } from '~/data/countries'
-const countryList = computed(() => countries)
-const codes = computed(() => props.codes || countryList.value.map(c => c.code))
-const code = ref('+237')
-const number = ref('')
-watch(() => props.modelValue, (v) => {
-  if (!v) return
-  const m = String(v)
-  const found = codes.value.find(c => m.startsWith(c))
-  if (found) { code.value = found; number.value = m.slice(found.length) }
+const props = defineProps<{
+  phone?: string
+  country?: string
+  modelValue?: string
+}>()
+
+const emit = defineEmits<{
+  (e: 'update:phone', value: string): void
+  (e: 'update:country', value: string): void
+  (e: 'update:modelValue', value: string): void
+}>()
+
+import { COUNTRY_DIAL_CODES } from '~/data/countryDialCodes'
+import { useI18n } from '~/composables/i18n'
+const { t, locale } = useI18n()
+const countries = computed(() => {
+  const lang = String(locale.value || 'en')
+  let dn: any
+  try {
+    dn = new (Intl as any).DisplayNames([lang], { type: 'region' })
+  } catch {}
+  return COUNTRY_DIAL_CODES.map((c) => {
+    const key = `countries.${c.code}`
+    const translated = t(key)
+    const hasCustom = translated && translated !== key
+    const intlName = dn ? dn.of(c.code) : null
+    const label = hasCustom ? translated : (intlName || c.code)
+    return { code: c.code, dial: c.dial, label }
+  }).sort((a, b) => a.label.localeCompare(b.label))
 })
-watch([code, number], () => {
-  const full = `${code.value}${String(number.value || '').replace(/\\s+/g, '')}`
-  emit('update:modelValue', full)
+
+const selectedCode = ref(props.country || 'CM')
+const localNumber = ref('')
+
+const findCountry = (code: string) => {
+  const list = countries.value
+  return list.find((c) => c.code === code) || list[0]
+}
+
+const normalizeDigits = (value: string) => {
+  return String(value || '').replace(/\D/g, '')
+}
+
+const rebuildPhone = () => {
+  const country = findCountry(selectedCode.value)
+  const digits = normalizeDigits(localNumber.value)
+  const e164 = digits ? country.dial + digits : ''
+  emit('update:country', country.code)
+  emit('update:phone', e164)
+  emit('update:modelValue', e164)
+}
+
+watch(
+  () => [props.phone, props.modelValue, props.country] as const,
+  ([phone, modelValue, country]) => {
+    const base = findCountry(country || selectedCode.value)
+    selectedCode.value = base.code
+    const raw = String(phone ?? modelValue ?? '')
+    const digits = normalizeDigits(raw)
+    const dialDigits = normalizeDigits(base.dial)
+    if (digits && dialDigits && digits.startsWith(dialDigits)) {
+      localNumber.value = digits.slice(dialDigits.length)
+    } else {
+      localNumber.value = digits
+    }
+  },
+  { immediate: true }
+)
+
+watch([selectedCode, localNumber], () => {
+  rebuildPhone()
 })
 </script>

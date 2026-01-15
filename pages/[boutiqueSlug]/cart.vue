@@ -96,10 +96,10 @@
               <input v-model="form.name" type="text" class="w-full rounded-lg border-gray-300 px-4 py-2 focus:border-primary focus:ring-primary" :placeholder="t('checkout.namePlaceholder')" />
             </div>
 
-            <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">{{ t('checkout.whatsAppPhone') }}</label>
-              <PhoneInput v-model="form.phone" />
-            </div>
+          <div>
+            <label class="mb-1 block text-sm font-medium text-gray-700">{{ t('checkout.whatsAppPhone') }}</label>
+            <PhoneInput v-model="form.phone" />
+          </div>
 
             <div v-if="form.method === 'delivery'" class="space-y-4">
               <div>

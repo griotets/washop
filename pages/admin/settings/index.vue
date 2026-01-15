@@ -594,6 +594,109 @@
               </div>
           </div>
 
+          <div class="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
+            <div class="flex items-center justify-between">
+               <div>
+                 <h4 class="text-base font-semibold text-gray-900">{{ t('admin.settings.billingCustomerTitle') }}</h4>
+                 <p class="mt-1 text-sm text-gray-600">{{ t('admin.settings.billingCustomerSubtitle') }}</p>
+               </div>
+               <button
+                 type="button"
+                 class="inline-flex items-center px-4 py-2 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                 :disabled="!enterpriseId || !isBillingCustomerValid"
+                 @click="saveBillingCustomer"
+               >
+                 <Loader2 v-if="savingBillingSettings" class="h-4 w-4 animate-spin mr-2" />
+                 <span>{{ t('common.save') }}</span>
+               </button>
+             </div>
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+               <div>
+                 <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.billingCustomerFirstNameLabel') }}</label>
+                 <input
+                   v-model="billingCustomer.name"
+                   type="text"
+                   :placeholder="t('admin.settings.billingCustomerFirstNamePlaceholder')"
+                   class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+                 />
+               </div>
+               <div>
+                 <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.billingCustomerLastNameLabel') }}</label>
+                 <input
+                   v-model="billingCustomer.surname"
+                   type="text"
+                   :placeholder="t('admin.settings.billingCustomerLastNamePlaceholder')"
+                   class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+                 />
+               </div>
+               <div>
+                 <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.billingCustomerPhoneLabel') }}</label>
+                 <PhoneInput
+                   :phone="billingCustomer.phone"
+                   :country="billingCustomer.country"
+                   @update:phone="billingCustomer.phone = $event"
+                   @update:country="billingCustomer.country = $event"
+                 />
+               </div>
+               <div>
+                 <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.billingCustomerEmailLabel') }}</label>
+                 <input
+                   v-model="billingCustomer.email"
+                   type="email"
+                   :placeholder="t('admin.settings.billingCustomerEmailPlaceholder')"
+                   class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+                 />
+               </div>
+               <div class="md:col-span-2">
+                 <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.billingCustomerAddressLabel') }}</label>
+                 <input
+                   v-model="billingCustomer.address"
+                   type="text"
+                   :placeholder="t('admin.settings.billingCustomerAddressPlaceholder')"
+                   class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+                 />
+               </div>
+               <div>
+                 <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.billingCustomerCityLabel') }}</label>
+                 <input
+                   v-model="billingCustomer.city"
+                   type="text"
+                   :placeholder="t('admin.settings.billingCustomerCityPlaceholder')"
+                   class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+                 />
+               </div>
+               <div>
+                 <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.billingCustomerCountryLabel') }}</label>
+                 <select
+                   v-model="billingCustomer.country"
+                   class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm bg-white"
+                 >
+                   <option v-for="c in countryOptions" :key="c.code" :value="c.code">
+                     {{ c.label }}
+                   </option>
+                 </select>
+               </div>
+               <div>
+                 <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.billingCustomerStateLabel') }}</label>
+                 <input
+                   v-model="billingCustomer.state"
+                   type="text"
+                   :placeholder="t('admin.settings.billingCustomerStatePlaceholder')"
+                   class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+                 />
+               </div>
+               <div>
+                 <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.billingCustomerZipLabel') }}</label>
+                 <input
+                   v-model="billingCustomer.zip"
+                   type="text"
+                   :placeholder="t('admin.settings.billingCustomerZipPlaceholder')"
+                   class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+                 />
+               </div>
+             </div>
+          </div>
+
           <!-- Plans Grid -->
           <div class="grid md:grid-cols-3 gap-6">
               <div v-for="plan in plans" :key="plan.id" class="border rounded-lg p-6 relative flex flex-col" :class="{'border-green-500 ring-1 ring-green-500': subscription?.plan_id === plan.id, 'bg-white': true}">
@@ -670,6 +773,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
 import { useI18n } from '~/composables/i18n'
 import { ArrowLeft, Lock, Loader2 } from 'lucide-vue-next'
+import { COUNTRY_DIAL_CODES } from '~/data/countryDialCodes'
 
 const { t, locale, supportedLocales, hasKey } = useI18n()
 
@@ -734,6 +838,22 @@ function formatSubscriptionStatus(status?: string | null) {
   if (s === 'unpaid') return t('admin.settings.billingStatusUnpaid')
   return raw || t('admin.settings.billingStatusInactive')
 }
+
+const countryOptions = computed(() => {
+  const lang = String(locale.value || 'en')
+  let dn: any
+  try {
+    dn = new (Intl as any).DisplayNames([lang], { type: 'region' })
+  } catch {}
+  return COUNTRY_DIAL_CODES.map((c) => {
+    const key = `countries.${c.code}`
+    const translated = t(key)
+    const hasCustom = translated && translated !== key
+    const intlName = dn ? dn.of(c.code) : null
+    const label = hasCustom ? translated : (intlName || c.code)
+    return { code: c.code, label }
+  }).sort((a, b) => a.label.localeCompare(b.label))
+})
 
 const menuTranslationKeys = [
   'admin.settings.menuStoresTitle',
@@ -822,6 +942,24 @@ const billingSettingsHistory = ref<any[]>([])
 const annualDiscountDraft = ref<number>(30)
 const savingBillingSettings = ref(false)
 const checkoutLoadingPlanId = ref<string>('')
+const billingCustomer = reactive({
+  name: '',
+  surname: '',
+  phone: '',
+  email: '',
+  address: '',
+  city: '',
+  country: 'CM',
+  state: 'CM',
+  zip: ''
+})
+const isBillingCustomerValid = computed(() => {
+  const c = billingCustomer
+  if (!c.name || !c.surname || !c.phone || !c.email || !c.address || !c.city || !c.country || !c.state || !c.zip) return false
+  if (!/.+@.+\..+/.test(String(c.email))) return false
+  if (String(c.phone).replace(/\D/g, '').length < 6) return false
+  return true
+})
 
 function clampAnnualDiscountPercent(v: any) {
   const n = Number(v)
@@ -905,6 +1043,18 @@ async function loadBillingSettings() {
   } else {
     billingSettings.value = data
     annualDiscountDraft.value = clampAnnualDiscountPercent(data?.annual_discount_percent ?? 30)
+    const bc: any = (data as any).billing_customer
+    if (bc && typeof bc === 'object') {
+      billingCustomer.name = bc.name || ''
+      billingCustomer.surname = bc.surname || ''
+      billingCustomer.phone = bc.phone || ''
+      billingCustomer.email = bc.email || ''
+      billingCustomer.address = bc.address || ''
+      billingCustomer.city = bc.city || ''
+      billingCustomer.country = bc.country || 'CM'
+      billingCustomer.state = bc.state || 'CM'
+      billingCustomer.zip = bc.zip || ''
+    }
   }
 
   const { data: history } = await supabase
@@ -940,11 +1090,43 @@ async function saveAnnualDiscount() {
   }
 }
 
+async function saveBillingCustomer() {
+  if (!enterpriseId.value) return
+  savingBillingSettings.value = true
+  const toast = useToast()
+  try {
+    const payload = {
+      name: String(billingCustomer.name || '').trim(),
+      surname: String(billingCustomer.surname || '').trim(),
+      phone: String(billingCustomer.phone || '').trim(),
+      email: String(billingCustomer.email || '').trim(),
+      address: String(billingCustomer.address || '').trim(),
+      city: String(billingCustomer.city || '').trim(),
+      country: String(billingCustomer.country || '').trim() || 'CM',
+      state: String(billingCustomer.state || '').trim() || 'CM',
+      zip: String(billingCustomer.zip || '').trim()
+    }
+    const { error } = await supabase
+      .from('enterprise_billing_settings')
+      .update({ billing_customer: payload })
+      .eq('enterprise_id', enterpriseId.value)
+    if (error) throw error
+    await loadBillingSettings()
+    toast.success(t('admin.settings.billingCustomerSavedToast'))
+  } catch (e: any) {
+    toast.error('Erreur: ' + e.message)
+  } finally {
+    savingBillingSettings.value = false
+  }
+}
+
 async function startCheckout(plan: any) {
   if (!enterpriseId.value || !plan?.id) return
   checkoutLoadingPlanId.value = String(plan.id)
   const toast = useToast()
   try {
+    const { data: sess } = await supabase.auth.getSession()
+    const token = sess?.session?.access_token ? `Bearer ${sess.session.access_token}` : ''
     const { data, error } = await supabase.rpc('create_subscription_checkout_session', {
       p_enterprise_id: enterpriseId.value,
       p_plan_id: String(plan.id),
@@ -956,8 +1138,13 @@ async function startCheckout(plan: any) {
       method: 'POST',
       query: { locale: locale.value },
       body: {
-        checkoutSessionId: sessionId
-      }
+        checkoutSessionId: sessionId,
+        enterpriseId: enterpriseId.value,
+        planId: String(plan.id),
+        billingInterval: billingInterval.value,
+        customer: { ...billingCustomer }
+      },
+      headers: token ? { Authorization: token } : undefined
     })
     if (!res?.paymentUrl) {
       throw new Error('URL de paiement introuvable')
@@ -995,12 +1182,19 @@ async function renewSubscription() {
     })
     if (error) throw error
     const sessionId = String(data?.id || '')
+    const { data: sess } = await supabase.auth.getSession()
+    const token = sess?.session?.access_token ? `Bearer ${sess.session.access_token}` : ''
     const res = await $fetch<{ paymentUrl: string }>('/api/cinetpay/init', {
       method: 'POST',
       query: { locale: locale.value },
       body: {
-        checkoutSessionId: sessionId
-      }
+        checkoutSessionId: sessionId,
+        enterpriseId: enterpriseId.value,
+        planId: String(subscription.value.plan_id),
+        billingInterval: interval,
+        customer: { ...billingCustomer }
+      },
+      headers: token ? { Authorization: token } : undefined
     })
     if (!res?.paymentUrl) {
       throw new Error('URL de paiement introuvable')
