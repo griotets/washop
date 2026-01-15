@@ -509,6 +509,18 @@
                   </div>
               </div>
               
+              <div v-if="showRenewButton" class="mt-4 flex justify-end">
+                <button
+                  type="button"
+                  class="inline-flex items-center px-4 py-2 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                  :disabled="checkoutLoadingPlanId === subscription?.plan_id || !enterpriseId"
+                  @click="renewSubscription"
+                >
+                  <Loader2 v-if="checkoutLoadingPlanId === subscription?.plan_id" class="h-4 w-4 animate-spin mr-2" />
+                  <span>{{ t('admin.settings.billingRenewButton') }}</span>
+                </button>
+              </div>
+              
               <!-- Usage -->
               <div>
                   <div class="flex justify-between text-sm mb-1">
@@ -939,7 +951,61 @@ async function startCheckout(plan: any) {
       p_billing_interval: billingInterval.value
     })
     if (error) throw error
-    toast.success(t('admin.settings.checkoutCreatedToast', { id: String(data?.id || '') }))
+    const sessionId = String(data?.id || '')
+    const res = await $fetch<{ paymentUrl: string }>('/api/cinetpay/init', {
+      method: 'POST',
+      query: { locale: locale.value },
+      body: {
+        checkoutSessionId: sessionId
+      }
+    })
+    if (!res?.paymentUrl) {
+      throw new Error('URL de paiement introuvable')
+    }
+    window.location.href = res.paymentUrl
+  } catch (e: any) {
+    toast.error('Erreur: ' + e.message)
+  } finally {
+    checkoutLoadingPlanId.value = ''
+  }
+}
+
+const showRenewButton = computed(() => {
+  const sub = subscription.value
+  if (!sub) return false
+  if (!sub.plan_id || sub.plan_id === 'free') return false
+  const rawStatus = String(sub.status || '').toLowerCase()
+  const end = sub.end_date ? new Date(sub.end_date) : null
+  if (!end || Number.isNaN(end.getTime())) return false
+  const now = new Date()
+  if (end.getTime() <= now.getTime()) return true
+  return rawStatus !== 'active' && rawStatus !== 'trialing'
+})
+
+async function renewSubscription() {
+  if (!enterpriseId.value || !subscription.value?.plan_id) return
+  checkoutLoadingPlanId.value = String(subscription.value.plan_id)
+  const toast = useToast()
+  try {
+    const interval = subscription.value.billing_interval || billingInterval.value
+    const { data, error } = await supabase.rpc('create_subscription_checkout_session', {
+      p_enterprise_id: enterpriseId.value,
+      p_plan_id: String(subscription.value.plan_id),
+      p_billing_interval: interval
+    })
+    if (error) throw error
+    const sessionId = String(data?.id || '')
+    const res = await $fetch<{ paymentUrl: string }>('/api/cinetpay/init', {
+      method: 'POST',
+      query: { locale: locale.value },
+      body: {
+        checkoutSessionId: sessionId
+      }
+    })
+    if (!res?.paymentUrl) {
+      throw new Error('URL de paiement introuvable')
+    }
+    window.location.href = res.paymentUrl
   } catch (e: any) {
     toast.error('Erreur: ' + e.message)
   } finally {

@@ -1,5 +1,7 @@
+import { getServerSupabase } from '~/server/utils/supabase'
+
 export default defineEventHandler(async (event) => {
-  const body = await readBody<any>(event)
+  const body = await readBody(event) as any
   const config = useRuntimeConfig()
   const apiKey = config.cinetpayApiKey as string | undefined
   const siteId = config.cinetpaySiteId as string | undefined
@@ -9,15 +11,14 @@ export default defineEventHandler(async (event) => {
   }
 
   const transactionId = body?.transaction_id || body?.transactionId || body?.data?.transaction_id
-  if (!transactionId) {
+  const token = body?.token || body?.payment_token || body?.data?.payment_token
+  if (!transactionId && !token) {
     throw createError({ statusCode: 400, statusMessage: 'transaction_id missing' })
   }
 
-  const checkPayload = {
-    apikey: apiKey,
-    site_id: siteId,
-    transaction_id: String(transactionId)
-  }
+  const checkPayload: any = { apikey: apiKey, site_id: siteId }
+  if (token) checkPayload.token = String(token)
+  else checkPayload.transaction_id = String(transactionId)
 
   const res = await $fetch<any>('https://api-checkout.cinetpay.com/v2/payment/check', {
     method: 'POST',
@@ -25,19 +26,48 @@ export default defineEventHandler(async (event) => {
     body: checkPayload
   })
 
-  const status = res?.data?.status || res?.status
+  const status = String(res?.data?.status || res?.status || '').toUpperCase()
   const amount = Number(res?.data?.amount || 0)
+  const currency = String(res?.data?.currency || '').toUpperCase()
 
-  const nuxt = useNuxtApp()
-  const supabase = nuxt.$supabase
+  const supabase = await getServerSupabase()
 
-  const { data: session } = await supabase
+  let { data: session } = await supabase
     .from('subscription_checkout_sessions')
     .select('*')
     .eq('id', String(transactionId))
     .maybeSingle()
 
+  if (!session && token) {
+    const { data: byToken } = await supabase
+      .from('subscription_checkout_sessions')
+      .select('*')
+      .eq('provider_reference', String(token))
+      .maybeSingle()
+    session = byToken || null
+  }
+
   if (!session) {
+    return { ok: false }
+  }
+
+  if (String(session.status || '') === 'paid') {
+    return { ok: true }
+  }
+
+  const expectedAmount =
+    session.billing_interval === 'year'
+      ? Number(session.annual_price_after || session.annual_price_before || (Number(session.monthly_price) * 12))
+      : Number(session.monthly_price)
+  const expectedCurrency = String(session.currency || 'XAF').toUpperCase()
+  const expectedRounded = Math.round(Number.isFinite(expectedAmount) ? expectedAmount : 0)
+  const receivedRounded = Math.round(Number.isFinite(amount) ? amount : 0)
+
+  if (expectedRounded <= 0 || expectedRounded !== receivedRounded || expectedCurrency !== currency) {
+    await supabase
+      .from('subscription_checkout_sessions')
+      .update({ status: 'mismatch' })
+      .eq('id', session.id)
     return { ok: false }
   }
 
@@ -96,5 +126,4 @@ export default defineEventHandler(async (event) => {
   }
 
   return { ok: true }
-}
-
+})

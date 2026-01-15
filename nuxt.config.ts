@@ -4,11 +4,17 @@ export default defineNuxtConfig({
   extends: [],
   runtimeConfig: {
     huggingfaceApiKey: process.env.HUGGINGFACE_API_KEY,
+    supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY,
+    cinetpayApiKey: process.env.CINETPAY_API_KEY,
+    cinetpaySiteId: process.env.CINETPAY_SITE_ID,
     public: {
       supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
       supabaseAnonKey: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY,
       supabaseStorageBucket: process.env.NUXT_PUBLIC_SUPABASE_STORAGE_BUCKET,
-      otpResendDelay: process.env.NUXT_PUBLIC_OTP_RESEND_DELAY || '30'
+      otpResendDelay: process.env.NUXT_PUBLIC_OTP_RESEND_DELAY || '30',
+      appBaseUrl: process.env.NUXT_PUBLIC_APP_BASE_URL,
+      cinetpayNotifyUrl: process.env.NUXT_PUBLIC_CINETPAY_NOTIFY_URL,
+      cinetpayReturnUrl: process.env.NUXT_PUBLIC_CINETPAY_RETURN_URL
     }
   },
   modules: [

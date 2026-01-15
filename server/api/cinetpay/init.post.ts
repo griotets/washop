@@ -1,16 +1,23 @@
+import { getServerSupabase } from '~/server/utils/supabase'
+
 export default defineEventHandler(async (event) => {
-  const body = await readBody<{
-    checkoutSessionId: string
-  }>(event)
+  const raw = await readBody(event)
+  const body = raw as { checkoutSessionId?: string }
 
   if (!body?.checkoutSessionId) {
-    throw createError({ statusCode: 400, statusMessage: 'checkoutSessionId required' })
+    const q = getQuery(event) as any
+    const fallbackId = q?.checkoutSessionId || q?.id
+    if (fallbackId) {
+      body.checkoutSessionId = String(fallbackId)
+    } else {
+      throw createError({ statusCode: 400, statusMessage: 'checkoutSessionId required' })
+    }
   }
 
   const config = useRuntimeConfig()
   const apiKey = config.cinetpayApiKey as string | undefined
   const siteId = config.cinetpaySiteId as string | undefined
-  const baseReturnUrl = config.public?.appBaseUrl as string | undefined
+  let baseReturnUrl = config.public?.appBaseUrl as string | undefined
 
   if (!apiKey || !siteId) {
     throw createError({ statusCode: 500, statusMessage: 'CinetPay config missing' })
@@ -19,8 +26,7 @@ export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const locale = String(query.locale || 'fr').toLowerCase().startsWith('en') ? 'EN' : 'FR'
 
-  const nuxt = useNuxtApp()
-  const supabase = nuxt.$supabase
+  const supabase = await getServerSupabase()
 
   const { data: session, error } = await supabase
     .from('subscription_checkout_sessions')
@@ -41,8 +47,20 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Invalid amount for session' })
   }
 
+  // CinetPay requires amount to be a multiple of 5
+  const amountRoundedTo5 = Math.max(5, Math.round(amount / 5) * 5)
   const currency = session.currency || 'XAF'
   const transactionId = String(session.id)
+
+  // Ensure absolute URLs
+  if (!baseReturnUrl) {
+    try {
+      const u = getRequestURL(event)
+      baseReturnUrl = `${u.protocol}//${u.host}`
+    } catch {
+      baseReturnUrl = ''
+    }
+  }
 
   const notifyUrl =
     config.public?.cinetpayNotifyUrl ||
@@ -55,7 +73,7 @@ export default defineEventHandler(async (event) => {
     apikey: apiKey,
     site_id: siteId,
     transaction_id: transactionId,
-    amount: Math.round(amount),
+    amount: amountRoundedTo5,
     currency,
     description: `Abonnement ${session.plan_id} (${session.billing_interval})`,
     notify_url: notifyUrl,
@@ -70,13 +88,21 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const res = await $fetch<any>('https://api-checkout.cinetpay.com/v2/payment', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: payload
-  })
+  let res: any = null
+  try {
+    res = await $fetch<any>('https://api-checkout.cinetpay.com/v2/payment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: payload
+    })
+  } catch (e: any) {
+    throw createError({
+      statusCode: 502,
+      statusMessage: e?.message || 'Failed to contact CinetPay'
+    })
+  }
 
   if (!res || String(res.code) !== '201') {
     throw createError({
@@ -102,5 +128,4 @@ export default defineEventHandler(async (event) => {
     paymentUrl,
     transactionId
   }
-}
-
+})
