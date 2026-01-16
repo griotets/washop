@@ -1217,70 +1217,85 @@ const disableStoreComputed = computed({
 })
 
 onMounted(async () => {
-  if (!admin.selectedShopId) return
-  const { data, error } = await supabase.from('stores').select('*').eq('id', admin.selectedShopId).maybeSingle()
-  if (data) {
-    form.name = data.name || ''
-    form.description = data.description || ''
-    form.currency = data.currency || 'XAF'
-    form.slug = data.slug || ''
-    originalSlug.value = data.slug || ''
-    form.email = data.email || '' 
-    form.address = data.address || ''
-    form.country = data.country || 'Cameroon'
-    form.language = data.language || 'fr'
-    form.distanceUnit = data.distance_unit || 'km'
-    form.mapProvider = data.map_provider || 'osm'
-    form.taxRate = Number(data.tax_rate || 0)
-    form.taxInclusive = data.tax_inclusive !== false // default true
-    form.taxId = data.tax_id || ''
-    form.openingHoursEnabled = data.opening_hours_enabled || false
-    form.socialWhatsapp = data.social_whatsapp || ''
-    form.socialTelegram = data.social_telegram || ''
-    form.socialInstagram = data.social_instagram || ''
-    form.socialFacebook = data.social_facebook || ''
-    form.checkoutEnabled = data.checkout_enabled !== false
-    form.isActive = data.is_active !== false
-    
-    if (data.enterprise_id) {
-      enterpriseId.value = data.enterprise_id
+  const queryEnterpriseId = typeof route.query.enterpriseId === 'string' ? route.query.enterpriseId : ''
+
+  if (!admin.selectedShopId && !queryEnterpriseId) return
+
+  if (admin.selectedShopId) {
+    const { data } = await supabase.from('stores').select('*').eq('id', admin.selectedShopId).maybeSingle()
+    if (data) {
+      form.name = data.name || ''
+      form.description = data.description || ''
+      form.currency = data.currency || 'XAF'
+      form.slug = data.slug || ''
+      originalSlug.value = data.slug || ''
+      form.email = data.email || '' 
+      form.address = data.address || ''
+      form.country = data.country || 'Cameroon'
+      form.language = data.language || 'fr'
+      form.distanceUnit = data.distance_unit || 'km'
+      form.mapProvider = data.map_provider || 'osm'
+      form.taxRate = Number(data.tax_rate || 0)
+      form.taxInclusive = data.tax_inclusive !== false
+      form.taxId = data.tax_id || ''
+      form.openingHoursEnabled = data.opening_hours_enabled || false
+      form.socialWhatsapp = data.social_whatsapp || ''
+      form.socialTelegram = data.social_telegram || ''
+      form.socialInstagram = data.social_instagram || ''
+      form.socialFacebook = data.social_facebook || ''
+      form.checkoutEnabled = data.checkout_enabled !== false
+      form.isActive = data.is_active !== false
       
-      // Fetch enterprise details
-      const { data: ent } = await supabase.from('enterprises').select('*').eq('id', data.enterprise_id).single()
-      if (ent) {
-        enterpriseForm.name = ent.name || ''
-        enterpriseForm.industry = ent.industry || ''
-        enterpriseForm.employeeCount = ent.employee_count || ''
-        enterpriseForm.timezone = ent.timezone || 'Africa/Douala'
+      if (data.enterprise_id) {
+        enterpriseId.value = data.enterprise_id
+        
+        const { data: ent } = await supabase.from('enterprises').select('*').eq('id', data.enterprise_id).single()
+        if (ent) {
+          enterpriseForm.name = ent.name || ''
+          enterpriseForm.industry = ent.industry || ''
+          enterpriseForm.employeeCount = ent.employee_count || ''
+          enterpriseForm.timezone = ent.timezone || 'Africa/Douala'
+        }
+
+        const { data: sub } = await supabase.from('subscriptions').select('*, plan:subscription_plans(*)').eq('enterprise_id', data.enterprise_id).maybeSingle()
+        subscription.value = sub
+
+        const { data: allPlans } = await supabase.from('subscription_plans').select('*').order('price')
+        plans.value = allPlans || []
+        
+        const { count } = await supabase.from('products').select('*', { count: 'exact', head: true }).eq('store_id', admin.selectedShopId)
+        productCount.value = count || 0
       }
 
-      // Fetch subscription
-      const { data: sub } = await supabase.from('subscriptions').select('*, plan:subscription_plans(*)').eq('enterprise_id', data.enterprise_id).maybeSingle()
-      subscription.value = sub
+      if (data.delivery_settings) {
+        const ds = data.delivery_settings
+        deliveryForm.pickupEnabled = ds.pickup_enabled !== false
+        deliveryForm.deliveryEnabled = ds.delivery_enabled !== false
+        deliveryForm.deliveryFee = ds.delivery_fee || 0
+        deliveryForm.freeDeliveryThreshold = ds.free_delivery_threshold
+        deliveryForm.deliveryNote = ds.delivery_note || ''
+      }
 
-      // Fetch plans
-      const { data: allPlans } = await supabase.from('subscription_plans').select('*').order('price')
-      plans.value = allPlans || []
-      
-      // Fetch product count
-      const { count } = await supabase.from('products').select('*', { count: 'exact', head: true }).eq('store_id', admin.selectedShopId)
-      productCount.value = count || 0
+      if (data.phone) {
+        form.phone = data.phone
+      }
+    }
+  } else if (queryEnterpriseId) {
+    enterpriseId.value = queryEnterpriseId
+
+    const { data: ent } = await supabase.from('enterprises').select('*').eq('id', queryEnterpriseId).single()
+    if (ent) {
+      enterpriseForm.name = ent.name || ''
+      enterpriseForm.industry = ent.industry || ''
+      enterpriseForm.employeeCount = ent.employee_count || ''
+      enterpriseForm.timezone = ent.timezone || 'Africa/Douala'
     }
 
-    // Load Delivery Settings
-    if (data.delivery_settings) {
-       const ds = data.delivery_settings
-       deliveryForm.pickupEnabled = ds.pickup_enabled !== false
-       deliveryForm.deliveryEnabled = ds.delivery_enabled !== false
-       deliveryForm.deliveryFee = ds.delivery_fee || 0
-       deliveryForm.freeDeliveryThreshold = ds.free_delivery_threshold
-       deliveryForm.deliveryNote = ds.delivery_note || ''
-    }
+    const { data: sub } = await supabase.from('subscriptions').select('*, plan:subscription_plans(*)').eq('enterprise_id', queryEnterpriseId).maybeSingle()
+    subscription.value = sub
 
-    // Parse phone
-    if (data.phone) {
-      form.phone = data.phone
-    }
+    const { data: allPlans } = await supabase.from('subscription_plans').select('*').order('price')
+    plans.value = allPlans || []
   }
 })
 

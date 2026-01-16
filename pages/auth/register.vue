@@ -380,7 +380,9 @@ async function ensureEnterprise() {
   return ent?.id as string | undefined
 }
 async function subscribe() {
-  store.setSubscribed(true); store.persist(); await ensureEnterprise(); await navigateTo('/admin/stores/create')
+  store.setSubscribed(true)
+  store.persist()
+  await navigateTo('/auth/billing')
 }
 async function skip() {
   store.setSubscribed(false); store.persist(); await ensureEnterprise(); await navigateTo('/admin/stores/create')
