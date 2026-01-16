@@ -166,7 +166,7 @@
               <!-- Left: Mobile Menu & Store Info -->
               <div class="flex items-center gap-4">
                 <button class="lg:hidden p-2 -ml-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-                  @click="isSidebarOpen = true">
+                  @click.stop="toggleSidebar">
                   <Menu class="h-5 w-5" />
                 </button>
 
@@ -341,9 +341,9 @@
     </div>
 
     <!-- Mobile Sidebar -->
-    <div v-if="isSidebarOpen" class="fixed inset-0 z-50 lg:hidden">
+    <div v-if="isSidebarOpen" class="fixed inset-0 z-[100] lg:hidden">
       <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm" @click="isSidebarOpen = false"></div>
-      <aside class="fixed inset-y-0 left-0 w-64 bg-white shadow-xl flex flex-col z-50">
+      <aside class="fixed inset-y-0 left-0 w-64 bg-white shadow-xl flex flex-col z-[101]">
         <div class="p-6 border-b border-gray-100 flex items-center justify-between">
           <div class="flex items-center gap-3">
             <img src="/logo.svg" alt="Wa-Shop" class="h-8 w-auto" />
@@ -516,6 +516,11 @@ const storeInitials = computed(() => {
 const storeInitialsFromName = (name: string) => (name || '').split(/\s+/).map(s => s[0]).join('.').slice(0, 6)
 const publicUrl = computed(() => store.slug ? `${domain}/${store.slug}` : '')
 const isSidebarOpen = ref(false)
+
+function toggleSidebar() {
+  console.log('toggleSidebar', isSidebarOpen.value)
+  isSidebarOpen.value = !isSidebarOpen.value
+}
 
 // Close sidebar on route change
 watch(() => route.path, () => {
