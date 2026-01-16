@@ -1,0 +1,231 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22c55e" />
+      <stop offset="50%" stop-color="#16a3f5" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <clipPath id="phoneClip">
+      <rect x="360" y="90" width="480" height="450" rx="32" ry="32" />
+    </clipPath>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="630" fill="url(#bgGradient)" />
+
+  <circle cx="840" cy="140" r="110" fill="#22c55e" fill-opacity="0.16">
+    <animate attributeName="cx" values="640;1040;640" dur="4s" repeatCount="indefinite" />
+  </circle>
+
+  <circle cx="200" cy="480" r="120" fill="#0ea5e9" fill-opacity="0.18">
+    <animate attributeName="cy" values="430;530;430" dur="5s" repeatCount="indefinite" />
+  </circle>
+
+
+
+  <rect x="350" y="70" rx="40" ry="40" width="500" height="500" fill="#020617" />
+  <rect x="380" y="110" rx="24" ry="24" width="440" height="420" fill="#0b1120" />
+
+  <g clip-path="url(#phoneClip)">
+    <g>
+      <animate attributeName="opacity"
+               values="1;1;0;0;0"
+               keyTimes="0;0.25;0.5;0.75;1"
+               dur="12s"
+               repeatCount="indefinite" />
+      <rect x="380" y="110" width="440" height="420" fill="#020617" />
+      <text x="600" y="150" text-anchor="middle"
+            font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif"
+            font-size="18" font-weight="700" fill="#f9fafb">
+        Choose a product
+      </text>
+      <!-- Product cards with name + price -->
+      <rect x="410" y="180" rx="12" ry="12" width="180" height="90" fill="#111827" />
+      <text x="430" y="205"
+            font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif"
+            font-size="13" font-weight="600" fill="#f9fafb">
+        Classic T-Shirt
+      </text>
+      <text x="430" y="230"
+            font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif"
+            font-size="12" fill="#a1a1aa">
+        $19.90
+      </text>
+
+      <rect x="610" y="180" rx="12" ry="12" width="180" height="90" fill="#111827" />
+      <text x="630" y="205"
+            font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif"
+            font-size="13" font-weight="600" fill="#f9fafb">
+        Sneakers
+      </text>
+      <text x="630" y="230"
+            font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif"
+            font-size="12" fill="#a1a1aa">
+        $49.00
+      </text>
+
+      <rect x="410" y="290" rx="12" ry="12" width="180" height="90" fill="#111827" />
+      <text x="430" y="315"
+            font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif"
+            font-size="13" font-weight="600" fill="#f9fafb">
+        Phone Case
+      </text>
+      <text x="430" y="340"
+            font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif"
+            font-size="12" fill="#a1a1aa">
+        $12.50
+      </text>
+
+      <rect x="610" y="290" rx="12" ry="12" width="180" height="90" fill="#111827" />
+      <text x="630" y="315"
+            font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif"
+            font-size="13" font-weight="600" fill="#f9fafb">
+        Hoodie
+      </text>
+      <text x="630" y="340"
+            font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif"
+            font-size="12" fill="#a1a1aa">
+        $39.00
+      </text>
+      <rect x="410" y="180" rx="12" ry="12" width="180" height="90" fill="#22c55e" fill-opacity="0.35">
+        <animate attributeName="x"
+                 values="410;410;610;410"
+                 keyTimes="0;0.1;0.2;0.3"
+                 dur="12s"
+                 repeatCount="indefinite" />
+      </rect>
+
+      <!-- Hand cursor showing the click -->
+      <g>
+        <animate attributeName="opacity"
+                 values="0;1;1;0;0"
+                 keyTimes="0;0.05;0.2;0.35;1"
+                 dur="12s"
+                 repeatCount="indefinite" />
+        <g>
+          <animateTransform attributeName="transform"
+                            type="translate"
+                            values="470 260;470 260;670 260;470 260"
+                            keyTimes="0;0.1;0.2;0.3"
+                            dur="12s"
+                            repeatCount="indefinite" />
+          <!-- simple hand / pointer shape -->
+          <polygon points="0,0 18,36 10,34 8,46 0,28 -8,32"
+                   fill="#f9fafb" />
+          <circle cx="4" cy="4" r="3" fill="#22c55e" />
+        </g>
+      </g>
+    </g>
+
+    <g>
+      <animate attributeName="opacity"
+               values="0;1;1;0;0"
+               keyTimes="0;0.25;0.5;0.75;1"
+               dur="12s"
+               repeatCount="indefinite" />
+      <rect x="380" y="110" width="440" height="420" fill="#020617" />
+      <text x="600" y="150" text-anchor="middle"
+            font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif"
+            font-size="18" font-weight="700" fill="#f9fafb">
+        Cart
+      </text>
+      <rect x="410" y="190" rx="10" ry="10" width="380" height="40" fill="#111827" />
+      <rect x="410" y="240" rx="10" ry="10" width="380" height="40" fill="#111827" />
+      <rect x="410" y="290" rx="10" ry="10" width="380" height="40" fill="#111827" />
+      <circle cx="770" cy="210" r="10" fill="#22c55e">
+        <animate attributeName="r"
+                 values="10;10;16;10"
+                 keyTimes="0;0.3;0.4;0.5"
+                 dur="12s"
+                 repeatCount="indefinite" />
+      </circle>
+      <rect x="410" y="360" rx="16" ry="16" width="200" height="40" fill="#16a34a" />
+      <text x="510" y="387" text-anchor="middle"
+            font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif"
+            font-size="14" font-weight="600" fill="#f9fafb">
+        Go to checkout
+      </text>
+    </g>
+
+    <g>
+      <animate attributeName="opacity"
+               values="0;0;1;1;0"
+               keyTimes="0;0.25;0.5;0.75;1"
+               dur="12s"
+               repeatCount="indefinite" />
+      <rect x="380" y="110" width="440" height="420" fill="#020617" />
+      <text x="600" y="150" text-anchor="middle"
+            font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif"
+            font-size="18" font-weight="700" fill="#f9fafb">
+        Checkout
+      </text>
+      <rect x="410" y="190" rx="6" ry="6" width="360" height="26" fill="#111827" />
+      <rect x="410" y="230" rx="6" ry="6" width="360" height="26" fill="#111827" />
+      <rect x="410" y="270" rx="6" ry="6" width="360" height="26" fill="#111827" />
+      <rect x="410" y="310" rx="6" ry="6" width="360" height="26" fill="#111827" />
+      <rect x="410" y="190" rx="6" ry="6" width="360" height="26" fill="#22c55e" fill-opacity="0.3">
+        <animate attributeName="y"
+                 values="190;190;230;270;310;190"
+                 keyTimes="0;0.5;0.6;0.7;0.8;0.9"
+                 dur="12s"
+                 repeatCount="indefinite" />
+      </rect>
+      <rect x="410" y="370" rx="16" ry="16" width="200" height="40" fill="#16a34a" />
+      <text x="510" y="197" text-anchor="start"
+            font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif"
+            font-size="12" fill="#9ca3af">
+        Full name
+      </text>
+      <text x="510" y="237" text-anchor="start"
+            font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif"
+            font-size="12" fill="#9ca3af">
+        Address
+      </text>
+      <text x="510" y="277" text-anchor="start"
+            font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif"
+            font-size="12" fill="#9ca3af">
+        Phone
+      </text>
+      <text x="510" y="317" text-anchor="start"
+            font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif"
+            font-size="12" fill="#9ca3af">
+        Notes
+      </text>
+      <text x="510" y="397" text-anchor="middle"
+            font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif"
+            font-size="14" font-weight="600" fill="#f9fafb">
+        Confirm order
+      </text>
+    </g>
+
+    <g>
+      <animate attributeName="opacity"
+               values="0;0;0;1;1"
+               keyTimes="0;0.25;0.5;0.75;1"
+               dur="12s"
+               repeatCount="indefinite" />
+      <rect x="380" y="110" width="440" height="420" fill="#020617" />
+      <text x="600" y="150" text-anchor="middle"
+            font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif"
+            font-size="18" font-weight="700" fill="#f9fafb">
+        Payment confirmed
+      </text>
+      <circle cx="600" cy="260" r="40" fill="#22c55e">
+        <animate attributeName="r"
+                 values="40;40;52;40"
+                 keyTimes="0;0.75;0.85;1"
+                 dur="12s"
+                 repeatCount="indefinite" />
+      </circle>
+      <text x="600" y="340" text-anchor="middle"
+            font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif"
+            font-size="16" font-weight="600" fill="#f9fafb">
+        Order sent on WhatsApp
+      </text>
+      <text x="600" y="375" text-anchor="middle"
+            font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif"
+            font-size="14" fill="#d1d5db">
+        You can track everything from your dashboard.
+      </text>
+    </g>
+  </g>
+</svg>

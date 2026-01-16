@@ -331,6 +331,13 @@
 import { Star, Package, LayoutDashboard, ArrowRight, Palette, MessageCircle, ShoppingBag, CheckCircle2, Truck } from 'lucide-vue-next'
 import { useI18n } from '~/composables/i18n'
 const { t, locale, setLocale } = useI18n()
+const config = useRuntimeConfig()
+
+const ogImageUrl = computed(() => {
+  const base = config.public.appBaseUrl || ''
+  if (!base) return '/og-home.svg'
+  return `${base.replace(/\/$/, '')}/og-home.svg`
+})
 
 const orderDemoStep = ref(0)
 const demoIsAdded = (idx) => orderDemoStep.value >= idx + 1
@@ -385,7 +392,11 @@ useHead({
   title: `${t('home.title')} | ${t('home.description')}`,
   meta: [
     { name: 'description', content: t('home.description') },
-    { property: 'og:title', content: `${t('home.title')} | ${t('home.sectionSimplifyTitle')}` }
+    { property: 'og:title', content: `${t('home.title')} | ${t('home.sectionSimplifyTitle')}` },
+    { property: 'og:description', content: t('home.description') },
+    { property: 'og:image', content: ogImageUrl.value },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:image', content: ogImageUrl.value }
   ]
 })
 </script>
