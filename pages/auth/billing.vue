@@ -69,14 +69,23 @@
             </div>
           </div>
 
-          <button
-            class="mt-4 w-full rounded-lg bg-green-600 text-white px-5 py-3 font-semibold text-sm disabled:opacity-50"
-            :disabled="submitting || !isValid"
-            @click="submit"
-          >
-            <span v-if="submitting">{{ t('common.saving') }}</span>
-            <span v-else>{{ t('billingOnboard.subscribeNow') }}</span>
-          </button>
+          <div class="space-y-2 pt-2">
+            <button
+              class="w-full rounded-lg bg-green-600 text-white px-5 py-3 font-semibold text-sm disabled:opacity-50"
+              :disabled="submitting || !isValid"
+              @click="submit"
+            >
+              <span v-if="submitting">{{ t('common.saving') }}</span>
+              <span v-else>{{ t('billingOnboard.subscribeNow') }}</span>
+            </button>
+            <button
+              type="button"
+              class="w-full rounded-lg border border-gray-300 px-5 py-3 font-semibold text-sm"
+              @click="skip"
+            >
+              {{ t('register.skip') }}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -230,5 +239,10 @@ async function submit() {
   } finally {
     submitting.value = false
   }
+}
+
+async function skip() {
+  await ensureEnterprise()
+  await navigateTo('/admin/stores/create')
 }
 </script>
