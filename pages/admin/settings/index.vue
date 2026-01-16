@@ -519,10 +519,10 @@
               <div>
                   <div class="flex justify-between text-sm mb-1">
                       <span class="font-medium text-gray-700">{{ t('admin.settings.billingUsageProductsLabel') }}</span>
-                      <span class="text-gray-500">{{ productCount }} / {{ subscription?.plan?.max_products || t('admin.settings.billingUnlimited') }}</span>
+                      <span class="text-gray-500">{{ productCount }} / {{ admin.maxProducts === -1 ? t('admin.settings.billingUnlimited') : admin.maxProducts }}</span>
                   </div>
                   <div class="w-full bg-gray-200 rounded-full h-2.5">
-                      <div class="bg-green-600 h-2.5 rounded-full" :style="{ width: Math.min((productCount / (subscription?.plan?.max_products || 100)) * 100, 100) + '%' }"></div>
+                      <div class="bg-green-600 h-2.5 rounded-full" :style="{ width: Math.min((productCount / (admin.maxProducts === -1 ? Math.max(productCount, 100) : admin.maxProducts)) * 100, 100) + '%' }"></div>
                   </div>
               </div>
           </div>

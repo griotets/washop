@@ -19,7 +19,12 @@ export const useAdminStore = defineStore('admin', {
     isOnboardingComplete: (s) => !!s.onboarding.industry && s.onboarding.goals.length > 0,
     isFreePlan: (s) => !s.subscription || s.subscription.plan_id === 'free',
     planName: (s) => s.subscription?.plan?.name || 'Gratuit',
-    maxProducts: (s) => s.subscription?.plan?.max_products || 20, // Default to 20 for free
+    maxProducts: (s) => {
+      if (s.subscription?.plan) {
+        return s.subscription.plan.max_products ?? -1 // -1 for unlimited
+      }
+      return 20 // Default to 20 for free (no subscription)
+    },
     maxStores: (s) => s.subscription?.plan?.max_stores || 1, // Default to 1 for free
     canAddProduct(): boolean {
       const max = this.maxProducts
