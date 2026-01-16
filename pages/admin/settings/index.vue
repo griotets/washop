@@ -39,18 +39,18 @@
             
             <div>
               <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.nameLabel') }}</label>
-              <input v-model="form.name" type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+              <input v-model="form.name" type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2" />
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.descriptionLabel') }}</label>
-              <textarea v-model="form.description" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2"></textarea>
+              <textarea v-model="form.description" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2"></textarea>
               <p class="mt-1 text-xs text-gray-500">{{ t('admin.settings.descriptionHint') }}</p>
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.currencyLabel') }}</label>
-              <select v-model="form.currency" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2 bg-white">
+              <select v-model="form.currency" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2 bg-white">
                 <option value="XAF">{{ t('admin.settings.currencyXaf') }}</option>
                 <option value="EUR">{{ t('admin.settings.currencyEur') }}</option>
                 <option value="USD">{{ t('admin.settings.currencyUsd') }}</option>
@@ -61,21 +61,21 @@
               <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.storeLinkLabel') }}</label>
               <div class="mt-1 flex rounded-md shadow-sm">
                 <span class="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm">{{ domain }} /</span>
-                <input v-model="form.slug" type="text" class="block w-full min-w-0 flex-1 rounded-none rounded-r-md border-gray-300 focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+                <input v-model="form.slug" type="text" class="block w-full min-w-0 flex-1 rounded-none rounded-r-md border-gray-300 focus:border-primary focus:ring-primary sm:text-sm border p-2" />
               </div>
               <p class="mt-1 text-xs text-gray-500">{{ t('admin.settings.storeLinkHint') }}</p>
             </div>
 
             <div>
                <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.emailLabel') }}</label>
-               <input v-model="form.email" type="email" :placeholder="t('admin.settings.emailPlaceholder')" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+               <input v-model="form.email" type="email" :placeholder="t('admin.settings.emailPlaceholder')" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2" />
                <p class="mt-1 text-xs text-gray-500">{{ t('admin.settings.emailHint') }}</p>
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.addressLabel') }}</label>
               <div class="mt-1">
-                 <input v-model="form.address" :placeholder="t('admin.settings.addressPlaceholder')" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+                 <input v-model="form.address" :placeholder="t('admin.settings.addressPlaceholder')" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2" />
               </div>
             </div>
           </section>
@@ -87,17 +87,11 @@
              
              <div>
                <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.primaryNumberLabel') }}</label>
-               <div class="mt-1 flex gap-2">
-                 <select v-model="form.phoneCode" class="w-24 rounded-md border-gray-300 border p-2 bg-white">
-                   <option value="+237">+237</option>
-                   <option value="+33">+33</option>
-                   <option value="+1">+1</option>
-                   <option value="+241">+241</option>
-                   <option value="+225">+225</option>
-                   <option value="+221">+221</option>
-                 </select>
-                 <input v-model="form.phoneNumber" type="tel" :placeholder="t('admin.settings.phonePlaceholder')" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
-               </div>
+               <PhoneInput
+                  v-model:phone="form.phone"
+                  v-model:country="form.phoneCountry"
+                  :placeholder="t('admin.settings.phonePlaceholder')"
+                />
              </div>
           </section>
 
@@ -110,7 +104,7 @@
              
              <div>
                <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.countryLabel') }}</label>
-               <select v-model="form.country" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2 bg-white">
+               <select v-model="form.country" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2 bg-white">
                  <option value="Cameroon">{{ t('admin.settings.countryCameroon') }}</option>
                  <option value="France">{{ t('admin.settings.countryFrance') }}</option>
                  <option value="Gabon">{{ t('admin.settings.countryGabon') }}</option>
@@ -122,7 +116,7 @@
              <div>
                <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.languageLabel') }}</label>
                <p class="text-xs text-gray-500 mb-1">{{ t('admin.settings.languageHint') }}</p>
-               <select v-model="form.language" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2 bg-white">
+               <select v-model="form.language" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2 bg-white">
                  <option value="fr">{{ t('admin.settings.languageDefault') }}</option>
                  <option value="en">English</option>
                </select>
@@ -130,7 +124,7 @@
 
             <div>
               <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.currencyLabel') }}</label>
-              <select v-model="form.currency" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2 bg-white">
+              <select v-model="form.currency" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2 bg-white">
                 <option value="XAF">XAF</option>
                 <option value="EUR">EUR</option>
                 <option value="USD">USD</option>
@@ -139,7 +133,7 @@
 
              <div>
                <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.distanceUnitLabel') }}</label>
-               <select v-model="form.distanceUnit" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2 bg-white">
+               <select v-model="form.distanceUnit" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2 bg-white">
                  <option value="km">{{ t('admin.settings.distanceUnitKm') }}</option>
                  <option value="mi">{{ t('admin.settings.distanceUnitMi') }}</option>
                </select>
@@ -149,11 +143,11 @@
                <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('admin.settings.mapProviderLabel') }}</label>
                <div class="space-y-2">
                  <div class="flex items-center">
-                   <input id="map-osm" name="map-provider" type="radio" value="osm" v-model="form.mapProvider" class="h-4 w-4 border-gray-300 text-green-600 focus:ring-green-500" />
+                   <input id="map-osm" name="map-provider" type="radio" value="osm" v-model="form.mapProvider" class="h-4 w-4 border-gray-300 text-primary focus:ring-primary" />
                    <label for="map-osm" class="ml-3 block text-sm font-medium text-gray-700">OpenStreetMap</label>
                  </div>
                  <div class="flex items-center" :class="{ 'opacity-50 cursor-not-allowed': isFreePlan }">
-                   <input id="map-google" name="map-provider" type="radio" value="google" :disabled="isFreePlan" v-model="form.mapProvider" class="h-4 w-4 border-gray-300 text-green-600 focus:ring-green-500" />
+                   <input id="map-google" name="map-provider" type="radio" value="google" :disabled="isFreePlan" v-model="form.mapProvider" class="h-4 w-4 border-gray-300 text-primary focus:ring-primary" />
                    <label for="map-google" class="ml-3 block text-sm font-medium text-gray-700">Google</label>
                  </div>
                </div>
@@ -171,7 +165,7 @@
                <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.taxRateLabel') }}</label>
                <div class="mt-1 flex rounded-md shadow-sm">
                  <span class="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm">%</span>
-                 <input v-model="form.taxRate" type="number" step="0.01" class="block w-full min-w-0 flex-1 rounded-none rounded-r-md border-gray-300 focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+                 <input v-model="form.taxRate" type="number" step="0.01" class="block w-full min-w-0 flex-1 rounded-none rounded-r-md border-gray-300 focus:border-primary focus:ring-primary sm:text-sm border p-2" />
                </div>
              </div>
 
@@ -179,11 +173,11 @@
                <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('admin.settings.taxMethodLabel') }}</label>
                <div class="space-y-2">
                  <div class="flex items-center">
-                   <input id="tax-inclusive" name="tax-method" type="radio" :value="true" v-model="form.taxInclusive" class="h-4 w-4 border-gray-300 text-green-600 focus:ring-green-500" />
+                   <input id="tax-inclusive" name="tax-method" type="radio" :value="true" v-model="form.taxInclusive" class="h-4 w-4 border-gray-300 text-primary focus:ring-primary" />
                    <label for="tax-inclusive" class="ml-3 block text-sm font-medium text-gray-700">{{ t('admin.settings.taxMethodInclusive') }}</label>
                  </div>
                  <div class="flex items-center">
-                   <input id="tax-exclusive" name="tax-method" type="radio" :value="false" v-model="form.taxInclusive" class="h-4 w-4 border-gray-300 text-green-600 focus:ring-green-500" />
+                   <input id="tax-exclusive" name="tax-method" type="radio" :value="false" v-model="form.taxInclusive" class="h-4 w-4 border-gray-300 text-primary focus:ring-primary" />
                    <label for="tax-exclusive" class="ml-3 block text-sm font-medium text-gray-700">{{ t('admin.settings.taxMethodExclusive') }}</label>
                  </div>
                </div>
@@ -191,7 +185,7 @@
 
              <div>
                <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.taxIdLabel') }}</label>
-               <input v-model="form.taxId" type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+               <input v-model="form.taxId" type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2" />
              </div>
           </section>
 
@@ -221,25 +215,25 @@
              <div>
                <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.communitiesWhatsAppLabel') }}</label>
                <p class="text-xs text-gray-500 mb-1">{{ t('admin.settings.communitiesWhatsAppHint') }}</p>
-               <input v-model="form.socialWhatsapp" :placeholder="t('common.urlPlaceholder')" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+               <input v-model="form.socialWhatsapp" :placeholder="t('common.urlPlaceholder')" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2" />
              </div>
 
              <div>
                <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.telegramLabel') }}</label>
                <p class="text-xs text-gray-500 mb-1">{{ t('admin.settings.communitiesTelegramHint') }}</p>
-               <input v-model="form.socialTelegram" :placeholder="t('common.urlPlaceholder')" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+               <input v-model="form.socialTelegram" :placeholder="t('common.urlPlaceholder')" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2" />
              </div>
 
              <div>
                <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.communitiesInstagramLabel') }}</label>
                <p class="text-xs text-gray-500 mb-1">{{ t('admin.settings.communitiesInstagramHint') }}</p>
-               <input v-model="form.socialInstagram" :placeholder="t('common.urlPlaceholder')" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+               <input v-model="form.socialInstagram" :placeholder="t('common.urlPlaceholder')" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2" />
              </div>
 
              <div>
                <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.communitiesFacebookLabel') }}</label>
                <p class="text-xs text-gray-500 mb-1">{{ t('admin.settings.communitiesFacebookHint') }}</p>
-               <input v-model="form.socialFacebook" :placeholder="t('common.urlPlaceholder')" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+               <input v-model="form.socialFacebook" :placeholder="t('common.urlPlaceholder')" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2" />
              </div>
           </section>
 
@@ -303,7 +297,7 @@
                       {{ t('admin.settings.deleteStoreConfirmHintSuffix') }}
                    </p>
                    
-                   <input v-model="deleteConfirmation" type="text" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm border p-2 mb-4" />
+                  <input v-model="deleteConfirmation" type="text" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2 mb-4" />
                    
                    <button :disabled="deleteConfirmation !== form.slug" class="w-full bg-gray-200 text-gray-500 px-4 py-2 rounded-lg font-medium hover:bg-red-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors mb-4">
                       {{ t('admin.settings.deleteStoreButton') }}
@@ -390,17 +384,17 @@
                  
                  <div>
                     <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.deliveryFeeLabel', { currency: form.currency }) }}</label>
-                    <input v-model="deliveryForm.deliveryFee" type="number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+                    <input v-model="deliveryForm.deliveryFee" type="number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2" />
                  </div>
                  
                  <div>
                     <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.freeDeliveryThresholdLabel', { currency: form.currency }) }}</label>
-                    <input v-model="deliveryForm.freeDeliveryThreshold" type="number" :placeholder="t('admin.settings.freeDeliveryThresholdPlaceholder')" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+                    <input v-model="deliveryForm.freeDeliveryThreshold" type="number" :placeholder="t('admin.settings.freeDeliveryThresholdPlaceholder')" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2" />
                  </div>
 
                  <div>
                     <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.deliveryNoteLabel') }}</label>
-                    <textarea v-model="deliveryForm.deliveryNote" rows="2" :placeholder="t('admin.settings.deliveryNotePlaceholder')" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2"></textarea>
+                    <textarea v-model="deliveryForm.deliveryNote" rows="2" :placeholder="t('admin.settings.deliveryNotePlaceholder')" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2"></textarea>
                  </div>
              </div>
           </div>
@@ -422,12 +416,12 @@
               <div class="space-y-6">
                  <div>
                    <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.nameLabel') }}</label>
-                   <input v-model="enterpriseForm.name" type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2" />
+                   <input v-model="enterpriseForm.name" type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2" />
                  </div>
                  
                  <div>
                    <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.enterpriseIndustryLabel') }}</label>
-                   <select v-model="enterpriseForm.industry" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2 bg-white">
+                   <select v-model="enterpriseForm.industry" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2 bg-white">
                      <option value="">{{ t('admin.settings.selectPlaceholder') }}</option>
                      <option value="Restauration & Gastronomie">{{ t('admin.settings.enterpriseIndustryFood') }}</option>
                      <option value="Vêtements & Accessoires">{{ t('admin.settings.enterpriseIndustryFashion') }}</option>
@@ -440,7 +434,7 @@
                  
                  <div>
                    <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.enterpriseEmployeeCountLabel') }}</label>
-                   <select v-model="enterpriseForm.employeeCount" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2 bg-white">
+                   <select v-model="enterpriseForm.employeeCount" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2 bg-white">
                      <option value="">{{ t('admin.settings.enterpriseEmployeeCountPlaceholder') }}</option>
                      <option value="1-5">1-5</option>
                      <option value="6-20">6-20</option>
@@ -451,7 +445,7 @@
                  
                  <div>
                    <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.enterpriseTimezoneLabel') }}</label>
-                   <select v-model="enterpriseForm.timezone" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm border p-2 bg-white">
+                   <select v-model="enterpriseForm.timezone" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2 bg-white">
                      <option value="Africa/Douala">GMT+01:00 West Central Africa</option>
                      <option value="Europe/Paris">GMT+01:00 Central European Standard Time</option>
                      <option value="UTC">UTC</option>
@@ -468,7 +462,7 @@
                  <h4 class="text-sm font-medium text-gray-900">{{ t('admin.settings.enterpriseDeleteHeading') }}</h4>
                  <p class="text-sm text-gray-500">{{ t('admin.settings.enterpriseDeleteDesc') }}</p>
                  
-                 <input v-model="deleteEnterpriseConfirmation" type="text" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm border p-2" />
+                 <input v-model="deleteEnterpriseConfirmation" type="text" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2" />
                  
                  <button @click="deleteEnterprise" :disabled="deleteEnterpriseConfirmation !== 'DELETE'" class="w-full bg-gray-100 text-gray-500 px-4 py-2 rounded-lg font-medium hover:bg-red-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                     {{ t('admin.settings.enterpriseDeleteButton') }}
@@ -617,7 +611,7 @@
                    v-model="billingCustomer.name"
                    type="text"
                    :placeholder="t('admin.settings.billingCustomerFirstNamePlaceholder')"
-                   class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+                   class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
                  />
                </div>
                <div>
@@ -626,7 +620,7 @@
                    v-model="billingCustomer.surname"
                    type="text"
                    :placeholder="t('admin.settings.billingCustomerLastNamePlaceholder')"
-                   class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+                   class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
                  />
                </div>
                <div>
@@ -644,7 +638,7 @@
                    v-model="billingCustomer.email"
                    type="email"
                    :placeholder="t('admin.settings.billingCustomerEmailPlaceholder')"
-                   class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+                   class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
                  />
                </div>
                <div class="md:col-span-2">
@@ -653,7 +647,7 @@
                    v-model="billingCustomer.address"
                    type="text"
                    :placeholder="t('admin.settings.billingCustomerAddressPlaceholder')"
-                   class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+                   class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
                  />
                </div>
                <div>
@@ -662,14 +656,14 @@
                    v-model="billingCustomer.city"
                    type="text"
                    :placeholder="t('admin.settings.billingCustomerCityPlaceholder')"
-                   class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+                   class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
                  />
                </div>
                <div>
                  <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.billingCustomerCountryLabel') }}</label>
                  <select
-                   v-model="billingCustomer.country"
-                   class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm bg-white"
+                  v-model="billingCustomer.country"
+                  class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-primary focus:ring-primary sm:text-sm bg-white"
                  >
                    <option v-for="c in countryOptions" :key="c.code" :value="c.code">
                      {{ c.label }}
@@ -682,7 +676,7 @@
                    v-model="billingCustomer.state"
                    type="text"
                    :placeholder="t('admin.settings.billingCustomerStatePlaceholder')"
-                   class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+                   class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
                  />
                </div>
                <div>
@@ -691,7 +685,7 @@
                    v-model="billingCustomer.zip"
                    type="text"
                    :placeholder="t('admin.settings.billingCustomerZipPlaceholder')"
-                   class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+                   class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
                  />
                </div>
              </div>
@@ -774,6 +768,7 @@ import { useAdminStore } from '~/stores/admin'
 import { useI18n } from '~/composables/i18n'
 import { ArrowLeft, Lock, Loader2 } from 'lucide-vue-next'
 import { COUNTRY_DIAL_CODES } from '~/data/countryDialCodes'
+import PhoneInput from '~/components/PhoneInput.vue'
 
 const { t, locale, supportedLocales, hasKey } = useI18n()
 
@@ -894,8 +889,8 @@ const form = reactive({
   slug: '',
   email: '',
   address: '',
-  phoneCode: '+237',
-  phoneNumber: '',
+  phone: '',
+  phoneCountry: 'CM',
   country: 'Cameroon',
   language: 'fr',
   distanceUnit: 'km',
@@ -1284,14 +1279,7 @@ onMounted(async () => {
 
     // Parse phone
     if (data.phone) {
-      // Simple parse, assume starts with +
-      const match = data.phone.match(/^(\+\d+)(.+)$/)
-      if (match) {
-        form.phoneCode = match[1]
-        form.phoneNumber = match[2].trim()
-      } else {
-        form.phoneNumber = data.phone
-      }
+      form.phone = data.phone
     }
   }
 })
@@ -1307,7 +1295,7 @@ async function save() {
     const updates: any = {
       name: form.name,
       slug: form.slug,
-      phone: form.phoneCode + form.phoneNumber.replace(/\s/g, '')
+      phone: form.phone
     }
     
     updates.description = form.description

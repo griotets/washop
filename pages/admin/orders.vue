@@ -53,7 +53,7 @@
             <td class="px-4 py-3">
               <select 
                 v-model="o.status" 
-                class="rounded border px-2 py-1 text-xs font-medium"
+                class="rounded border px-2 py-1 text-xs font-medium focus:border-primary focus:ring-primary"
                 :class="statusClass(o.status)"
                 @change="updateStatus(o)"
               >

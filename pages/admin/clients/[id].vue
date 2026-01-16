@@ -15,19 +15,9 @@
           <label class="block text-sm font-medium">{{ t('admin.clientForm.nameLabel') }}</label>
           <input v-model.trim="form.name" class="mt-1 w-full rounded-lg border px-3 py-2" />
         </div>
-        <div class="grid gap-3 sm:grid-cols-[120px_1fr]">
-          <div>
-            <label class="block text-sm font-medium">{{ t('admin.clientForm.phoneCodeLabel') }}</label>
-            <select v-model="phonePrefix" class="mt-1 w-full rounded-lg border px-3 py-2">
-              <option value="+237">+237</option>
-              <option value="+33">+33</option>
-              <option value="+1">+1</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium">{{ t('admin.clientForm.phoneLabel') }}</label>
-            <input v-model.trim="form.phone" class="mt-1 w-full rounded-lg border px-3 py-2" />
-          </div>
+        <div>
+          <label class="block text-sm font-medium">{{ t('admin.clientForm.phoneLabel') }}</label>
+          <PhoneInput v-model="form.phone" />
         </div>
         <div>
           <label class="block text-sm font-medium">{{ t('admin.clientForm.emailLabel') }}</label>
@@ -46,15 +36,15 @@
           <div class="mt-1 flex flex-wrap gap-2">
             <button v-for="t in tags" :key="t.id" class="rounded-full border px-3 py-1 text-xs" :class="selectedTags.has(Number(t.id))?'bg-green-100 border-green-300':'bg-white'" @click="toggleTag(Number(t.id))">{{ t.name }}</button>
           </div>
-          <input v-model.trim="newTagName" :placeholder="t('admin.clientForm.addTagPlaceholder')" class="mt-2 w-full rounded-lg border px-3 py-2 text-sm" @keydown.enter.prevent="addNewTagName" />
+          <input v-model.trim="newTagName" :placeholder="t('admin.clientForm.addTagPlaceholder')" class="mt-2 w-full rounded-lg border px-3 py-2 text-sm focus:border-primary focus:ring-primary" @keydown.enter.prevent="addNewTagName" />
         </div>
         <div>
           <label class="block text-sm font-medium">{{ t('admin.clientForm.notesLabel') }}</label>
-          <textarea v-model.trim="form.notes" rows="3" class="mt-1 w-full rounded-lg border px-3 py-2"></textarea>
+          <textarea v-model.trim="form.notes" rows="3" class="mt-1 w-full rounded-lg border px-3 py-2 focus:border-primary focus:ring-primary"></textarea>
         </div>
         <div>
           <label class="block text-sm font-medium">{{ t('admin.clientForm.referralCodeLabel') }}</label>
-          <input v-model.trim="form.referral_code" class="mt-1 w-full rounded-lg border px-3 py-2" />
+          <input v-model.trim="form.referral_code" class="mt-1 w-full rounded-lg border px-3 py-2 focus:border-primary focus:ring-primary" />
         </div>
       </div>
     </div>
@@ -65,6 +55,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
 import { useI18n } from '~/composables/i18n'
+import PhoneInput from '~/components/PhoneInput.vue'
 definePageMeta({ layout: 'admin' })
 const route = useRoute()
 const id = computed(() => String(route.params.id || ''))
@@ -74,7 +65,6 @@ const admin = useAdminStore()
 const { t } = useI18n()
 const saving = ref(false)
 const loaded = ref(false)
-const phonePrefix = ref('+237')
 const form = reactive<any>({ name: '', phone: '', email: '', birthday: null as Date | null, address: '', notes: '', referral_code: '' })
 const birthdayStr = computed({
   get() { return form.birthday ? new Date(form.birthday).toISOString().slice(0,10) : '' },
@@ -101,10 +91,7 @@ async function loadClient() {
   const { data } = await supabase.from('clients').select('*').eq('id', id.value).maybeSingle()
   if (!data) return
   form.name = data.name || ''
-  const phone = String(data.phone || '')
-  const prefMatch = phone.match(/^\+\d{1,3}/)?.[0] || '+237'
-  phonePrefix.value = prefMatch
-  form.phone = phone.replace(prefMatch, '')
+  form.phone = String(data.phone || '')
   form.email = data.email || ''
   form.address = data.address || ''
   form.notes = data.notes || ''
@@ -134,7 +121,7 @@ async function save() {
   try {
     const payload = {
       name: form.name,
-      phone: `${phonePrefix.value}${form.phone}`,
+      phone: form.phone,
       email: form.email || null,
       birthday: form.birthday ? new Date(form.birthday as Date).toISOString().slice(0,10) : null,
       address: form.address || null,

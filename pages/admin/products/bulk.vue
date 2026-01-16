@@ -46,7 +46,7 @@
     <!-- Active Content -->
     <div v-else>
       <div class="mt-4 flex items-center justify-between">
-        <div class="flex items-center rounded-lg border bg-white px-3 py-2 w-full max-w-xl focus-within:ring-2 focus-within:ring-green-500 focus-within:border-transparent">
+        <div class="flex items-center rounded-lg border bg-white px-3 py-2 w-full max-w-xl focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
           <Search class="h-4 w-4 text-gray-500" />
           <input v-model="search" type="text" :placeholder="t('admin.productsPage.searchPlaceholder')" class="ml-2 w-full bg-transparent text-sm outline-none" />
         </div>
@@ -81,34 +81,34 @@
           <tbody>
             <tr v-for="p in rows" :key="p.id" class="group hover:bg-gray-50">
               <td class="px-3 py-2 border-b">
-                <input v-model="p.name" type="text" class="w-48 rounded border-gray-300 px-2 py-1 text-sm focus:border-green-500 focus:ring-green-500" @input="markModified(p.id)" />
+                <input v-model="p.name" type="text" class="w-48 rounded border-gray-300 px-2 py-1 text-sm focus:border-primary focus:ring-primary" @input="markModified(p.id)" />
               </td>
               <td class="px-3 py-2 border-b text-center">
-                <input type="checkbox" v-model="p.track_inventory" class="rounded text-green-600 focus:ring-green-500" @change="markModified(p.id)" />
+                <input type="checkbox" v-model="p.track_inventory" class="rounded text-primary focus:ring-primary" @change="markModified(p.id)" />
               </td>
               <td class="px-3 py-2 border-b">
-                <input v-model.number="p.stock_quantity" type="number" min="0" :disabled="!p.track_inventory" class="w-full rounded border-gray-300 px-2 py-1 text-sm focus:border-green-500 focus:ring-green-500 disabled:bg-gray-100 disabled:text-gray-400" @input="markModified(p.id)" />
+                <input v-model.number="p.stock_quantity" type="number" min="0" :disabled="!p.track_inventory" class="w-full rounded border-gray-300 px-2 py-1 text-sm focus:border-primary focus:ring-primary disabled:bg-gray-100 disabled:text-gray-400" @input="markModified(p.id)" />
               </td>
               <td class="px-3 py-2 border-b">
-                <input v-model="p.sku" type="text" class="w-full rounded border-gray-300 px-2 py-1 text-sm focus:border-green-500 focus:ring-green-500" @input="markModified(p.id)" />
+                <input v-model="p.sku" type="text" class="w-full rounded border-gray-300 px-2 py-1 text-sm focus:border-primary focus:ring-primary" @input="markModified(p.id)" />
               </td>
               <td class="px-3 py-2 border-b">
-                <input v-model.number="p.price" type="number" min="0" step="1" class="w-full rounded border-gray-300 px-2 py-1 text-sm focus:border-green-500 focus:ring-green-500" @input="markModified(p.id)" />
+                <input v-model.number="p.price" type="number" min="0" step="1" class="w-full rounded border-gray-300 px-2 py-1 text-sm focus:border-primary focus:ring-primary" @input="markModified(p.id)" />
               </td>
               <td class="px-3 py-2 border-b">
-                <input v-model.number="p.original_price" type="number" min="0" step="1" class="w-full rounded border-gray-300 px-2 py-1 text-sm focus:border-green-500 focus:ring-green-500" @input="markModified(p.id)" />
+                <input v-model.number="p.original_price" type="number" min="0" step="1" class="w-full rounded border-gray-300 px-2 py-1 text-sm focus:border-primary focus:ring-primary" @input="markModified(p.id)" />
               </td>
               <td class="px-3 py-2 border-b text-center">
-                <input type="checkbox" v-model="p.track_cost" class="rounded text-green-600 focus:ring-green-500" @change="markModified(p.id)" />
+                <input type="checkbox" v-model="p.track_cost" class="rounded text-primary focus:ring-primary" @change="markModified(p.id)" />
               </td>
               <td class="px-3 py-2 border-b">
-                <input v-model.number="p.cost_per_item" type="number" min="0" step="1" :disabled="!p.track_cost" class="w-full rounded border-gray-300 px-2 py-1 text-sm focus:border-green-500 focus:ring-green-500 disabled:bg-gray-100 disabled:text-gray-400" @input="markModified(p.id)" />
+                <input v-model.number="p.cost_per_item" type="number" min="0" step="1" :disabled="!p.track_cost" class="w-full rounded border-gray-300 px-2 py-1 text-sm focus:border-primary focus:ring-primary disabled:bg-gray-100 disabled:text-gray-400" @input="markModified(p.id)" />
               </td>
               <td class="px-3 py-2 border-b text-center">
-                <input type="checkbox" v-model="p.is_visible" class="rounded text-green-600 focus:ring-green-500" @change="markModified(p.id)" />
+                <input type="checkbox" v-model="p.is_visible" class="rounded text-primary focus:ring-primary" @change="markModified(p.id)" />
               </td>
               <td class="px-3 py-2 border-b">
-                <input v-model="p.description" type="text" class="w-full rounded border-gray-300 px-2 py-1 text-sm focus:border-green-500 focus:ring-green-500" @input="markModified(p.id)" />
+                <input v-model="p.description" type="text" class="w-full rounded border-gray-300 px-2 py-1 text-sm focus:border-primary focus:ring-primary" @input="markModified(p.id)" />
               </td>
             </tr>
             <tr v-if="loading">

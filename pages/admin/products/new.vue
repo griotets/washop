@@ -12,11 +12,11 @@
       <div class="space-y-6">
         <div class="rounded-xl border bg-white p-6">
           <label class="block text-sm font-medium">{{ t('admin.productsNew.fields.name') }}</label>
-          <input v-model.trim="form.name" type="text" class="mt-1 w-full rounded-lg border px-3 py-2" />
+          <input v-model.trim="form.name" type="text" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary" />
           <div class="mt-4 grid gap-4 sm:grid-cols-3">
             <div>
               <label class="block text-sm font-medium">{{ t('admin.productsNew.fields.type') }}</label>
-              <select v-model="form.type" class="mt-1 w-full rounded-lg border px-3 py-2">
+              <select v-model="form.type" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary">
                 <option value="physical">{{ t('admin.productsNew.type.physical') }}</option>
                 <option value="digital">{{ t('admin.productsNew.type.digital') }}</option>
                 <option value="reservation">{{ t('admin.productsNew.type.reservation') }}</option>
@@ -26,12 +26,12 @@
             </div>
             <div>
               <label class="block text-sm font-medium">{{ t('admin.productForm.priceLabel') }}</label>
-              <input v-model.number="form.price" type="number" min="0" step="0.01" class="mt-1 w-full rounded-lg border px-3 py-2" />
+              <input v-model.number="form.price" type="number" min="0" step="0.01" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary" />
               <p v-if="priceError" class="mt-1 text-xs text-red-600">{{ priceError }}</p>
             </div>
             <div>
               <label class="block text-sm font-medium">{{ t('admin.productsNew.fields.original_price') }}</label>
-              <input v-model.number="form.original_price" type="number" min="0" step="0.01" class="mt-1 w-full rounded-lg border px-3 py-2" />
+              <input v-model.number="form.original_price" type="number" min="0" step="0.01" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary" />
             </div>
             <div class="sm:col-span-3 grid gap-4 sm:grid-cols-3 mt-2">
               <label class="inline-flex items-center gap-2">
@@ -49,12 +49,12 @@
             </div>
             <div>
               <label class="block text-sm font-medium">{{ t('admin.productsNew.fields.sku') }}</label>
-              <input v-model.trim="form.sku" type="text" class="mt-1 w-full rounded-lg border px-3 py-2" />
+              <input v-model.trim="form.sku" type="text" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary" />
             </div>
             <div>
               <label class="block text-sm font-medium">{{ t('admin.productsNew.fields.weight') }}</label>
               <div class="flex items-center gap-2">
-                <input v-model.number="form.weight" type="number" min="0" step="0.01" class="mt-1 w-full rounded-lg border px-3 py-2" />
+                <input v-model.number="form.weight" type="number" min="0" step="0.01" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary" />
                 <span class="text-sm text-gray-600">{{ t('admin.productsNew.fields.weightUnit') }}</span>
               </div>
             </div>
@@ -66,13 +66,13 @@
                 <Sparkles class="h-3 w-3" /> {{ generatingDesc ? t('admin.productsNew.description.writing') : t('admin.productsNew.description.generate') }}
               </button>
             </div>
-            <textarea v-model.trim="form.description" rows="4" class="mt-1 w-full rounded-lg border px-3 py-2" :placeholder="t('admin.productsNew.description.placeholder')"></textarea>
+            <textarea v-model.trim="form.description" rows="4" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary" :placeholder="t('admin.productsNew.description.placeholder')"></textarea>
           </div>
           <div class="mt-4 grid gap-4 sm:grid-cols-2">
             <div>
               <label class="block text-sm font-medium">{{ t('admin.productsNew.category.label') }}</label>
               <div class="relative">
-                <input v-model.trim="categorySearch" @focus="categoryOpen=true" @input="categoryOpen=true" @blur="closeCategoryDropdownLater" :placeholder="t('admin.productsNew.category.searchPlaceholder')" class="mt-1 w-full rounded-lg border px-3 py-2" />
+                <input v-model.trim="categorySearch" @focus="categoryOpen=true" @input="categoryOpen=true" @blur="closeCategoryDropdownLater" :placeholder="t('admin.productsNew.category.searchPlaceholder')" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary" />
                 <div v-if="categoryOpen" class="absolute z-20 mt-1 w-full rounded-lg border bg-white shadow">
                   <button class="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100" @click="selectCategory(null)">{{ t('admin.productsNew.category.none') }}</button>
                   <button v-for="c in filteredCategories" :key="c.id" class="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100" @click="selectCategory(c)">{{ c.name }}</button>
@@ -89,7 +89,7 @@
                 <button v-for="t in tags" :key="t.id" class="rounded-full border px-3 py-1 text-xs" :class="selectedTags.has(Number(t.id))?'bg-green-100 border-green-300':'bg-white'" @click="toggleTag(Number(t.id))">{{ t.name }}</button>
               </div>
               <div class="mt-2 flex items-center gap-2">
-                <input v-model.trim="newTagName" :placeholder="t('admin.productsNew.tags.addPlaceholder')" class="flex-1 rounded-lg border px-3 py-2 text-sm" />
+                <input v-model.trim="newTagName" :placeholder="t('admin.productsNew.tags.addPlaceholder')" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-primary" />
                 <button class="rounded-lg border bg-white px-3 py-2 text-sm" @click="createTag" :disabled="tagCreating">{{ tagCreating ? '...' : t('admin.productsNew.tags.create') }}</button>
               </div>
             </div>
@@ -139,7 +139,7 @@
             </div>
           </div>
           <div class="mt-4 flex items-center gap-3">
-            <input v-model.trim="imageUrl" :placeholder="t('common.urlPlaceholder')" class="flex-1 rounded-lg border px-3 py-2 text-sm" />
+            <input v-model.trim="imageUrl" :placeholder="t('common.urlPlaceholder')" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-primary" />
             <button class="rounded-lg border bg-white px-3 py-2 text-sm" @click="addImageUrl">{{ t('admin.productsNew.images.addUrl') }}</button>
             <button class="rounded-lg border bg-white px-3 py-2 text-sm flex items-center gap-2 hover:bg-gray-50" @click="generateImage" :disabled="generatingImage">
               <Wand2 class="h-4 w-4 text-purple-600" /> 
@@ -162,7 +162,7 @@
             </label>
             <div>
               <label class="block text-sm font-medium">{{ t('admin.productsNew.inventory.quantity') }}</label>
-              <input v-model.number="form.stock_quantity" type="number" min="0" class="mt-1 w-full rounded-lg border px-3 py-2" />
+              <input v-model.number="form.stock_quantity" type="number" min="0" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary" />
               <p v-if="stockError" class="mt-1 text-xs text-red-600">{{ stockError }}</p>
             </div>
             <label class="inline-flex items-center gap-2">
@@ -177,16 +177,16 @@
             </label>
             <div>
               <label class="block text-sm font-medium">{{ t('admin.productsNew.dailyCapacity') }}</label>
-              <input v-model.number="form.daily_capacity" type="number" min="0" class="mt-1 w-full rounded-lg border px-3 py-2" />
+              <input v-model.number="form.daily_capacity" type="number" min="0" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary" />
             </div>
             <div class="grid gap-2 sm:grid-cols-2">
               <div>
                 <label class="block text-sm font-medium">{{ t('admin.productsNew.maxOrderQty') }}</label>
-                <input v-model.number="form.max_order_qty" type="number" min="0" class="mt-1 w-full rounded-lg border px-3 py-2" />
+                <input v-model.number="form.max_order_qty" type="number" min="0" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary" />
               </div>
               <div>
                 <label class="block text-sm font-medium">{{ t('admin.productsNew.minOrderQty') }}</label>
-                <input v-model.number="form.min_order_qty" type="number" min="0" class="mt-1 w-full rounded-lg border px-3 py-2" />
+                <input v-model.number="form.min_order_qty" type="number" min="0" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary" />
               </div>
             </div>
           </div>
@@ -197,7 +197,7 @@
             </label>
             <div>
               <label class="block text-sm font-medium">{{ t('admin.productsNew.tax.reason') }}</label>
-              <input v-model.trim="form.tax_exempt_reason" type="text" class="mt-1 w-full rounded-lg border px-3 py-2" />
+              <input v-model.trim="form.tax_exempt_reason" type="text" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary" />
             </div>
           </div>
         </div>
@@ -206,7 +206,7 @@
           <div class="grid gap-4 sm:grid-cols-3">
             <div>
               <label class="block text-sm font-medium">{{ t('admin.productsNew.unit.label') }}</label>
-              <select v-model="unit" class="mt-1 w-full rounded-lg border px-3 py-2">
+              <select v-model="unit" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary">
                 <option value="G">Grammes (G)</option>
                 <option value="KG">Kilogrammes (KG)</option>
                 <option value="L">Litres (L)</option>
@@ -224,7 +224,7 @@
             </div>
             <div>
               <label class="block text-sm font-medium">{{ t('admin.productsNew.unit.value') }}</label>
-              <input v-model.number="unitValue" type="number" min="0" step="0.01" class="mt-1 w-full rounded-lg border px-3 py-2" />
+              <input v-model.number="unitValue" type="number" min="0" step="0.01" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary" />
             </div>
             <label class="inline-flex items-center gap-2 mt-6 sm:mt-0">
               <input type="checkbox" v-model="requiresShipping" />
@@ -261,15 +261,15 @@
                   <div class="flex-1 grid gap-4 sm:grid-cols-3">
                      <div>
                         <label class="mb-1 block text-xs font-medium text-gray-500">{{ t('admin.productForm.variantNamePlaceholder') }}</label>
-                        <input v-model.trim="v.name" type="text" class="w-full rounded border px-2 py-1.5 text-sm" />
+                        <input v-model.trim="v.name" type="text" class="w-full rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-primary focus:ring-primary" />
                      </div>
                      <div>
                         <label class="mb-1 block text-xs font-medium text-gray-500">{{ t('admin.productForm.variantPricePlaceholder') }}</label>
-                        <input v-model.number="v.price" type="number" min="0" step="0.01" class="w-full rounded border px-2 py-1.5 text-sm" />
+                        <input v-model.number="v.price" type="number" min="0" step="0.01" class="w-full rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-primary focus:ring-primary" />
                      </div>
                      <div>
                         <label class="mb-1 block text-xs font-medium text-gray-500">{{ t('admin.productForm.variantOriginalPricePlaceholder') }}</label>
-                        <input v-model.number="v.original_price" type="number" min="0" step="0.01" class="w-full rounded border px-2 py-1.5 text-sm" />
+                        <input v-model.number="v.original_price" type="number" min="0" step="0.01" class="w-full rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-primary focus:ring-primary" />
                      </div>
                   </div>
 
@@ -297,11 +297,11 @@
               <div class="grid gap-4 sm:grid-cols-3 mb-3">
                  <div>
                     <label class="mb-1 block text-xs font-medium text-gray-500">{{ t('admin.productForm.optionNamePlaceholder') }}</label>
-                    <input v-model.trim="o.name" type="text" class="w-full rounded border px-2 py-1.5 text-sm" />
+                    <input v-model.trim="o.name" type="text" class="w-full rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-primary focus:ring-primary" />
                  </div>
                  <div>
                     <label class="mb-1 block text-xs font-medium text-gray-500">{{ t('admin.productForm.optionTypeLabel') }}</label>
-                    <select v-model="o.type" class="w-full rounded border px-2 py-1.5 text-sm">
+                    <select v-model="o.type" class="w-full rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-primary focus:ring-primary">
                       <option value="text">{{ t('admin.productForm.optionType.text') }}</option>
                       <option value="number">{{ t('admin.productForm.optionType.number') }}</option>
                       <option value="date">{{ t('admin.productForm.optionType.date') }}</option>
@@ -339,7 +339,7 @@
                     <input 
                       type="text" 
                       :placeholder="t('admin.productForm.addValuePlaceholder')" 
-                      class="flex-1 rounded border px-2 py-1.5 text-sm"
+                      class="flex-1 rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-primary focus:ring-primary"
                       @keydown.enter.prevent="addOptionValue(o, $event)"
                     />
                     <div class="text-xs text-gray-400 self-center hidden sm:block">{{ t('admin.productForm.addValueHint') }}</div>
@@ -402,7 +402,7 @@
         </button>
       </div>
       <div class="p-4">
-        <textarea v-model.trim="generateText" rows="6" class="w-full rounded-lg border px-3 py-2 text-sm" :placeholder="t('admin.productsNew.generateModal.placeholder')"></textarea>
+        <textarea v-model.trim="generateText" rows="6" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-primary" :placeholder="t('admin.productsNew.generateModal.placeholder')"></textarea>
         <div class="mt-3 text-xs text-gray-500">{{ t('admin.productsNew.generateModal.note') }}</div>
       </div>
       <div class="flex items-center justify-end gap-2 border-t p-4">

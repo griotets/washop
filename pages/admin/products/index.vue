@@ -49,7 +49,7 @@
     </div>
 
     <div class="mt-4 flex items-center justify-between flex-wrap gap-3">
-      <div class="flex items-center rounded-lg border bg-white px-3 py-2 w-full max-w-xl min-w-0">
+      <div class="flex items-center rounded-lg border bg-white px-3 py-2 w-full max-w-xl min-w-0 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
         <Search class="h-4 w-4 text-gray-500" />
         <input v-model.trim="search" type="text" :placeholder="t('admin.productsPage.searchPlaceholder')" class="ml-2 w-full bg-transparent text-sm outline-none" />
       </div>
@@ -62,7 +62,7 @@
     </div>
 
     <div class="mt-3 flex items-center gap-3">
-      <select v-model="categoryFilter" class="rounded border px-2 py-1 text-sm">
+      <select v-model="categoryFilter" class="rounded border px-2 py-1 text-sm focus:border-primary focus:ring-primary">
         <option value="">{{ t('admin.productsPage.allCategories') }}</option>
         <option v-for="c in categories" :key="c.id" :value="String(c.id)">{{ c.name }}</option>
       </select>
@@ -225,7 +225,7 @@
     </div>
 
     <div class="mt-3 flex items-center justify-end gap-2">
-      <select v-model="limit" class="rounded border px-2 py-1 text-sm">
+      <select v-model="limit" class="rounded border px-2 py-1 text-sm focus:border-primary focus:ring-primary">
         <option :value="50">50</option>
         <option :value="25">25</option>
         <option :value="10">10</option>
@@ -345,7 +345,7 @@
                 
                 <select 
                   v-model="columnMapping[field.key as keyof typeof columnMapping]" 
-                  class="block w-full rounded-lg border-gray-300 bg-gray-50 py-2 text-sm focus:border-green-500 focus:bg-white focus:ring-green-500"
+                  class="block w-full rounded-lg border-gray-300 bg-gray-50 py-2 text-sm focus:border-primary focus:bg-white focus:ring-primary"
                 >
                   <option value="">{{ t('admin.productsPage.importModal.skipImportOption') }}</option>
                   <option v-for="header in csvHeaders" :key="header" :value="header">

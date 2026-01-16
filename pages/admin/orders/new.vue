@@ -37,7 +37,7 @@
                     type="number" 
                     v-model.number="item.quantity" 
                     min="1" 
-                    class="w-16 rounded border-gray-300 py-1 px-2 text-sm focus:border-green-500 focus:ring-green-500"
+                    class="w-16 rounded border-gray-300 py-1 px-2 text-sm focus:border-primary focus:ring-primary"
                     @change="calculateTotals"
                   />
                   <div class="w-24 text-right font-medium text-gray-900">
@@ -70,7 +70,7 @@
               <input 
                 type="number" 
                 v-model.number="deliveryFee" 
-                class="w-24 text-right rounded border-gray-300 py-1 px-2 text-sm focus:border-green-500 focus:ring-green-500"
+                class="w-24 text-right rounded border-gray-300 py-1 px-2 text-sm focus:border-primary focus:ring-primary"
                 @change="calculateTotals"
               />
             </div>
@@ -95,17 +95,12 @@
             <div>
               <label class="block text-xs font-medium text-gray-700 mb-1">{{ t('admin.ordersNew.phoneLabel') }} <span class="text-red-500">*</span></label>
               <div class="relative">
-                <input 
-                  v-model="form.phone" 
-                  type="text" 
+                <PhoneInput
+                  v-model:phone="form.phone"
                   :placeholder="t('admin.ordersNew.phonePlaceholder')"
-                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm pl-10"
                   @blur="checkClient"
                 />
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Phone class="h-4 w-4 text-gray-400" />
-                </div>
-                <div v-if="checkingClient" class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                <div v-if="checkingClient" class="absolute right-0 top-0 h-full pr-3 flex items-center pointer-events-none">
                   <Loader2 class="h-4 w-4 text-gray-400 animate-spin" />
                 </div>
               </div>
@@ -122,7 +117,7 @@
               <input 
                 v-model="form.name" 
                 type="text" 
-                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
               />
             </div>
 
@@ -131,7 +126,7 @@
               <textarea 
                 v-model="form.address" 
                 rows="3" 
-                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
               ></textarea>
             </div>
              
@@ -140,7 +135,7 @@
               <textarea 
                 v-model="form.notes" 
                 rows="2" 
-                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
               ></textarea>
             </div>
           </div>
@@ -150,7 +145,7 @@
            <label class="block text-xs font-medium text-gray-700 mb-1">{{ t('admin.ordersNew.statusLabel') }}</label>
            <select 
              v-model="form.status" 
-             class="block w-full rounded-md border shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm font-medium"
+             class="block w-full rounded-md border shadow-sm focus:border-primary focus:ring-primary sm:text-sm font-medium"
              :class="statusClass(form.status)"
            >
              <option value="new">{{ t('admin.ordersPage.status.new') }}</option>
@@ -164,7 +159,7 @@
         <button 
           @click="submitOrder" 
           :disabled="submitting || orderItems.length === 0 || !form.phone || !form.name"
-          class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         >
           <Loader2 v-if="submitting" class="h-5 w-5 animate-spin mr-2" />
           {{ submitting ? t('admin.ordersNew.creating') : t('admin.ordersNew.create') }}
@@ -187,7 +182,7 @@
                  v-model="productSearch" 
                  type="text" 
                  :placeholder="t('admin.ordersNew.modalSearchPlaceholder')"
-                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
                />
             </div>
             <div class="mt-2 max-h-60 overflow-y-auto space-y-2">
@@ -224,6 +219,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
 import { useI18n } from '~/composables/i18n'
 import { ArrowLeft, ShoppingBag, CreditCard, User, Phone, Loader2, CheckCircle, PlusCircle, Trash2 } from 'lucide-vue-next'
+import PhoneInput from '~/components/PhoneInput.vue'
 
 definePageMeta({ layout: 'admin' })
 
@@ -425,6 +421,9 @@ async function submitOrder() {
         
       if (clientError) throw clientError
       clientId = newClient.id
+      
+      const toast = useToast()
+      toast.success(t('admin.ordersNew.clientCreated'))
     } else {
         // Optionally update existing client info if changed? 
         // For now, let's keep it simple and not overwrite existing data unless necessary.

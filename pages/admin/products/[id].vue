@@ -13,21 +13,21 @@
       <div class="space-y-6">
         <div class="rounded-xl border bg-white p-6">
           <label class="block text-sm font-medium">{{ t('admin.productForm.nameLabel') }}</label>
-          <input v-model.trim="form.name" type="text" class="mt-1 w-full rounded-lg border px-3 py-2" />
+          <input v-model.trim="form.name" type="text" class="mt-1 w-full rounded-lg border px-3 py-2 focus:border-primary focus:ring-primary" />
           <div class="mt-4 grid gap-4 sm:grid-cols-2">
             <div>
               <label class="block text-sm font-medium">{{ t('admin.productForm.priceLabel') }}</label>
-              <input v-model.number="form.price" type="number" min="0" step="0.01" class="mt-1 w-full rounded-lg border px-3 py-2" />
+              <input v-model.number="form.price" type="number" min="0" step="0.01" class="mt-1 w-full rounded-lg border px-3 py-2 focus:border-primary focus:ring-primary" />
               <p v-if="priceError" class="mt-1 text-xs text-red-600">{{ priceError }}</p>
             </div>
             <div>
               <label class="block text-sm font-medium">{{ t('admin.productForm.skuLabel') }}</label>
-              <input v-model.trim="form.sku" type="text" class="mt-1 w-full rounded-lg border px-3 py-2" />
+              <input v-model.trim="form.sku" type="text" class="mt-1 w-full rounded-lg border px-3 py-2 focus:border-primary focus:ring-primary" />
             </div>
           </div>
           <div class="mt-4">
             <label class="block text-sm font-medium">{{ t('admin.productForm.descriptionLabel') }}</label>
-            <textarea v-model.trim="form.description" rows="4" class="mt-1 w-full rounded-lg border px-3 py-2"></textarea>
+            <textarea v-model.trim="form.description" rows="4" class="mt-1 w-full rounded-lg border px-3 py-2 focus:border-primary focus:ring-primary"></textarea>
           </div>
         </div>
 
@@ -49,7 +49,7 @@
             </div>
           </div>
           <div class="mt-4 flex items-center gap-3">
-            <input v-model.trim="imageUrl" :placeholder="t('common.urlPlaceholder')" class="flex-1 rounded-lg border px-3 py-2 text-sm" />
+            <input v-model.trim="imageUrl" :placeholder="t('common.urlPlaceholder')" class="flex-1 rounded-lg border px-3 py-2 text-sm focus:border-primary focus:ring-primary" />
             <button class="rounded-lg border bg-white px-3 py-2 text-sm" @click="addImageUrl">{{ t('admin.productForm.addImageUrl') }}</button>
           </div>
           <div class="mt-4 grid gap-3 sm:grid-cols-3">
@@ -68,7 +68,7 @@
             </label>
             <div>
               <label class="block text-sm font-medium">{{ t('admin.productForm.inventoryLabel') }}</label>
-              <input v-model.number="form.stock_quantity" type="number" min="0" class="mt-1 w-full rounded-lg border px-3 py-2" />
+              <input v-model.number="form.stock_quantity" type="number" min="0" class="mt-1 w-full rounded-lg border px-3 py-2 focus:border-primary focus:ring-primary" />
               <p v-if="stockError" class="mt-1 text-xs text-red-600">{{ stockError }}</p>
             </div>
             <label class="inline-flex items-center gap-2">
@@ -80,7 +80,7 @@
 
         <div class="rounded-xl border bg-white p-6">
           <div class="font-semibold mb-3">{{ t('admin.productForm.categoryTitle') }}</div>
-          <select class="rounded border px-2 py-2 text-sm" :value="form.category_id || ''" @change="setCategory(($event.target as HTMLSelectElement).value ? Number(($event.target as HTMLSelectElement).value) : null)">
+          <select class="rounded border px-2 py-2 text-sm focus:border-primary focus:ring-primary" :value="form.category_id || ''" @change="setCategory(($event.target as HTMLSelectElement).value ? Number(($event.target as HTMLSelectElement).value) : null)">
             <option value="">{{ t('admin.productForm.noneOption') }}</option>
             <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
           </select>
@@ -195,7 +195,7 @@
                     <input 
                       type="text" 
                       :placeholder="t('admin.productForm.addValuePlaceholder')" 
-                      class="flex-1 rounded border px-2 py-1.5 text-sm"
+                      class="flex-1 rounded border px-2 py-1.5 text-sm focus:border-primary focus:ring-primary"
                       @keydown.enter.prevent="addOptionValue(o, $event)"
                     />
                     <div class="text-xs text-gray-400 self-center hidden sm:block">{{ t('admin.productForm.addValueHint') }}</div>

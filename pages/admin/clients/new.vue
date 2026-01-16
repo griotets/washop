@@ -9,12 +9,12 @@
       <div class="grid gap-4">
         <div>
           <label class="block text-sm font-medium">{{ t('admin.clientForm.nameLabel') }}</label>
-          <input v-model.trim="form.name" :placeholder="t('admin.clientForm.namePlaceholder')" class="mt-1 w-full rounded-lg border px-3 py-2" />
+          <input v-model.trim="form.name" :placeholder="t('admin.clientForm.namePlaceholder')" class="mt-1 w-full rounded-lg border px-3 py-2 focus:border-primary focus:ring-primary" />
         </div>
         <div class="grid gap-3 sm:grid-cols-[120px_1fr]">
           <div>
             <label class="block text-sm font-medium">{{ t('admin.clientForm.phoneCodeLabel') }}</label>
-            <select v-model="phonePrefix" class="mt-1 w-full rounded-lg border px-3 py-2">
+            <select v-model="phonePrefix" class="mt-1 w-full rounded-lg border px-3 py-2 focus:border-primary focus:ring-primary">
               <option value="+237">+237</option>
               <option value="+33">+33</option>
               <option value="+1">+1</option>
@@ -22,35 +22,35 @@
           </div>
           <div>
             <label class="block text-sm font-medium">{{ t('admin.clientForm.phoneLabel') }}</label>
-            <input v-model.trim="form.phone" :placeholder="t('admin.clientForm.phonePlaceholder')" class="mt-1 w-full rounded-lg border px-3 py-2" />
+            <input v-model.trim="form.phone" :placeholder="t('admin.clientForm.phonePlaceholder')" class="mt-1 w-full rounded-lg border px-3 py-2 focus:border-primary focus:ring-primary" />
           </div>
         </div>
         <div>
           <label class="block text-sm font-medium">{{ t('admin.clientForm.emailLabel') }}</label>
-          <input v-model.trim="form.email" :placeholder="t('admin.clientForm.emailPlaceholder')" class="mt-1 w-full rounded-lg border px-3 py-2" />
+          <input v-model.trim="form.email" :placeholder="t('admin.clientForm.emailPlaceholder')" class="mt-1 w-full rounded-lg border px-3 py-2 focus:border-primary focus:ring-primary" />
         </div>
         <div>
           <label class="block text-sm font-medium">{{ t('admin.clientForm.birthdayLabel') }}</label>
-          <input v-model="birthdayStr" type="date" class="mt-1 w-full rounded-lg border px-3 py-2" />
+          <input v-model="birthdayStr" type="date" class="mt-1 w-full rounded-lg border px-3 py-2 focus:border-primary focus:ring-primary" />
         </div>
         <div>
           <label class="block text-sm font-medium">{{ t('admin.clientForm.addressLabel') }}</label>
-          <textarea v-model.trim="form.address" :placeholder="t('admin.clientForm.addressPlaceholder')" rows="2" class="mt-1 w-full rounded-lg border px-3 py-2"></textarea>
+          <textarea v-model.trim="form.address" :placeholder="t('admin.clientForm.addressPlaceholder')" rows="2" class="mt-1 w-full rounded-lg border px-3 py-2 focus:border-primary focus:ring-primary"></textarea>
         </div>
         <div>
           <label class="block text-sm font-medium">{{ t('admin.clientForm.tagsLabel') }}</label>
           <div class="mt-1 flex flex-wrap gap-2">
             <button v-for="t in tags" :key="t.id" class="rounded-full border px-3 py-1 text-xs" :class="selectedTags.has(Number(t.id))?'bg-green-100 border-green-300':'bg-white'" @click="toggleTag(Number(t.id))">{{ t.name }}</button>
           </div>
-          <input v-model.trim="newTagName" :placeholder="t('admin.clientForm.addTagPlaceholder')" class="mt-2 w-full rounded-lg border px-3 py-2 text-sm" @keydown.enter.prevent="addNewTagName" />
+          <input v-model.trim="newTagName" :placeholder="t('admin.clientForm.addTagPlaceholder')" class="mt-2 w-full rounded-lg border px-3 py-2 text-sm focus:border-primary focus:ring-primary" @keydown.enter.prevent="addNewTagName" />
         </div>
         <div>
           <label class="block text-sm font-medium">{{ t('admin.clientForm.notesLabel') }}</label>
-          <textarea v-model.trim="form.notes" rows="3" class="mt-1 w-full rounded-lg border px-3 py-2"></textarea>
+          <textarea v-model.trim="form.notes" rows="3" class="mt-1 w-full rounded-lg border px-3 py-2 focus:border-primary focus:ring-primary"></textarea>
         </div>
         <div>
           <label class="block text-sm font-medium">{{ t('admin.clientForm.referralCodeLabel') }}</label>
-          <input v-model.trim="form.referral_code" class="mt-1 w-full rounded-lg border px-3 py-2" />
+          <input v-model.trim="form.referral_code" class="mt-1 w-full rounded-lg border px-3 py-2 focus:border-primary focus:ring-primary" />
         </div>
       </div>
       <div class="mt-6">

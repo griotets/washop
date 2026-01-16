@@ -47,7 +47,7 @@
                 <label class="block text-sm font-medium text-gray-700">{{ t('admin.website.storeNameLabel') }}</label>
                 <div class="relative mt-1">
                   <Tag class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <input v-model="form.name" type="text" class="w-full rounded-lg border border-gray-200 px-9 py-2 focus:border-green-500 focus:ring-2 focus:ring-green-500 sm:text-sm" />
+                  <input v-model="form.name" type="text" class="w-full rounded-lg border border-gray-200 px-9 py-2 focus:border-primary focus:ring-primary sm:text-sm" />
                 </div>
               </div>
               <div>
@@ -56,7 +56,7 @@
                   <input v-model="form.color" type="color" class="h-9 w-14 cursor-pointer rounded border border-gray-200 p-1" />
                   <div class="relative flex-1">
                     <Droplet class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <input v-model="form.color" type="text" class="w-full rounded-lg border border-gray-200 px-9 py-2 focus:border-green-500 focus:ring-2 focus:ring-green-500 sm:text-sm" />
+                    <input v-model="form.color" type="text" class="w-full rounded-lg border border-gray-200 px-9 py-2 focus:border-primary focus:ring-primary sm:text-sm" />
                   </div>
                 </div>
               </div>
@@ -64,7 +64,7 @@
 
             <div>
               <label class="block text-sm font-medium text-gray-700">{{ t('admin.website.shortDescriptionLabel') }}</label>
-              <textarea v-model="form.description" rows="2" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-green-500 focus:ring-2 focus:ring-green-500 sm:text-sm" :placeholder="t('admin.website.shortDescriptionPlaceholder')"></textarea>
+              <textarea v-model="form.description" rows="2" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-primary focus:ring-primary sm:text-sm" :placeholder="t('admin.website.shortDescriptionPlaceholder')"></textarea>
             </div>
           </div>
         </div>
@@ -82,7 +82,7 @@
               <button 
                 @click="form.design_settings.banner_enabled = !form.design_settings.banner_enabled" 
                 :class="form.design_settings.banner_enabled ? 'bg-green-600' : 'bg-gray-200'"
-                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
               >
                 <span :class="form.design_settings.banner_enabled ? 'translate-x-5' : 'translate-x-0'" class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
               </button>
@@ -91,15 +91,15 @@
             <div v-if="form.design_settings.banner_enabled" class="grid gap-4 rounded-lg bg-gray-50 p-4 sm:grid-cols-2">
               <div class="sm:col-span-2">
                 <label class="block text-xs font-medium text-gray-500">{{ t('admin.website.bannerTextLabel') }}</label>
-                <input v-model="form.design_settings.banner_text" type="text" :placeholder="t('admin.website.bannerTextPlaceholder')" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-green-500 focus:ring-2 focus:ring-green-500" />
+                <input v-model="form.design_settings.banner_text" type="text" :placeholder="t('admin.website.bannerTextPlaceholder')" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:ring-primary" />
               </div>
               <div>
                 <label class="block text-xs font-medium text-gray-500">{{ t('admin.website.bannerButtonTextLabel') }}</label>
-                <input v-model="form.design_settings.banner_btn_text" type="text" :placeholder="t('admin.website.bannerButtonTextPlaceholder')" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-green-500 focus:ring-2 focus:ring-green-500" />
+                <input v-model="form.design_settings.banner_btn_text" type="text" :placeholder="t('admin.website.bannerButtonTextPlaceholder')" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:ring-primary" />
               </div>
               <div>
                 <label class="block text-xs font-medium text-gray-500">{{ t('admin.website.bannerButtonLinkLabel') }}</label>
-                <input v-model="form.design_settings.banner_link" type="text" :placeholder="t('common.urlPlaceholder')" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-green-500 focus:ring-2 focus:ring-green-500" />
+                <input v-model="form.design_settings.banner_link" type="text" :placeholder="t('common.urlPlaceholder')" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:ring-primary" />
               </div>
             </div>
           </div>
@@ -117,25 +117,25 @@
               <label class="block text-sm font-medium text-gray-700 flex items-center gap-2">
                 <MessageCircle class="h-4 w-4 text-green-500" /> WhatsApp
               </label>
-              <input v-model="form.social_whatsapp" type="text" :placeholder="t('admin.website.socialWhatsAppPlaceholder')" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-green-500 focus:ring-2 focus:ring-green-500 sm:text-sm" />
+              <input v-model="form.social_whatsapp" type="text" :placeholder="t('admin.website.socialWhatsAppPlaceholder')" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-primary focus:ring-2 focus:ring-primary sm:text-sm" />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 flex items-center gap-2">
                 <Facebook class="h-4 w-4 text-blue-600" /> Facebook
               </label>
-              <input v-model="form.social_facebook" type="text" :placeholder="t('admin.website.socialFacebookPlaceholder')" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-green-500 focus:ring-2 focus:ring-green-500 sm:text-sm" />
+              <input v-model="form.social_facebook" type="text" :placeholder="t('admin.website.socialFacebookPlaceholder')" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-primary focus:ring-2 focus:ring-primary sm:text-sm" />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 flex items-center gap-2">
                 <Instagram class="h-4 w-4 text-pink-600" /> Instagram
               </label>
-              <input v-model="form.social_instagram" type="text" :placeholder="t('admin.website.socialInstagramPlaceholder')" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-green-500 focus:ring-2 focus:ring-green-500 sm:text-sm" />
+              <input v-model="form.social_instagram" type="text" :placeholder="t('admin.website.socialInstagramPlaceholder')" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-primary focus:ring-2 focus:ring-primary sm:text-sm" />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 flex items-center gap-2">
                 <Send class="h-4 w-4 text-blue-400" /> Telegram
               </label>
-              <input v-model="form.social_telegram" type="text" :placeholder="t('admin.website.socialTelegramPlaceholder')" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-green-500 focus:ring-2 focus:ring-green-500 sm:text-sm" />
+              <input v-model="form.social_telegram" type="text" :placeholder="t('admin.website.socialTelegramPlaceholder')" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-primary focus:ring-2 focus:ring-primary sm:text-sm" />
             </div>
           </div>
         </div>
@@ -156,7 +156,7 @@
               <button 
                 @click="form.design_settings.popup_enabled = !form.design_settings.popup_enabled" 
                 :class="form.design_settings.popup_enabled ? 'bg-green-600' : 'bg-gray-200'"
-                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
               >
                 <span :class="form.design_settings.popup_enabled ? 'translate-x-5' : 'translate-x-0'" class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
               </button>
@@ -165,15 +165,15 @@
             <div v-if="form.design_settings.popup_enabled" class="space-y-3 rounded-lg bg-gray-50 p-4">
               <div>
                 <label class="block text-xs font-medium text-gray-500">{{ t('admin.website.popupHeadingLabel') }}</label>
-                <input v-model="form.design_settings.popup_title" type="text" :placeholder="t('admin.website.popupHeadingPlaceholder')" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-green-500 focus:ring-2 focus:ring-green-500" />
+                <input v-model="form.design_settings.popup_title" type="text" :placeholder="t('admin.website.popupHeadingPlaceholder')" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:ring-primary" />
               </div>
               <div>
                 <label class="block text-xs font-medium text-gray-500">{{ t('admin.website.popupDescriptionLabel') }}</label>
-                <textarea v-model="form.design_settings.popup_description" rows="3" :placeholder="t('admin.website.popupDescriptionPlaceholder')" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-green-500 focus:ring-2 focus:ring-green-500"></textarea>
+                <textarea v-model="form.design_settings.popup_description" rows="3" :placeholder="t('admin.website.popupDescriptionPlaceholder')" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:ring-primary"></textarea>
               </div>
               <div>
                 <label class="block text-xs font-medium text-gray-500">{{ t('admin.website.popupLinkLabel') }}</label>
-                <input v-model="form.design_settings.popup_link" type="text" :placeholder="t('common.urlPlaceholder')" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-green-500 focus:ring-2 focus:ring-green-500" />
+                <input v-model="form.design_settings.popup_link" type="text" :placeholder="t('common.urlPlaceholder')" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:ring-primary" />
               </div>
             </div>
           </div>

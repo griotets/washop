@@ -27,7 +27,7 @@
 
           <div>
             <label class="mb-1 block text-sm font-medium">{{ t('create.name') }}</label>
-            <input v-model.trim="form.name" type="text" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none" :placeholder="t('create.placeholderName')" />
+            <input v-model.trim="form.name" type="text" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary" :placeholder="t('create.placeholderName')" />
           </div>
 
           <div>
@@ -40,7 +40,7 @@
             <div class="flex items-center gap-2 flex-wrap">
               <div class="rounded-lg bg-gray-100 px-3 py-2 text-xs sm:text-sm text-gray-700">{{ baseDomain }}</div>
               <span class="text-gray-400">/</span>
-              <input v-model.trim="form.slug" type="text" class="min-w-0 flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none" />
+              <input v-model.trim="form.slug" type="text" class="min-w-0 flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary" />
             </div>
             <p class="mt-1 text-xs" :class="[slugCheckLoading ? 'text-gray-500' : (slugAvailable ? 'text-gray-500' : 'text-red-600')]">
               <span v-if="slugCheckLoading">{{ t('create.slugChecking') }}</span>
@@ -52,7 +52,7 @@
           <div>
             <label class="mb-2 block text-sm font-medium">{{ t('create.color') }}</label>
             <div class="flex flex-wrap gap-3">
-              <button v-for="c in colors" :key="c" type="button" :class="['h-8 w-8 rounded-full border-2', form.color===c ? 'border-black' : 'border-transparent']" :style="{ backgroundColor: c }" @click="form.color = c"></button>
+              <button v-for="c in colors" :key="c" type="button" :class="['h-8 w-8 rounded-full transition-transform hover:scale-110 focus:outline-none', form.color===c ? 'ring-2 ring-primary ring-offset-2' : '']" :style="{ backgroundColor: c }" @click="form.color = c"></button>
             </div>
           </div>
 

@@ -55,19 +55,19 @@
               <div class="h-8 w-8 rounded-full bg-green-500 text-white flex items-center justify-center">
                 <MessageCircle class="h-4 w-4" />
               </div>
-              <input v-model.trim="communities.whatsapp" type="text" class="flex-1 rounded-lg border px-3 py-2 text-sm" :placeholder="t('admin.dashboard.communityWhatsAppPlaceholder')" />
+              <input v-model.trim="communities.whatsapp" type="text" class="flex-1 rounded-lg border px-3 py-2 text-sm focus:border-primary focus:ring-primary" :placeholder="t('admin.dashboard.communityWhatsAppPlaceholder')" />
             </div>
             <div class="flex items-center gap-3">
               <div class="h-8 w-8 rounded-full bg-pink-500 text-white flex items-center justify-center">
                 <Instagram class="h-4 w-4" />
               </div>
-              <input v-model.trim="communities.instagram" type="text" class="flex-1 rounded-lg border px-3 py-2 text-sm" :placeholder="t('admin.dashboard.communityInstagramPlaceholder')" />
+              <input v-model.trim="communities.instagram" type="text" class="flex-1 rounded-lg border px-3 py-2 text-sm focus:border-primary focus:ring-primary" :placeholder="t('admin.dashboard.communityInstagramPlaceholder')" />
             </div>
             <div class="flex items-center gap-3">
               <div class="h-8 w-8 rounded-full bg-blue-600 text-white flex items-center justify-center">
                 <Facebook class="h-4 w-4" />
               </div>
-              <input v-model.trim="communities.facebook" type="text" class="flex-1 rounded-lg border px-3 py-2 text-sm" :placeholder="t('admin.dashboard.communityFacebookPlaceholder')" />
+              <input v-model.trim="communities.facebook" type="text" class="flex-1 rounded-lg border px-3 py-2 text-sm focus:border-primary focus:ring-primary" :placeholder="t('admin.dashboard.communityFacebookPlaceholder')" />
             </div>
           </div>
         </div>

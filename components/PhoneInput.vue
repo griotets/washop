@@ -3,7 +3,7 @@
     <div class="w-32">
       <select
         v-model="selectedCode"
-        class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm bg-white"
+        class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-primary focus:ring-primary sm:text-sm bg-white"
       >
         <option
           v-for="c in countries"
@@ -18,7 +18,8 @@
       <input
         v-model="localNumber"
         type="tel"
-        class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+        class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+        @blur="emit('blur')"
       />
     </div>
   </div>
@@ -35,6 +36,7 @@ const emit = defineEmits<{
   (e: 'update:phone', value: string): void
   (e: 'update:country', value: string): void
   (e: 'update:modelValue', value: string): void
+  (e: 'blur'): void
 }>()
 
 import { COUNTRY_DIAL_CODES } from '~/data/countryDialCodes'

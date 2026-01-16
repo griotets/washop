@@ -21,7 +21,7 @@
               <input 
                 v-model.trim="email" 
                 type="email" 
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none transition-colors"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary transition-colors"
                 :placeholder="t('auth.login.placeholderEmail')"
                 @keyup.enter="emailValid && !loading ? sendEmailOtp() : null"
               />
@@ -53,7 +53,7 @@
                 pattern="[0-9]*" 
                 maxlength="8" 
                 placeholder="12345678" 
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none tracking-widest text-center text-lg letter-spacing-2"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary tracking-widest text-center text-lg letter-spacing-2"
                 @keyup.enter="codeValid && !loading ? verifyEmailOtp() : null"
               />
             </div>

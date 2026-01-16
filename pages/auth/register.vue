@@ -16,7 +16,7 @@
           <div class="space-y-3">
             <label class="block text-sm font-medium">{{ t('register.emailLabel') }}</label>
             <input v-model.trim="email" type="email"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary"
               placeholder="vous@exemple.com"
               @keyup.enter="mountedReady && emailValid && !authLoading ? submitEmail() : null" />
           </div>
@@ -31,7 +31,7 @@
           <div class="space-y-3">
             <label class="block text-sm font-medium">{{ t('register.codeLabel') }}</label>
             <input v-model.trim="enteredCode" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="12345678"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none tracking-widest text-center" />
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary tracking-widest text-center" />
             <p v-if="codeError" class="text-sm text-red-600">{{ t('register.codeInvalid') }}</p>
             <p v-if="authError" class="text-sm text-red-600">{{ authError }}</p>
           </div>
@@ -45,7 +45,7 @@
         <div v-else-if="step === 3" class="space-y-6">
           <label class="block text-sm font-medium">{{ t('register.industryQuestion') }}</label>
           <select v-model="industry"
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none">
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary">
             <option value="" disabled>{{ t('register.selectIndustry') }}</option>
             <option v-for="opt in industries" :key="opt" :value="opt">{{ opt }}</option>
           </select>

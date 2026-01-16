@@ -3,8 +3,8 @@
     <div class="flex items-center justify-between flex-wrap gap-3">
       <h1 class="text-2xl font-bold">{{ t('admin.stats.title') }}</h1>
       <div class="flex items-center gap-2 flex-wrap">
-        <input type="date" v-model="startDateStr" class="rounded border px-3 py-2 text-sm w-full sm:w-auto" />
-        <input type="date" v-model="endDateStr" class="rounded border px-3 py-2 text-sm w-full sm:w-auto" />
+        <input type="date" v-model="startDateStr" class="rounded border px-3 py-2 text-sm w-full sm:w-auto focus:border-primary focus:ring-primary" />
+        <input type="date" v-model="endDateStr" class="rounded border px-3 py-2 text-sm w-full sm:w-auto focus:border-primary focus:ring-primary" />
       </div>
     </div>
 

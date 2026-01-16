@@ -367,6 +367,7 @@ export function useI18n() {
       'admin.ordersNew.noProductFound': 'Aucun produit trouvé.',
       'admin.ordersNew.autoCreatedNote': 'Créé automatiquement lors de la commande',
       'admin.ordersNew.createError': 'Erreur lors de la création de la commande: {msg}',
+      'admin.ordersNew.clientCreated': 'Nouveau client créé avec succès',
 
       'admin.clientsPage.headTitle': 'Admin | Clients',
       'admin.clientsPage.title': 'Clients',
