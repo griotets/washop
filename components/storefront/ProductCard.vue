@@ -8,7 +8,6 @@
         width="300"
         height="300"
         class="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
-        provider="ipx"
       />
       
       <!-- Availability / Cart Controls -->

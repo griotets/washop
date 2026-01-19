@@ -3,7 +3,7 @@
     <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
       <div class="flex items-center gap-3">
         <div class="flex h-10 w-10 items-center justify-center rounded-full" :style="{ backgroundColor: color }">
-          <NuxtImg v-if="store.logoUrl" :src="store.logoUrl" alt="logo" class="h-10 w-10 rounded-full object-cover" provider="ipx" />
+          <NuxtImg v-if="store.logoUrl" :src="store.logoUrl" alt="logo" class="h-10 w-10 rounded-full object-cover" />
           <span v-else class="text-xs font-semibold text-white">{{ initials }}</span>
         </div>
         <div class="font-semibold">{{ store.name || t('catalog.storeFallback') }}</div>
