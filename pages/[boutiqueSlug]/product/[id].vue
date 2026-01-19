@@ -8,14 +8,14 @@
             <div class="relative h-80">
               <div class="absolute inset-0 flex" :style="{ transform: `translateX(-${currentIndex*100}%)`, transition: dragging ? 'none' : 'transform 200ms ease' }" @mousedown="startDrag" @touchstart="startDrag" @mousemove="onDrag" @touchmove="onDrag" @mouseup="endDrag" @mouseleave="endDrag" @touchend="endDrag">
                 <div v-for="(img,i) in images" :key="i" class="min-w-full">
-                  <img :src="img" class="h-80 w-full object-cover bg-gray-100" />
+                  <NuxtImg :src="img" class="h-80 w-full object-cover bg-gray-100" provider="ipx" />
                 </div>
               </div>
             </div>
             <div class="flex items-center justify-between px-3 py-2">
               <div class="flex items-center gap-2">
                 <button v-for="(img,i) in images" :key="i" class="h-10 w-10 rounded border" :class="i===currentIndex?'ring-2 ring-primary':''" @click="currentIndex=i">
-                  <img :src="img" class="h-10 w-10 rounded object-cover bg-gray-100" />
+                  <NuxtImg :src="img" class="h-10 w-10 rounded object-cover bg-gray-100" provider="ipx" />
                 </button>
               </div>
               <div class="text-xs text-gray-500">{{ currentIndex+1 }} / {{ images.length }}</div>
@@ -26,7 +26,7 @@
           <div class="rounded-xl border bg-white p-4">
             <div class="flex items-center gap-3 border-b pb-3">
               <div class="flex h-10 w-10 items-center justify-center rounded-full" :style="{ backgroundColor: store.color || '#111827' }">
-                <img v-if="store.logoUrl" :src="store.logoUrl" class="h-10 w-10 rounded-full object-cover" />
+                <NuxtImg v-if="store.logoUrl" :src="store.logoUrl" class="h-10 w-10 rounded-full object-cover" provider="ipx" />
                 <span v-else class="text-xs font-semibold text-white">{{ storeInitials }}</span>
               </div>
               <div class="flex-1">
@@ -46,7 +46,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <label v-for="v in variants" :key="v.id" :class="['flex items-center gap-2 rounded border px-3 py-2', selectedVariantId===String(v.id) ? 'border-primary bg-primary/5' : 'border-gray-200', variantUnavailable(v) ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer']">
                     <input type="radio" class="sr-only" :value="String(v.id)" v-model="selectedVariantId" :disabled="variantUnavailable(v)" />
-                    <img v-if="v.image_url" :src="v.image_url" class="h-8 w-8 rounded object-cover bg-gray-100" />
+                    <NuxtImg v-if="v.image_url" :src="v.image_url" class="h-8 w-8 rounded object-cover bg-gray-100" provider="ipx" />
                     <span class="font-medium text-sm">{{ v.name }}</span>
                     <span v-if="variantUnavailable(v)" class="rounded bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">{{ t('storefront.soldOut') }}</span>
                     <span class="ml-auto text-xs text-gray-600">XAF {{ Number(v.price || 0).toLocaleString(getNumberLocale()) }}</span>

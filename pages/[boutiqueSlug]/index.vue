@@ -50,28 +50,13 @@
       </div>
 
       <!-- Categories Navigation (Sticky) -->
-      <div v-if="categories.length > 0" class="sticky top-16 z-40 -mx-4 px-4 sm:mx-0 sm:px-0 mb-8 overflow-x-auto bg-gray-50/95 backdrop-blur py-2">
-        <div class="flex space-x-2 sm:space-x-4 min-w-max">
-          <button 
-            @click="scrollToCategory('all')"
-            class="rounded-full px-4 py-2 text-sm font-medium transition-colors"
-            :class="activeCategory === 'all' ? 'text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-100 border'"
-            :style="activeCategory === 'all' ? { backgroundColor: appearance.primary } : {}"
-          >
-            {{ t('storefront.all') }}
-          </button>
-          <button 
-            v-for="cat in categories" 
-            :key="cat.id"
-            @click="scrollToCategory(cat.id)"
-            class="rounded-full px-4 py-2 text-sm font-medium transition-colors"
-            :class="activeCategory === cat.id ? 'text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-100 border'"
-            :style="activeCategory === cat.id ? { backgroundColor: appearance.primary } : {}"
-          >
-            {{ cat.name }}
-          </button>
-        </div>
-      </div>
+      <StorefrontCategoryNav
+        v-if="categories.length > 0"
+        :categories="categories"
+        :active-category="activeCategory"
+        :primary-color="appearance.primary"
+        @select="scrollToCategory"
+      />
 
       <div class="space-y-16">
         <div v-for="group in productGroups" :key="group.categoryId" :id="`category-${group.categoryId}`" class="scroll-mt-32">
@@ -81,55 +66,16 @@
           </div>
           
           <div class="grid grid-cols-2 gap-x-4 gap-y-8 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8">
-            <div v-for="product in group.products" :key="product.id" class="group relative flex flex-col overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:shadow-md">
-              <div class="aspect-square w-full overflow-hidden bg-gray-200 relative">
-                <img 
-                  :src="getProductImage(product)" 
-                  :alt="product.name" 
-                  class="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
-                />
-                <div v-if="isProductAvailable(product)" class="absolute top-2 right-2 transition-opacity" :class="getCartQuantity(product.id) > 0 ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'">
-                  <div v-if="getCartQuantity(product.id) > 0" class="flex items-center gap-2 rounded-full bg-white p-1 shadow">
-                  <button @click.prevent="handleUpdateQuantity(product, -1)" class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200">-</button>
-                  <span class="text-sm font-semibold">{{ getCartQuantity(product.id) }}</span>
-                  <button @click.prevent="handleUpdateQuantity(product, 1)" class="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white hover:brightness-110" :style="{ backgroundColor: appearance.primary }">+</button>
-                </div>
-                  <button v-else @click.prevent="addToCart(product)" class="p-2 rounded-full bg-white shadow text-gray-900 hover:text-primary transition-colors" :title="t('storefront.addToCartTitle')">
-                    <ShoppingCart class="h-5 w-5" />
-                  </button>
-                </div>
-              </div>
-              <div class="flex flex-1 flex-col p-4">
-                <h3 class="text-base font-semibold text-gray-900">
-                  <NuxtLink :to="`/${slug}/product/${product.id}`">
-                    <span aria-hidden="true" class="absolute inset-0" />
-                    {{ product.name }}
-                  </NuxtLink>
-                </h3>
-                <div class="mt-1 relative z-10">
-                  <p class="text-sm text-gray-500" :class="{ 'line-clamp-2': !isDescriptionExpanded(product.id) }">
-                    {{ product.description }}
-                  </p>
-                  <button 
-                    v-if="product.description && product.description.length > 60" 
-                    @click.prevent.stop="toggleDescription(product.id)" 
-                    class="mt-1 text-xs font-medium hover:underline focus:outline-none"
-                    :style="{ color: appearance.primary }"
-                  >
-                    {{ isDescriptionExpanded(product.id) ? t('storefront.seeLess') : t('storefront.seeMore') }}
-                  </button>
-                </div>
-                <div class="mt-4 flex flex-1 items-end justify-between">
-                  <div class="flex flex-col">
-                    <p v-if="isProductAvailable(product)" class="text-lg font-bold text-gray-900">{{ formatPrice(product.price) }}</p>
-                    <p v-if="product.original_price > product.price" class="text-sm text-gray-500 line-through">{{ formatPrice(product.original_price) }}</p>
-                  </div>
-                  <div v-if="!isProductAvailable(product)" class="rounded bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-800">
-                    {{ t('storefront.soldOut') }}
-                  </div>
-                </div>
-              </div>
-            </div>
+            <StorefrontProductCard
+              v-for="product in group.products"
+              :key="product.id"
+              :product="product"
+              :cart-quantity="getCartQuantity(product.id)"
+              :primary-color="appearance.primary"
+              :store-slug="slug"
+              :available="isProductAvailable(product)"
+              @update-quantity="(delta) => handleUpdateQuantity(product, delta)"
+            />
           </div>
         </div>
 
@@ -184,7 +130,7 @@
 </template>
 <script setup lang="ts">
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { ShoppingCart, PackageSearch, X, AlertCircle } from 'lucide-vue-next'
+import { Search, PackageSearch, X, AlertCircle } from 'lucide-vue-next'
 import { useCartStore } from '~/stores/cart'
 import { useI18n } from '~/composables/i18n'
 import { showError, createError } from '#app'
@@ -232,17 +178,7 @@ const appearance = reactive({
 const categories = ref<any[]>([])
 const products = ref<any[]>([])
 const showPopup = ref(false)
-const showFullDescription = ref<Record<string, boolean>>({})
 const variantAvailability = ref<Record<string, boolean>>({})
-
-function isDescriptionExpanded(id: any) {
-  return !!showFullDescription.value[String(id)]
-}
-
-function toggleDescription(id: any) {
-  const k = String(id)
-  showFullDescription.value[k] = !showFullDescription.value[k]
-}
 
 // Computed
 const canRenderCatalog = computed(() => !loading.value && !error.value && !!storeInfo.id)
@@ -301,11 +237,6 @@ const popupDescription = computed(() => appearance.popupDescription || t('storef
 const popupLink = computed(() => appearance.popupLink || '')
 
 // Methods
-function formatPrice(price: number) {
-  const l = locale.value === 'it' ? 'it-IT' : locale.value === 'en' ? 'en-US' : 'fr-FR'
-  return new Intl.NumberFormat(l, { style: 'currency', currency: 'XAF' }).format(price)
-}
-
 function getCartQuantity(productId: string | number) {
   const item = cart.items.find(i => i.id === String(productId))
   return item ? item.quantity : 0
@@ -376,10 +307,6 @@ function handleUpdateQuantity(product: any, delta: number) {
   } else {
     cart.setQuantity(String(product.id), newQty)
   }
-}
-
-function addToCart(product: any) {
-  handleUpdateQuantity(product, 1)
 }
 
 function isProductAvailable(product: any) {

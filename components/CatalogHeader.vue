@@ -3,7 +3,7 @@
     <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
       <div class="flex items-center gap-3">
         <div class="flex h-10 w-10 items-center justify-center rounded-full" :style="{ backgroundColor: color }">
-          <img v-if="store.logoUrl" :src="store.logoUrl" alt="logo" class="h-10 w-10 rounded-full object-cover" />
+          <NuxtImg v-if="store.logoUrl" :src="store.logoUrl" alt="logo" class="h-10 w-10 rounded-full object-cover" provider="ipx" />
           <span v-else class="text-xs font-semibold text-white">{{ initials }}</span>
         </div>
         <div class="font-semibold">{{ store.name || t('catalog.storeFallback') }}</div>
@@ -30,13 +30,19 @@
   </header>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ShoppingCart, Search } from 'lucide-vue-next'
 import { useCartStore } from '~/stores/cart'
 import { useI18n } from '~/composables/i18n'
 
 const { locale, t } = useI18n()
-const props = defineProps(['store'])
+const props = defineProps<{
+  store?: {
+    name?: string
+    logoUrl?: string
+    color?: string
+  }
+}>()
 const route = useRoute()
 const slug = computed(() => String(route.params['boutiqueSlug'] || ''))
 const localStore = reactive({ name: '', logoUrl: '', color: '#111827' })

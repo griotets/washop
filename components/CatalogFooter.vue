@@ -27,25 +27,29 @@
   </footer>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { MessageCircle, Facebook, Instagram, Send } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { useI18n } from '~/composables/i18n'
 
-const props = defineProps({
-  social: {
-    type: Object,
-    default: () => ({
-      whatsapp: '',
-      facebook: '',
-      instagram: '',
-      telegram: ''
-    })
+const props = withDefaults(defineProps<{
+  social?: {
+    whatsapp?: string
+    facebook?: string
+    instagram?: string
+    telegram?: string
   }
+}>(), {
+  social: () => ({
+    whatsapp: '',
+    facebook: '',
+    instagram: '',
+    telegram: ''
+  })
 })
 
 const hasSocialLinks = computed(() => {
-  return props.social.whatsapp || props.social.facebook || props.social.instagram || props.social.telegram
+  return props.social?.whatsapp || props.social?.facebook || props.social?.instagram || props.social?.telegram
 })
 
 const { t } = useI18n()
