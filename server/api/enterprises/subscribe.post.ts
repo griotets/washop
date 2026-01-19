@@ -46,6 +46,17 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
   }
 
+  // Block free plan for premium/business users
+  const { data: currentSub } = await supabase
+    .from('subscriptions')
+    .select('plan_id')
+    .eq('enterprise_id', body.enterpriseId)
+    .maybeSingle()
+
+  if (body.planId === 'free' && ['premium', 'business'].includes(currentSub?.plan_id || '')) {
+    throw createError({ statusCode: 403, statusMessage: 'Cannot switch to free plan from premium/business' })
+  }
+
   if (body.planId === 'free') {
     // Upsert subscription for free plan
     const { error } = await supabase

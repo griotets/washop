@@ -722,7 +722,7 @@
 
                   <button
                     type="button"
-                    :disabled="subscription?.plan_id === plan.id || checkoutLoadingPlanId === plan.id || !enterpriseId"
+                    :disabled="subscription?.plan_id === plan.id || checkoutLoadingPlanId === plan.id || !enterpriseId || (plan.id === 'free' && ['premium', 'business'].includes(subscription.value?.plan_id || ''))"
                     class="w-full mt-auto px-4 py-2 rounded-lg font-medium flex items-center justify-center gap-2"
                     :class="subscription?.plan_id === plan.id ? 'bg-green-600 text-white cursor-default' : 'bg-gray-900 text-white hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed'"
                     @click="startCheckout(plan)"
@@ -1116,6 +1116,11 @@ async function saveBillingCustomer() {
 
 async function startCheckout(plan: any) {
   if (!enterpriseId.value || !plan?.id) return
+
+  if (plan.id === 'free' && ['premium', 'business'].includes(subscription.value?.plan_id || '')) {
+    useToast().error(t('admin.settings.cannotSwitchToFreePlan') || 'Cannot switch to free plan from premium/business')
+    return
+  }
   
   if (plan.id === 'free') {
       checkoutLoadingPlanId.value = String(plan.id)
