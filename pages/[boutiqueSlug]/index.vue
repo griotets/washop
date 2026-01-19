@@ -106,7 +106,19 @@
                     {{ product.name }}
                   </NuxtLink>
                 </h3>
-                <p class="mt-1 text-sm text-gray-500 line-clamp-2">{{ product.description }}</p>
+                <div class="mt-1 relative z-10">
+                  <p class="text-sm text-gray-500" :class="{ 'line-clamp-2': !isDescriptionExpanded(product.id) }">
+                    {{ product.description }}
+                  </p>
+                  <button 
+                    v-if="product.description && product.description.length > 60" 
+                    @click.prevent.stop="toggleDescription(product.id)" 
+                    class="mt-1 text-xs font-medium hover:underline focus:outline-none"
+                    :style="{ color: appearance.primary }"
+                  >
+                    {{ isDescriptionExpanded(product.id) ? t('storefront.seeLess') : t('storefront.seeMore') }}
+                  </button>
+                </div>
                 <div class="mt-4 flex flex-1 items-end justify-between">
                   <div class="flex flex-col">
                     <p v-if="isProductAvailable(product)" class="text-lg font-bold text-gray-900">{{ formatPrice(product.price) }}</p>
@@ -220,7 +232,17 @@ const appearance = reactive({
 const categories = ref<any[]>([])
 const products = ref<any[]>([])
 const showPopup = ref(false)
+const showFullDescription = ref<Record<string, boolean>>({})
 const variantAvailability = ref<Record<string, boolean>>({})
+
+function isDescriptionExpanded(id: any) {
+  return !!showFullDescription.value[String(id)]
+}
+
+function toggleDescription(id: any) {
+  const k = String(id)
+  showFullDescription.value[k] = !showFullDescription.value[k]
+}
 
 // Computed
 const canRenderCatalog = computed(() => !loading.value && !error.value && !!storeInfo.id)
@@ -429,15 +451,17 @@ onMounted(async () => {
       return
     }
 
+    console.log('Store fetched:', store)
+
     storeInfo.id = store.id
     storeInfo.name = store.name
     storeInfo.description = '' 
     storeInfo.logoUrl = store.image_url
     storeInfo.phone = store.phone
-    storeInfo.social.whatsapp = store.social_whatsapp
-    storeInfo.social.facebook = store.social_facebook
-    storeInfo.social.instagram = store.social_instagram
-    storeInfo.social.telegram = store.social_telegram
+    storeInfo.social.whatsapp = store.social_whatsapp || ''
+    storeInfo.social.facebook = store.social_facebook || ''
+    storeInfo.social.instagram = store.social_instagram || ''
+    storeInfo.social.telegram = store.social_telegram || ''
 
     if (store.color) {
       storeInfo.color = store.color
@@ -446,6 +470,7 @@ onMounted(async () => {
 
     // Apply Design Settings
     if (store.design_settings) {
+      console.log('Applying design settings:', store.design_settings)
       const ds = store.design_settings
       appearance.bannerEnabled = !!ds.banner_enabled
       appearance.bannerText = ds.banner_text || ''
@@ -465,6 +490,8 @@ onMounted(async () => {
            setTimeout(() => { showPopup.value = true }, 2000)
         }
       }
+    } else {
+      console.log('No design settings found in store record')
     }
 
     // Track Page View

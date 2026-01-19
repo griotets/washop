@@ -403,12 +403,12 @@ async function submitOrder() {
       if (storeData.value?.id) {
          supabase.from('analytics_log').insert({
            store_id: storeData.value.id,
-           event_type: 'whatsapp_click'
+           event_type: 'order_created'
          }).then(() => {}) 
       }
 
-      const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
-      window.open(whatsappUrl, '_blank')
+      // const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
+      // window.open(whatsappUrl, '_blank')
     }
 
     // 4. Success - Clear cart and Redirect

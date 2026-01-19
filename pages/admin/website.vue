@@ -323,7 +323,7 @@ async function saveChanges() {
         social_facebook: form.social_facebook,
         social_instagram: form.social_instagram,
         social_telegram: form.social_telegram,
-        design_settings: form.design_settings
+        design_settings: JSON.parse(JSON.stringify(form.design_settings))
       })
       .eq('id', admin.selectedShopId)
 
