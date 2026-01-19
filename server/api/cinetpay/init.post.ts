@@ -1,4 +1,5 @@
 import { getServerSupabase } from '~/server/utils/supabase'
+import { createClient } from '@supabase/supabase-js'
 
 export default defineEventHandler(async (event) => {
   const raw = await readBody(event)
@@ -50,10 +51,7 @@ export default defineEventHandler(async (event) => {
   try {
     const authHeader = getRequestHeader(event, 'authorization')
     if (authHeader) {
-      const { createRequire } = await import('node:module')
-      const require = createRequire(import.meta.url)
-      const mod: any = require('@supabase/supabase-js')
-      const client = mod.createClient(
+      const client = createClient(
         String((config.public as any)?.supabaseUrl || ''),
         String((config as any)?.supabaseServiceKey || (config.public as any)?.supabaseAnonKey || ''),
         { global: { headers: { Authorization: authHeader } } }
@@ -90,10 +88,7 @@ export default defineEventHandler(async (event) => {
       const svcKey = (config as any)?.supabaseServiceKey as string | undefined
       const url = String((config.public as any)?.supabaseUrl || '')
       if (svcKey && url) {
-        const { createRequire } = await import('node:module')
-        const require = createRequire(import.meta.url)
-        const mod: any = require('@supabase/supabase-js')
-        const svc = mod.createClient(url, svcKey)
+        const svc = createClient(url, svcKey)
         const { data: svcSession } = await svc
           .from('subscription_checkout_sessions')
           .select('*')

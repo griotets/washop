@@ -1,4 +1,5 @@
 import { getServerSupabase } from '~/server/utils/supabase'
+import { createClient } from '@supabase/supabase-js'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event) as {
@@ -33,10 +34,7 @@ export default defineEventHandler(async (event) => {
   const authHeader = getRequestHeader(event, 'authorization')
   if (authHeader) {
     try {
-      const { createRequire } = await import('node:module')
-      const require = createRequire(import.meta.url)
-      const mod: any = require('@supabase/supabase-js')
-      const client = mod.createClient(
+      const client = createClient(
         String((config.public as any)?.supabaseUrl || ''),
         String((config as any)?.supabaseServiceKey || (config.public as any)?.supabaseAnonKey || ''),
         { global: { headers: { Authorization: authHeader } } }

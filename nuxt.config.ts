@@ -22,6 +22,11 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxt/image'
   ],
+  nitro: {
+    externals: {
+      inline: ['@supabase/supabase-js']
+    }
+  },
   css: ['~/assets/css/tailwind.css'],
   image: {
     domains: ['lh3.googleusercontent.com']
