@@ -423,12 +423,7 @@
                    <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.enterpriseIndustryLabel') }}</label>
                    <select v-model="enterpriseForm.industry" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2 bg-white">
                      <option value="">{{ t('admin.settings.selectPlaceholder') }}</option>
-                     <option value="Restauration & Gastronomie">{{ t('admin.settings.enterpriseIndustryFood') }}</option>
-                     <option value="Vêtements & Accessoires">{{ t('admin.settings.enterpriseIndustryFashion') }}</option>
-                     <option value="Santé & Beauté">{{ t('admin.settings.enterpriseIndustryHealth') }}</option>
-                     <option value="Électronique">{{ t('admin.settings.enterpriseIndustryElectronics') }}</option>
-                     <option value="Services">{{ t('admin.settings.enterpriseIndustryServices') }}</option>
-                     <option value="Autre">{{ t('admin.settings.enterpriseIndustryOther') }}</option>
+                     <option v-for="ind in industries" :key="ind" :value="ind">{{ ind }}</option>
                    </select>
                  </div>
                  
@@ -728,7 +723,8 @@
                   <button
                     type="button"
                     :disabled="subscription?.plan_id === plan.id || checkoutLoadingPlanId === plan.id || !enterpriseId"
-                    class="w-full mt-auto bg-gray-900 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    class="w-full mt-auto px-4 py-2 rounded-lg font-medium flex items-center justify-center gap-2"
+                    :class="subscription?.plan_id === plan.id ? 'bg-green-600 text-white cursor-default' : 'bg-gray-900 text-white hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed'"
                     @click="startCheckout(plan)"
                   >
                       <Loader2 v-if="checkoutLoadingPlanId === plan.id" class="h-4 w-4 animate-spin" />
@@ -768,6 +764,7 @@ import { useAdminStore } from '~/stores/admin'
 import { useI18n } from '~/composables/i18n'
 import { ArrowLeft, Lock, Loader2 } from 'lucide-vue-next'
 import { COUNTRY_DIAL_CODES } from '~/data/countryDialCodes'
+import { industriesFr, industriesEn } from '~/data/industries'
 import PhoneInput from '~/components/PhoneInput.vue'
 
 const { t, locale, supportedLocales, hasKey } = useI18n()
@@ -906,6 +903,8 @@ const form = reactive({
   checkoutEnabled: true,
   isActive: true
 })
+
+const industries = computed(() => (locale.value === 'fr' ? industriesFr : industriesEn))
 
 const enterpriseForm = reactive({
   name: '',
@@ -1117,6 +1116,28 @@ async function saveBillingCustomer() {
 
 async function startCheckout(plan: any) {
   if (!enterpriseId.value || !plan?.id) return
+  
+  if (plan.id === 'free') {
+      checkoutLoadingPlanId.value = String(plan.id)
+      try {
+         const { data: sess } = await supabase.auth.getSession()
+         const token = sess?.session?.access_token ? `Bearer ${sess.session.access_token}` : ''
+         await $fetch('/api/enterprises/subscribe', {
+           method: 'POST',
+           body: { enterpriseId: enterpriseId.value, planId: 'free' },
+           headers: token ? { Authorization: token } : undefined
+         })
+         const { data: sub } = await supabase.from('subscriptions').select('*, plan:subscription_plans(*)').eq('enterprise_id', enterpriseId.value).maybeSingle()
+         subscription.value = sub
+       useToast().success(t('admin.settings.planUpdated') || 'Plan updated')
+    } catch (e: any) {
+       useToast().error('Erreur: ' + e.message)
+    } finally {
+       checkoutLoadingPlanId.value = ''
+    }
+    return
+  }
+
   checkoutLoadingPlanId.value = String(plan.id)
   const toast = useToast()
   try {

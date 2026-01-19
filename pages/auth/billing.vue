@@ -189,6 +189,20 @@ async function ensureEnterprise() {
       useToast().error('Erreur création entreprise')
     } else {
       ent = insData as any
+      // Assign free plan by default for new enterprises
+      if (ent?.id) {
+        try {
+          const { data: sess } = await supabase.auth.getSession()
+          const token = sess?.session?.access_token ? `Bearer ${sess.session.access_token}` : ''
+          await $fetch('/api/enterprises/subscribe', {
+            method: 'POST',
+            body: { enterpriseId: ent.id, planId: 'free' },
+            headers: token ? { Authorization: token } : undefined
+          })
+        } catch (e) {
+          console.error('Failed to assign default free plan', e)
+        }
+      }
     }
   }
   return ent?.id as string | undefined

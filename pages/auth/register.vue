@@ -196,6 +196,7 @@ import { useAdminStore } from '~/stores/admin'
 import { useI18n } from '~/composables/i18n'
 import { useToast } from '~/composables/useToast'
 import { Lock, Clock, CreditCard } from 'lucide-vue-next'
+import { industriesFr, industriesEn } from '~/data/industries'
 
 const store = useAdminStore()
 store.load()
@@ -213,34 +214,6 @@ const animTick = ref(0)
 let animTimer: any
 onMounted(() => { animTimer = setInterval(() => { animTick.value = (animTick.value + 1) % 6 }, 1200) })
 onUnmounted(() => { if (animTimer) clearInterval(animTimer); if (resendTimer) clearInterval(resendTimer) })
-const industriesFr = [
-  'Restauration & Gastronomie',
-  'Épicerie & Supermarché',
-  'Santé & Beauté (Spa, Salon, Gym, etc.)',
-  'Voyage & Location',
-  'Détail & Shopping',
-  'Cadeaux & Artisanat',
-  'Animaux & Toilettage',
-  'Services à domicile (Nettoyage, Réparation, Jardinage, etc.)',
-  'Éducation',
-  'Services Professionnels (Automobile, Légal, Immobilier, etc.)',
-  'B2B',
-  'Autres'
-]
-const industriesEn = [
-  'Food & Dining',
-  'Grocery & Supermarket',
-  'Health & Beauty (Spa, Salon, Gym, etc.)',
-  'Travel & Rental',
-  'Retail & Shopping',
-  'Gifts & Crafts',
-  'Pets & Grooming',
-  'Home Services (Cleaning, Repair, Gardening, etc.)',
-  'Education',
-  'Professional Services (Automotive, Legal, Real Estate, etc.)',
-  'B2B',
-  'Other'
-]
 const industries = computed(() => (locale.value === 'fr' ? industriesFr : industriesEn))
 const goalsFr = [
   'Gérez les livraisons & suivi',
@@ -375,6 +348,20 @@ async function ensureEnterprise() {
       useToast().error('Erreur création entreprise: ' + insErr.message)
     } else {
       ent = insData as any
+      // Assign free plan by default for new enterprises
+      if (ent?.id) {
+        try {
+          const { data: sess } = await supabase.auth.getSession()
+          const token = sess?.session?.access_token ? `Bearer ${sess.session.access_token}` : ''
+          await $fetch('/api/enterprises/subscribe', {
+            method: 'POST',
+            body: { enterpriseId: ent.id, planId: 'free' },
+            headers: token ? { Authorization: token } : undefined
+          })
+        } catch (e) {
+          console.error('Failed to assign default free plan', e)
+        }
+      }
     }
   }
   return ent?.id as string | undefined
