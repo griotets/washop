@@ -1,0 +1,1601 @@
+{
+  "version": "1.0.0",
+  "workflows": [
+    {
+      "id": "main",
+      "name": "Main",
+      "startNodeId": "main_start",
+      "nodes": [
+        {
+          "id": "main_start",
+          "type": "start",
+          "name": "Start",
+          "onEnter": [
+            {
+              "type": "code",
+              "name": "init_session",
+              "config": {
+                "code": "const phone = event?.payload?.user?.phoneNumber || event?.payload?.userId || '';\nif (phone && !session.userPhone) {\n  session.userPhone = phone;\n}\nif (!session.pendingOrderItems) {\n  session.pendingOrderItems = [];\n}"
+              }
+            }
+          ],
+          "transitions": [
+            {
+              "condition": "session.storeSlug != null && session.storeSlug !== ''",
+              "target": "main_menu"
+            },
+            {
+              "condition": "true",
+              "target": "call_detect_store"
+            }
+          ]
+        },
+        {
+          "id": "call_detect_store",
+          "type": "subflow",
+          "name": "Detect Store",
+          "config": {
+            "workflowId": "detect_store"
+          },
+          "transitions": [
+            {
+              "condition": "session.storeSlug != null && session.storeSlug !== ''",
+              "target": "main_menu"
+            }
+          ]
+        },
+        {
+          "id": "main_menu",
+          "type": "standard",
+          "name": "Main Menu",
+          "onEnter": [
+            {
+              "type": "send_message",
+              "name": "menu_message",
+              "config": {
+                "payload": {
+                  "type": "text",
+                  "text": "Bienvenue sur Wa-Shop.\nQue souhaitez-vous faire ?\n1. Découvrir des produits\n2. Passer une nouvelle commande\n3. Suivre une commande existante\n4. Parler au support humain"
+                }
+              }
+            }
+          ],
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "main_menu_capture"
+            }
+          ]
+        },
+        {
+          "id": "main_menu_capture",
+          "type": "capture",
+          "name": "Menu Choice",
+          "config": {
+            "property": "temp.mainMenuChoice",
+            "prompt": {
+              "type": "text",
+              "text": "Répondez par 1, 2, 3 ou 4."
+            }
+          },
+          "transitions": [
+            {
+              "condition": "temp.mainMenuChoice == '1'",
+              "target": "call_browse_products"
+            },
+            {
+              "condition": "temp.mainMenuChoice == '2'",
+              "target": "call_ensure_customer_profile_new_order"
+            },
+            {
+              "condition": "temp.mainMenuChoice == '3'",
+              "target": "call_track_orders"
+            },
+            {
+              "condition": "temp.mainMenuChoice == '4'",
+              "target": "handoff_support"
+            },
+            {
+              "condition": "true",
+              "target": "main_menu"
+            }
+          ]
+        },
+        {
+          "id": "call_browse_products",
+          "type": "subflow",
+          "name": "Browse Products",
+          "config": {
+            "workflowId": "browse_products"
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "main_menu"
+            }
+          ]
+        },
+        {
+          "id": "call_ensure_customer_profile_new_order",
+          "type": "subflow",
+          "name": "Ensure Customer Profile (New Order)",
+          "config": {
+            "workflowId": "ensure_customer_profile"
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "call_build_order"
+            }
+          ]
+        },
+        {
+          "id": "call_build_order",
+          "type": "subflow",
+          "name": "Build Order",
+          "config": {
+            "workflowId": "build_order"
+          },
+          "transitions": [
+            {
+              "condition": "session.pendingOrderItems && session.pendingOrderItems.length > 0",
+              "target": "call_collect_delivery_and_payment"
+            },
+            {
+              "condition": "true",
+              "target": "main_menu"
+            }
+          ]
+        },
+        {
+          "id": "call_collect_delivery_and_payment",
+          "type": "subflow",
+          "name": "Collect Delivery & Payment",
+          "config": {
+            "workflowId": "collect_delivery_and_payment"
+          },
+          "transitions": [
+            {
+              "condition": "temp.orderConfirmed === true",
+              "target": "call_create_order"
+            },
+            {
+              "condition": "true",
+              "target": "main_menu"
+            }
+          ]
+        },
+        {
+          "id": "call_create_order",
+          "type": "subflow",
+          "name": "Create Order",
+          "config": {
+            "workflowId": "create_order"
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "main_menu"
+            }
+          ]
+        },
+        {
+          "id": "call_track_orders",
+          "type": "subflow",
+          "name": "Track Orders",
+          "config": {
+            "workflowId": "track_orders"
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "main_menu"
+            }
+          ]
+        },
+        {
+          "id": "handoff_support",
+          "type": "standard",
+          "name": "Handoff Support",
+          "onEnter": [
+            {
+              "type": "send_message",
+              "name": "support_message",
+              "config": {
+                "payload": {
+                  "type": "text",
+                  "text": "D’accord, je vous redirige vers le support humain de la boutique. Un agent vous répondra dès que possible."
+                }
+              }
+            }
+          ],
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "main_menu"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "detect_store",
+      "name": "Detect Store",
+      "startNodeId": "detect_start",
+      "nodes": [
+        {
+          "id": "detect_start",
+          "type": "start",
+          "name": "Start Detect Store",
+          "onEnter": [
+            {
+              "type": "code",
+              "name": "parse_store_from_message",
+              "config": {
+                "code": "const text = event?.payload?.text || '';\nconst match = text.match(/store:([a-zA-Z0-9\\-_.]+)/);\nif (match && match[1]) {\n  session.storeSlug = match[1];\n}"
+              }
+            }
+          ],
+          "transitions": [
+            {
+              "condition": "session.storeSlug != null && session.storeSlug !== ''",
+              "target": "detect_check_store_exists"
+            },
+            {
+              "condition": "true",
+              "target": "detect_ask_store_name"
+            }
+          ]
+        },
+        {
+          "id": "detect_ask_store_name",
+          "type": "capture",
+          "name": "Ask Store Name",
+          "config": {
+            "property": "temp.storeQuery",
+            "prompt": {
+              "type": "text",
+              "text": "Pour commencer, de quelle boutique parlez-vous ? Donnez le nom de la boutique ou son lien Wa-Shop."
+            }
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "detect_search_store"
+            }
+          ]
+        },
+        {
+          "id": "detect_search_store",
+          "type": "code",
+          "name": "Search Store",
+          "config": {
+            "code": "const baseUrl = process.env.WASHOP_BASE_URL;\nconst query = temp.storeQuery || '';\nconst res = await fetch(`${baseUrl}/api/stores?search=${encodeURIComponent(query)}`);\nconst json = await res.json();\nconst items = json.items || [];\nif (items.length === 1) {\n  session.storeSlug = items[0].slug;\n  session.storeId = items[0].id;\n  temp.storeList = items;\n  temp.storeSearchStatus = 'single';\n} else if (items.length > 1) {\n  temp.storeList = items;\n  temp.storeSearchStatus = 'multiple';\n} else {\n  temp.storeSearchStatus = 'none';\n}"
+          },
+          "transitions": [
+            {
+              "condition": "temp.storeSearchStatus == 'none'",
+              "target": "detect_no_store_found"
+            },
+            {
+              "condition": "temp.storeSearchStatus == 'single'",
+              "target": "detect_confirm_single_store"
+            },
+            {
+              "condition": "temp.storeSearchStatus == 'multiple'",
+              "target": "detect_list_multiple_stores"
+            }
+          ]
+        },
+        {
+          "id": "detect_no_store_found",
+          "type": "standard",
+          "name": "No Store Found",
+          "onEnter": [
+            {
+              "type": "send_message",
+              "name": "no_store_message",
+              "config": {
+                "payload": {
+                  "type": "text",
+                  "text": "Je ne trouve aucune boutique avec ce nom. Pouvez-vous vérifier l’orthographe ou m’envoyer le lien complet de la boutique ?"
+                }
+              }
+            }
+          ],
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "detect_ask_store_name"
+            }
+          ]
+        },
+        {
+          "id": "detect_confirm_single_store",
+          "type": "standard",
+          "name": "Confirm Single Store",
+          "onEnter": [
+            {
+              "type": "send_message",
+              "name": "single_store_message",
+              "config": {
+                "payload": {
+                  "type": "text",
+                  "text": "Parfait, je vous assiste pour la boutique sélectionnée."
+                }
+              }
+            }
+          ],
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "detect_end"
+            }
+          ]
+        },
+        {
+          "id": "detect_list_multiple_stores",
+          "type": "standard",
+          "name": "List Multiple Stores",
+          "onEnter": [
+            {
+              "type": "code",
+              "name": "build_store_list_message",
+              "config": {
+                "code": "const stores = temp.storeList || [];\nlet msg = 'J’ai trouvé plusieurs boutiques, laquelle est la vôtre ?\\n';\nstores.forEach((s, idx) => {\n  msg += `${idx + 1}. ${s.name} (slug: ${s.slug})\\n`;\n});\ntemp.storeListMessage = msg;"
+              }
+            },
+            {
+              "type": "send_message",
+              "name": "send_store_list",
+              "config": {
+                "payload": {
+                  "type": "text",
+                  "text": "{{temp.storeListMessage}}"
+                }
+              }
+            }
+          ],
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "detect_choose_store_index"
+            }
+          ]
+        },
+        {
+          "id": "detect_choose_store_index",
+          "type": "capture",
+          "name": "Choose Store Index",
+          "config": {
+            "property": "temp.storeIndexChoice",
+            "prompt": {
+              "type": "text",
+              "text": "Répondez par le numéro de la boutique."
+            }
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "detect_apply_store_index"
+            }
+          ]
+        },
+        {
+          "id": "detect_apply_store_index",
+          "type": "code",
+          "name": "Apply Store Index",
+          "config": {
+            "code": "const stores = temp.storeList || [];\nconst idx = parseInt(temp.storeIndexChoice, 10) - 1;\nif (!isNaN(idx) && stores[idx]) {\n  const s = stores[idx];\n  session.storeSlug = s.slug;\n  session.storeId = s.id;\n} else {\n  session.storeSlug = null;\n}"
+          },
+          "transitions": [
+            {
+              "condition": "session.storeSlug != null && session.storeSlug !== ''",
+              "target": "detect_confirm_single_store"
+            },
+            {
+              "condition": "true",
+              "target": "detect_no_store_found"
+            }
+          ]
+        },
+        {
+          "id": "detect_check_store_exists",
+          "type": "code",
+          "name": "Check Store Exists",
+          "config": {
+            "code": "const baseUrl = process.env.WASHOP_BASE_URL;\nconst slug = session.storeSlug;\nconst res = await fetch(`${baseUrl}/api/stores/${encodeURIComponent(slug)}`);\nif (!res.ok) {\n  session.storeSlug = null;\n  session.storeId = null;\n} else {\n  const store = await res.json();\n  session.storeId = store.id;\n}"
+          },
+          "transitions": [
+            {
+              "condition": "session.storeSlug != null && session.storeSlug !== ''",
+              "target": "detect_confirm_single_store"
+            },
+            {
+              "condition": "true",
+              "target": "detect_ask_store_name"
+            }
+          ]
+        },
+        {
+          "id": "detect_end",
+          "type": "end",
+          "name": "End Detect Store"
+        }
+      ]
+    },
+    {
+      "id": "ensure_customer_profile",
+      "name": "Ensure Customer Profile",
+      "startNodeId": "cust_start",
+      "nodes": [
+        {
+          "id": "cust_start",
+          "type": "start",
+          "name": "Start Ensure Customer",
+          "onEnter": [
+            {
+              "type": "code",
+              "name": "init_customer",
+              "config": {
+                "code": "/* Rien de spécial ici, on enchaîne */"
+              }
+            }
+          ],
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "cust_check_existing"
+            }
+          ]
+        },
+        {
+          "id": "cust_check_existing",
+          "type": "code",
+          "name": "Check Existing Customer",
+          "config": {
+            "code": "const baseUrl = process.env.WASHOP_BASE_URL;\nconst phone = session.userPhone || '';\nif (!phone) {\n  temp.customerStatus = 'no_phone';\n} else {\n  const res = await fetch(`${baseUrl}/api/customers?phone=${encodeURIComponent(phone)}`);\n  const json = await res.json();\n  const items = json.items || [];\n  const storeId = session.storeId;\n  const found = items.find(c => c.store_id === storeId);\n  if (found) {\n    session.clientId = found.id;\n    session.customerName = found.name;\n    session.customerEmail = found.email || null;\n    session.customerAddress = found.address || null;\n    temp.customerStatus = 'exists';\n  } else {\n    temp.customerStatus = 'new';\n  }\n}"
+          },
+          "transitions": [
+            {
+              "condition": "temp.customerStatus == 'exists'",
+              "target": "cust_known"
+            },
+            {
+              "condition": "temp.customerStatus == 'new' || temp.customerStatus == 'no_phone'",
+              "target": "cust_ask_name"
+            }
+          ]
+        },
+        {
+          "id": "cust_known",
+          "type": "standard",
+          "name": "Customer Known",
+          "onEnter": [
+            {
+              "type": "send_message",
+              "name": "known_message",
+              "config": {
+                "payload": {
+                  "type": "text",
+                  "text": "J’ai retrouvé votre profil client pour cette boutique."
+                }
+              }
+            }
+          ],
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "cust_end"
+            }
+          ]
+        },
+        {
+          "id": "cust_ask_name",
+          "type": "capture",
+          "name": "Ask Name",
+          "config": {
+            "property": "session.customerName",
+            "prompt": {
+              "type": "text",
+              "text": "Je ne trouve pas encore de compte pour ce numéro. Comment vous appelez-vous ?"
+            }
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "cust_ask_email"
+            }
+          ]
+        },
+        {
+          "id": "cust_ask_email",
+          "type": "capture",
+          "name": "Ask Email",
+          "config": {
+            "property": "session.customerEmail",
+            "prompt": {
+              "type": "text",
+              "text": "Quel est votre e-mail ? (Répondez 'aucun' si vous préférez ne pas le donner.)"
+            }
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "cust_process_email"
+            }
+          ]
+        },
+        {
+          "id": "cust_process_email",
+          "type": "code",
+          "name": "Process Email",
+          "config": {
+            "code": "if (session.customerEmail && session.customerEmail.toLowerCase() === 'aucun') {\n  session.customerEmail = null;\n}"
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "cust_ask_address"
+            }
+          ]
+        },
+        {
+          "id": "cust_ask_address",
+          "type": "capture",
+          "name": "Ask Address",
+          "config": {
+            "property": "session.customerAddress",
+            "prompt": {
+              "type": "text",
+              "text": "À quelle ville/quartier êtes-vous généralement livré(e) ?"
+            }
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "cust_create_or_update"
+            }
+          ]
+        },
+        {
+          "id": "cust_create_or_update",
+          "type": "code",
+          "name": "Create Or Update Customer",
+          "config": {
+            "code": "const baseUrl = process.env.WASHOP_BASE_URL;\nconst slug = session.storeSlug;\nconst body = {\n  name: session.customerName,\n  phone: session.userPhone,\n  email: session.customerEmail,\n  address: session.customerAddress\n};\nconst res = await fetch(`${baseUrl}/api/stores/${encodeURIComponent(slug)}/customers`, {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify(body)\n});\nif (!res.ok) {\n  temp.customerCreateError = true;\n} else {\n  const client = await res.json();\n  session.clientId = client.id;\n  temp.customerCreateError = false;\n}"
+          },
+          "transitions": [
+            {
+              "condition": "temp.customerCreateError === true",
+              "target": "cust_error"
+            },
+            {
+              "condition": "true",
+              "target": "cust_created"
+            }
+          ]
+        },
+        {
+          "id": "cust_created",
+          "type": "standard",
+          "name": "Customer Created",
+          "onEnter": [
+            {
+              "type": "send_message",
+              "name": "created_message",
+              "config": {
+                "payload": {
+                  "type": "text",
+                  "text": "Merci, votre profil client a été enregistré pour cette boutique."
+                }
+              }
+            }
+          ],
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "cust_end"
+            }
+          ]
+        },
+        {
+          "id": "cust_error",
+          "type": "standard",
+          "name": "Customer Error",
+          "onEnter": [
+            {
+              "type": "send_message",
+              "name": "cust_error_message",
+              "config": {
+                "payload": {
+                  "type": "text",
+                  "text": "Je n’ai pas pu enregistrer votre profil client pour le moment. Merci de réessayer plus tard ou de contacter la boutique."
+                }
+              }
+            }
+          ],
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "cust_end"
+            }
+          ]
+        },
+        {
+          "id": "cust_end",
+          "type": "end",
+          "name": "End Ensure Customer"
+        }
+      ]
+    },
+    {
+      "id": "browse_products",
+      "name": "Browse Products",
+      "startNodeId": "bp_start",
+      "nodes": [
+        {
+          "id": "bp_start",
+          "type": "start",
+          "name": "Start Browse Products",
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "bp_ask_query"
+            }
+          ]
+        },
+        {
+          "id": "bp_ask_query",
+          "type": "capture",
+          "name": "Ask Product Query",
+          "config": {
+            "property": "session.productQuery",
+            "prompt": {
+              "type": "text",
+              "text": "Quel type de produit cherchez-vous ? (Ex : chemise, robe, téléphone...)"
+            }
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "bp_search_products"
+            }
+          ]
+        },
+        {
+          "id": "bp_search_products",
+          "type": "code",
+          "name": "Search Products",
+          "config": {
+            "code": "const baseUrl = process.env.WASHOP_BASE_URL;\nconst slug = session.storeSlug;\nconst q = session.productQuery || '';\nconst res = await fetch(`${baseUrl}/api/stores/${encodeURIComponent(slug)}/products?search=${encodeURIComponent(q)}&limit=5`);\nconst json = await res.json();\nconst items = json.items || [];\nif (!items.length) {\n  temp.productSearchStatus = 'none';\n} else {\n  temp.productSearchStatus = 'ok';\n  temp.productList = items;\n}"
+          },
+          "transitions": [
+            {
+              "condition": "temp.productSearchStatus == 'none'",
+              "target": "bp_no_products"
+            },
+            {
+              "condition": "true",
+              "target": "bp_show_products"
+            }
+          ]
+        },
+        {
+          "id": "bp_no_products",
+          "type": "standard",
+          "name": "No Products",
+          "onEnter": [
+            {
+              "type": "send_message",
+              "name": "bp_no_products_message",
+              "config": {
+                "payload": {
+                  "type": "text",
+                  "text": "Je n’ai pas trouvé de produit correspondant à votre recherche pour cette boutique. Voulez-vous essayer un autre mot-clé ? (Oui / Non)"
+                }
+              }
+            }
+          ],
+          "transitions": [
+            {
+              "condition": "event.payload.text && event.payload.text.toLowerCase().includes('oui')",
+              "target": "bp_ask_query"
+            },
+            {
+              "condition": "true",
+              "target": "bp_end"
+            }
+          ]
+        },
+        {
+          "id": "bp_show_products",
+          "type": "standard",
+          "name": "Show Products",
+          "onEnter": [
+            {
+              "type": "code",
+              "name": "bp_build_list_message",
+              "config": {
+                "code": "const products = temp.productList || [];\nlet msg = 'Voici quelques produits :\\n';\nproducts.forEach((p, idx) => {\n  msg += `${idx + 1}. ${p.name} - ${p.price} XAF\\n`;\n});\nmsg += '\\nRépondez avec le numéro du produit ou tapez \"autre\" pour une nouvelle recherche.';\ntemp.productListMessage = msg;"
+              }
+            },
+            {
+              "type": "send_message",
+              "name": "bp_send_products",
+              "config": {
+                "payload": {
+                  "type": "text",
+                  "text": "{{temp.productListMessage}}"
+                }
+              }
+            }
+          ],
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "bp_choose_product"
+            }
+          ]
+        },
+        {
+          "id": "bp_choose_product",
+          "type": "capture",
+          "name": "Choose Product",
+          "config": {
+            "property": "temp.productChoice",
+            "prompt": {
+              "type": "text",
+              "text": "Numéro du produit choisi (ou \"autre\")."
+            }
+          },
+          "transitions": [
+            {
+              "condition": "temp.productChoice && temp.productChoice.toLowerCase() === 'autre'",
+              "target": "bp_ask_query"
+            },
+            {
+              "condition": "true",
+              "target": "bp_apply_product_choice"
+            }
+          ]
+        },
+        {
+          "id": "bp_apply_product_choice",
+          "type": "code",
+          "name": "Apply Product Choice",
+          "config": {
+            "code": "const products = temp.productList || [];\nconst idx = parseInt(temp.productChoice, 10) - 1;\nif (!isNaN(idx) && products[idx]) {\n  const p = products[idx];\n  session.selectedProductId = p.id;\n  temp.productChoiceValid = true;\n} else {\n  temp.productChoiceValid = false;\n}"
+          },
+          "transitions": [
+            {
+              "condition": "temp.productChoiceValid === true",
+              "target": "bp_end_with_product"
+            },
+            {
+              "condition": "true",
+              "target": "bp_show_products"
+            }
+          ]
+        },
+        {
+          "id": "bp_end_with_product",
+          "type": "end",
+          "name": "End Browse Products With Product"
+        },
+        {
+          "id": "bp_end",
+          "type": "end",
+          "name": "End Browse Products"
+        }
+      ]
+    },
+    {
+      "id": "build_order",
+      "name": "Build Order",
+      "startNodeId": "bo_start",
+      "nodes": [
+        {
+          "id": "bo_start",
+          "type": "start",
+          "name": "Start Build Order",
+          "transitions": [
+            {
+              "condition": "session.selectedProductId != null",
+              "target": "bo_load_product_detail"
+            },
+            {
+              "condition": "true",
+              "target": "bo_end"
+            }
+          ]
+        },
+        {
+          "id": "bo_load_product_detail",
+          "type": "code",
+          "name": "Load Product Detail",
+          "config": {
+            "code": "const baseUrl = process.env.WASHOP_BASE_URL;\nconst slug = session.storeSlug;\nconst pid = session.selectedProductId;\nconst res = await fetch(`${baseUrl}/api/stores/${encodeURIComponent(slug)}/products/${encodeURIComponent(pid)}`);\nconst json = await res.json();\n temp.currentProduct = json.product;\n temp.currentVariants = json.variants || [];\n temp.currentOptions = json.options || [];"
+          },
+          "transitions": [
+            {
+              "condition": "temp.currentVariants && temp.currentVariants.length > 0",
+              "target": "bo_ask_variant"
+            },
+            {
+              "condition": "true",
+              "target": "bo_handle_options"
+            }
+          ]
+        },
+        {
+          "id": "bo_ask_variant",
+          "type": "standard",
+          "name": "Ask Variant",
+          "onEnter": [
+            {
+              "type": "code",
+              "name": "bo_build_variant_message",
+              "config": {
+                "code": "const variants = temp.currentVariants || [];\nlet msg = 'Choisissez une variante :\\n';\nvariants.forEach((v, idx) => {\n  msg += `${idx + 1}. ${v.name} - ${v.price} XAF\\n`;\n});\ntemp.variantListMessage = msg;"
+              }
+            },
+            {
+              "type": "send_message",
+              "name": "bo_send_variants",
+              "config": {
+                "payload": {
+                  "type": "text",
+                  "text": "{{temp.variantListMessage}}"
+                }
+              }
+            }
+          ],
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "bo_capture_variant"
+            }
+          ]
+        },
+        {
+          "id": "bo_capture_variant",
+          "type": "capture",
+          "name": "Capture Variant",
+          "config": {
+            "property": "temp.variantChoice",
+            "prompt": {
+              "type": "text",
+              "text": "Répondez avec le numéro de la variante."
+            }
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "bo_apply_variant"
+            }
+          ]
+        },
+        {
+          "id": "bo_apply_variant",
+          "type": "code",
+          "name": "Apply Variant",
+          "config": {
+            "code": "const variants = temp.currentVariants || [];\nconst idx = parseInt(temp.variantChoice, 10) - 1;\nif (!isNaN(idx) && variants[idx]) {\n  const v = variants[idx];\n  session.selectedVariantId = v.id;\n  temp.variantValid = true;\n} else {\n  temp.variantValid = false;\n}"
+          },
+          "transitions": [
+            {
+              "condition": "temp.variantValid === true",
+              "target": "bo_handle_options"
+            },
+            {
+              "condition": "true",
+              "target": "bo_ask_variant"
+            }
+          ]
+        },
+        {
+          "id": "bo_handle_options",
+          "type": "code",
+          "name": "Init Options Loop",
+          "config": {
+            "code": "temp.optionIndex = 0;\n temp.collectedOptions = {};"
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "bo_next_option"
+            }
+          ]
+        },
+        {
+          "id": "bo_next_option",
+          "type": "code",
+          "name": "Next Option",
+          "config": {
+            "code": "const opts = temp.currentOptions || [];\nconst idx = temp.optionIndex || 0;\nif (idx >= opts.length) {\n  temp.hasMoreOptions = false;\n} else {\n  temp.hasMoreOptions = true;\n  temp.currentOption = opts[idx];\n}"
+          },
+          "transitions": [
+            {
+              "condition": "temp.hasMoreOptions === true",
+              "target": "bo_ask_option_value"
+            },
+            {
+              "condition": "true",
+              "target": "bo_ask_quantity"
+            }
+          ]
+        },
+        {
+          "id": "bo_ask_option_value",
+          "type": "capture",
+          "name": "Ask Option Value",
+          "config": {
+            "property": "temp.optionValue",
+            "prompt": {
+              "type": "text",
+              "text": "Option {{temp.currentOption.name}} : répondez avec la valeur souhaitée."
+            }
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "bo_save_option_value"
+            }
+          ]
+        },
+        {
+          "id": "bo_save_option_value",
+          "type": "code",
+          "name": "Save Option Value",
+          "config": {
+            "code": "const name = temp.currentOption?.name;\nif (name) {\n  const obj = temp.collectedOptions || {};\n  obj[name] = temp.optionValue;\n  temp.collectedOptions = obj;\n}\n temp.optionIndex = (temp.optionIndex || 0) + 1;"
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "bo_next_option"
+            }
+          ]
+        },
+        {
+          "id": "bo_ask_quantity",
+          "type": "capture",
+          "name": "Ask Quantity",
+          "config": {
+            "property": "temp.selectedQuantity",
+            "prompt": {
+              "type": "text",
+              "text": "Combien d’exemplaires voulez-vous ?"
+            }
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "bo_apply_quantity"
+            }
+          ]
+        },
+        {
+          "id": "bo_apply_quantity",
+          "type": "code",
+          "name": "Apply Quantity",
+          "config": {
+            "code": "const q = parseInt(temp.selectedQuantity, 10);\nif (isNaN(q) || q <= 0) {\n  temp.quantityValid = false;\n} else {\n  temp.quantityValid = true;\n  temp.finalQuantity = q;\n}"
+          },
+          "transitions": [
+            {
+              "condition": "temp.quantityValid === true",
+              "target": "bo_add_item_to_pending"
+            },
+            {
+              "condition": "true",
+              "target": "bo_ask_quantity"
+            }
+          ]
+        },
+        {
+          "id": "bo_add_item_to_pending",
+          "type": "code",
+          "name": "Add Item To Pending",
+          "config": {
+            "code": "const list = session.pendingOrderItems || [];\nconst item = {\n  productId: temp.currentProduct.id,\n  variantId: session.selectedVariantId || null,\n  quantity: temp.finalQuantity,\n  options: temp.collectedOptions || {}\n};\nlist.push(item);\nsession.pendingOrderItems = list;"
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "bo_ask_add_more"
+            }
+          ]
+        },
+        {
+          "id": "bo_ask_add_more",
+          "type": "capture",
+          "name": "Ask Add More",
+          "config": {
+            "property": "temp.addMoreChoice",
+            "prompt": {
+              "type": "text",
+              "text": "Voulez-vous ajouter un autre produit ? (Oui / Non)"
+            }
+          },
+          "transitions": [
+            {
+              "condition": "temp.addMoreChoice && temp.addMoreChoice.toLowerCase().includes('oui')",
+              "target": "bo_end_add_more"
+            },
+            {
+              "condition": "true",
+              "target": "bo_end"
+            }
+          ]
+        },
+        {
+          "id": "bo_end_add_more",
+          "type": "end",
+          "name": "End Build Order Add More"
+        },
+        {
+          "id": "bo_end",
+          "type": "end",
+          "name": "End Build Order"
+        }
+      ]
+    },
+    {
+      "id": "collect_delivery_and_payment",
+      "name": "Collect Delivery & Payment",
+      "startNodeId": "cdp_start",
+      "nodes": [
+        {
+          "id": "cdp_start",
+          "type": "start",
+          "name": "Start Collect D&P",
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "cdp_ask_delivery_method"
+            }
+          ]
+        },
+        {
+          "id": "cdp_ask_delivery_method",
+          "type": "capture",
+          "name": "Ask Delivery Method",
+          "config": {
+            "property": "temp.deliveryMethodChoice",
+            "prompt": {
+              "type": "text",
+              "text": "Comment souhaitez-vous recevoir votre commande ?\n1. Retrait en boutique\n2. Livraison à domicile"
+            }
+          },
+          "transitions": [
+            {
+              "condition": "temp.deliveryMethodChoice == '1'",
+              "target": "cdp_set_pickup"
+            },
+            {
+              "condition": "temp.deliveryMethodChoice == '2'",
+              "target": "cdp_set_delivery"
+            },
+            {
+              "condition": "true",
+              "target": "cdp_ask_delivery_method"
+            }
+          ]
+        },
+        {
+          "id": "cdp_set_pickup",
+          "type": "code",
+          "name": "Set Pickup",
+          "config": {
+            "code": "session.deliveryMethod = 'pickup';"
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "cdp_ask_city"
+            }
+          ]
+        },
+        {
+          "id": "cdp_set_delivery",
+          "type": "code",
+          "name": "Set Delivery",
+          "config": {
+            "code": "session.deliveryMethod = 'delivery';"
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "cdp_ask_city"
+            }
+          ]
+        },
+        {
+          "id": "cdp_ask_city",
+          "type": "capture",
+          "name": "Ask City",
+          "config": {
+            "property": "session.deliveryCity",
+            "prompt": {
+              "type": "text",
+              "text": "Dans quelle ville/quartier souhaitez-vous être livré(e) ou récupérer votre commande ?"
+            }
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "cdp_ask_address"
+            }
+          ]
+        },
+        {
+          "id": "cdp_ask_address",
+          "type": "capture",
+          "name": "Ask Address",
+          "config": {
+            "property": "session.deliveryAddress",
+            "prompt": {
+              "type": "text",
+              "text": "Merci d’indiquer l’adresse complète ou le point de rendez-vous."
+            }
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "cdp_ask_note"
+            }
+          ]
+        },
+        {
+          "id": "cdp_ask_note",
+          "type": "capture",
+          "name": "Ask Note",
+          "config": {
+            "property": "session.deliveryNote",
+            "prompt": {
+              "type": "text",
+              "text": "Avez-vous une note spéciale pour la livraison (code porte, heure préférée, etc.) ? Répondez 'non' si aucune."
+            }
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "cdp_process_note"
+            }
+          ]
+        },
+        {
+          "id": "cdp_process_note",
+          "type": "code",
+          "name": "Process Note",
+          "config": {
+            "code": "if (session.deliveryNote && session.deliveryNote.toLowerCase() === 'non') {\n  session.deliveryNote = null;\n}"
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "cdp_ask_payment_method"
+            }
+          ]
+        },
+        {
+          "id": "cdp_ask_payment_method",
+          "type": "capture",
+          "name": "Ask Payment Method",
+          "config": {
+            "property": "temp.paymentChoice",
+            "prompt": {
+              "type": "text",
+              "text": "Quel mode de paiement préférez-vous ?\n1. Mobile Money\n2. Paiement à la livraison"
+            }
+          },
+          "transitions": [
+            {
+              "condition": "temp.paymentChoice == '1'",
+              "target": "cdp_set_mobile_money"
+            },
+            {
+              "condition": "temp.paymentChoice == '2'",
+              "target": "cdp_set_cash_on_delivery"
+            },
+            {
+              "condition": "true",
+              "target": "cdp_ask_payment_method"
+            }
+          ]
+        },
+        {
+          "id": "cdp_set_mobile_money",
+          "type": "code",
+          "name": "Set Mobile Money",
+          "config": {
+            "code": "session.paymentMethod = 'mobile_money';"
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "cdp_show_summary"
+            }
+          ]
+        },
+        {
+          "id": "cdp_set_cash_on_delivery",
+          "type": "code",
+          "name": "Set Cash On Delivery",
+          "config": {
+            "code": "session.paymentMethod = 'cash_on_delivery';"
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "cdp_show_summary"
+            }
+          ]
+        },
+        {
+          "id": "cdp_show_summary",
+          "type": "standard",
+          "name": "Show Summary",
+          "onEnter": [
+            {
+              "type": "code",
+              "name": "cdp_build_summary",
+              "config": {
+                "code": "const items = session.pendingOrderItems || [];\nlet msg = 'Récapitulatif de votre commande :\\n';\nitems.forEach((i, idx) => {\n  msg += `${idx + 1}. Produit ${i.productId} x${i.quantity}\\n`;\n});\nmsg += `\\nLivraison: ${session.deliveryMethod === 'pickup' ? 'Retrait' : 'Livraison'}\\nVille: ${session.deliveryCity}\\nAdresse: ${session.deliveryAddress}\\n`;\nif (session.deliveryNote) {\n  msg += `Note: ${session.deliveryNote}\\n`;\n}\nmsg += '\\nConfirmez-vous cette commande ? (Oui / Non)';\ntemp.orderSummaryMessage = msg;"
+              }
+            },
+            {
+              "type": "send_message",
+              "name": "cdp_send_summary",
+              "config": {
+                "payload": {
+                  "type": "text",
+                  "text": "{{temp.orderSummaryMessage}}"
+                }
+              }
+            }
+          ],
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "cdp_capture_confirmation"
+            }
+          ]
+        },
+        {
+          "id": "cdp_capture_confirmation",
+          "type": "capture",
+          "name": "Capture Confirmation",
+          "config": {
+            "property": "temp.orderConfirmChoice",
+            "prompt": {
+              "type": "text",
+              "text": "Répondez Oui ou Non."
+            }
+          },
+          "transitions": [
+            {
+              "condition": "temp.orderConfirmChoice && temp.orderConfirmChoice.toLowerCase().includes('oui')",
+              "target": "cdp_confirm_yes"
+            },
+            {
+              "condition": "true",
+              "target": "cdp_confirm_no"
+            }
+          ]
+        },
+        {
+          "id": "cdp_confirm_yes",
+          "type": "code",
+          "name": "Confirm Yes",
+          "config": {
+            "code": "temp.orderConfirmed = true;"
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "cdp_end"
+            }
+          ]
+        },
+        {
+          "id": "cdp_confirm_no",
+          "type": "code",
+          "name": "Confirm No",
+          "config": {
+            "code": "temp.orderConfirmed = false;"
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "cdp_end"
+            }
+          ]
+        },
+        {
+          "id": "cdp_end",
+          "type": "end",
+          "name": "End Collect D&P"
+        }
+      ]
+    },
+    {
+      "id": "create_order",
+      "name": "Create Order",
+      "startNodeId": "co_start",
+      "nodes": [
+        {
+          "id": "co_start",
+          "type": "start",
+          "name": "Start Create Order",
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "co_call_api"
+            }
+          ]
+        },
+        {
+          "id": "co_call_api",
+          "type": "code",
+          "name": "Call Create Order API",
+          "config": {
+            "code": "const baseUrl = process.env.WASHOP_BASE_URL;\nconst slug = session.storeSlug;\nconst body = {\n  customer: {\n    name: session.customerName,\n    phone: session.userPhone,\n    email: session.customerEmail || null\n  },\n  items: session.pendingOrderItems || [],\n  delivery: {\n    method: session.deliveryMethod,\n    city: session.deliveryCity,\n    address: session.deliveryAddress,\n    note: session.deliveryNote || null\n  },\n  paymentMethod: session.paymentMethod || 'mobile_money'\n};\nconst res = await fetch(`${baseUrl}/api/stores/${encodeURIComponent(slug)}/orders`, {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify(body)\n});\nif (!res.ok) {\n  temp.orderCreateError = true;\n} else {\n  const order = await res.json();\n  session.lastOrderId = order.id;\n  temp.orderCreateError = false;\n  temp.createdOrder = order;\n}"
+          },
+          "transitions": [
+            {
+              "condition": "temp.orderCreateError === true",
+              "target": "co_error"
+            },
+            {
+              "condition": "true",
+              "target": "co_success"
+            }
+          ]
+        },
+        {
+          "id": "co_success",
+          "type": "standard",
+          "name": "Order Success",
+          "onEnter": [
+            {
+              "type": "send_message",
+              "name": "co_success_message",
+              "config": {
+                "payload": {
+                  "type": "text",
+                  "text": "Votre commande a été créée avec succès ! Merci pour votre achat."
+                }
+              }
+            },
+            {
+              "type": "code",
+              "name": "co_clear_pending",
+              "config": {
+                "code": "session.pendingOrderItems = [];"
+              }
+            }
+          ],
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "co_end"
+            }
+          ]
+        },
+        {
+          "id": "co_error",
+          "type": "standard",
+          "name": "Order Error",
+          "onEnter": [
+            {
+              "type": "send_message",
+              "name": "co_error_message",
+              "config": {
+                "payload": {
+                  "type": "text",
+                  "text": "Je n’ai pas pu créer votre commande pour le moment. Merci de réessayer plus tard ou de contacter la boutique."
+                }
+              }
+            }
+          ],
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "co_end"
+            }
+          ]
+        },
+        {
+          "id": "co_end",
+          "type": "end",
+          "name": "End Create Order"
+        }
+      ]
+    },
+    {
+      "id": "track_orders",
+      "name": "Track Orders",
+      "startNodeId": "to_start",
+      "nodes": [
+        {
+          "id": "to_start",
+          "type": "start",
+          "name": "Start Track Orders",
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "to_fetch_recent"
+            }
+          ]
+        },
+        {
+          "id": "to_fetch_recent",
+          "type": "code",
+          "name": "Fetch Recent Orders",
+          "config": {
+            "code": "const baseUrl = process.env.WASHOP_BASE_URL;\nconst slug = session.storeSlug;\nconst phone = session.userPhone || '';\nconst res = await fetch(`${baseUrl}/api/stores/${encodeURIComponent(slug)}/orders?phone=${encodeURIComponent(phone)}&limit=3`);\nconst json = await res.json();\nconst items = json.items || [];\nif (!items.length) {\n  temp.hasOrders = false;\n} else {\n  temp.hasOrders = true;\n  temp.orderList = items;\n}"
+          },
+          "transitions": [
+            {
+              "condition": "temp.hasOrders === false",
+              "target": "to_no_orders"
+            },
+            {
+              "condition": "true",
+              "target": "to_show_orders"
+            }
+          ]
+        },
+        {
+          "id": "to_no_orders",
+          "type": "standard",
+          "name": "No Orders",
+          "onEnter": [
+            {
+              "type": "send_message",
+              "name": "to_no_orders_message",
+              "config": {
+                "payload": {
+                  "type": "text",
+                  "text": "Je ne trouve aucune commande récente pour cette boutique avec ce numéro. Voulez-vous que je vous aide à passer une nouvelle commande ?"
+                }
+              }
+            }
+          ],
+          "transitions": [
+            {
+              "condition": "event.payload.text && event.payload.text.toLowerCase().includes('oui')",
+              "target": "to_end"
+            },
+            {
+              "condition": "true",
+              "target": "to_end"
+            }
+          ]
+        },
+        {
+          "id": "to_show_orders",
+          "type": "standard",
+          "name": "Show Orders",
+          "onEnter": [
+            {
+              "type": "code",
+              "name": "to_build_orders_message",
+              "config": {
+                "code": "const orders = temp.orderList || [];\nlet msg = 'Voici vos dernières commandes :\\n';\norders.forEach((o, idx) => {\n  msg += `${idx + 1}. ${String(o.id).slice(0,8)} - ${o.status} - ${o.total_amount} XAF\\n`;\n});\nmsg += '\\nRépondez avec le numéro pour voir le détail, ou \"non\".';\ntemp.orderListMessage = msg;"
+              }
+            },
+            {
+              "type": "send_message",
+              "name": "to_send_orders",
+              "config": {
+                "payload": {
+                  "type": "text",
+                  "text": "{{temp.orderListMessage}}"
+                }
+              }
+            }
+          ],
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "to_capture_order_choice"
+            }
+          ]
+        },
+        {
+          "id": "to_capture_order_choice",
+          "type": "capture",
+          "name": "Capture Order Choice",
+          "config": {
+            "property": "temp.orderChoice",
+            "prompt": {
+              "type": "text",
+              "text": "Votre choix (numéro ou \"non\")."
+            }
+          },
+          "transitions": [
+            {
+              "condition": "temp.orderChoice && temp.orderChoice.toLowerCase().includes('non')",
+              "target": "to_end"
+            },
+            {
+              "condition": "true",
+              "target": "to_apply_order_choice"
+            }
+          ]
+        },
+        {
+          "id": "to_apply_order_choice",
+          "type": "code",
+          "name": "Apply Order Choice",
+          "config": {
+            "code": "const orders = temp.orderList || [];\nconst idx = parseInt(temp.orderChoice, 10) - 1;\nif (!isNaN(idx) && orders[idx]) {\n  temp.selectedOrderId = orders[idx].id;\n  temp.orderChoiceValid = true;\n} else {\n  temp.orderChoiceValid = false;\n}"
+          },
+          "transitions": [
+            {
+              "condition": "temp.orderChoiceValid === true",
+              "target": "to_fetch_order_detail"
+            },
+            {
+              "condition": "true",
+              "target": "to_show_orders"
+            }
+          ]
+        },
+        {
+          "id": "to_fetch_order_detail",
+          "type": "code",
+          "name": "Fetch Order Detail",
+          "config": {
+            "code": "const baseUrl = process.env.WASHOP_BASE_URL;\nconst slug = session.storeSlug;\nconst oid = temp.selectedOrderId;\nconst res = await fetch(`${baseUrl}/api/stores/${encodeURIComponent(slug)}/orders/${encodeURIComponent(oid)}`);\nconst order = await res.json();\n temp.orderDetail = order;"
+          },
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "to_show_order_detail"
+            }
+          ]
+        },
+        {
+          "id": "to_show_order_detail",
+          "type": "standard",
+          "name": "Show Order Detail",
+          "onEnter": [
+            {
+              "type": "code",
+              "name": "to_build_detail_message",
+              "config": {
+                "code": "const o = temp.orderDetail || {};\nconst items = o.items || [];\nlet msg = `Détail de la commande ${String(o.id).slice(0,8)}:\\n`;\nmsg += `Statut: ${o.status}\\nTotal: ${o.total_amount} XAF\\n`; \nif (o.delivery_address) {\n  msg += `Adresse: ${o.delivery_address}\\n`;\n}\nmsg += '\\nArticles :\\n';\nitems.forEach((i, idx) => {\n  msg += `${idx + 1}. ${i.product_name} x${i.quantity} - ${i.unit_price} XAF\\n`;\n});\ntemp.orderDetailMessage = msg;"
+              }
+            },
+            {
+              "type": "send_message",
+              "name": "to_send_detail",
+              "config": {
+                "payload": {
+                  "type": "text",
+                  "text": "{{temp.orderDetailMessage}}"
+                }
+              }
+            }
+          ],
+          "transitions": [
+            {
+              "condition": "true",
+              "target": "to_end"
+            }
+          ]
+        },
+        {
+          "id": "to_end",
+          "type": "end",
+          "name": "End Track Orders"
+        }
+      ]
+    }
+  ]
+}

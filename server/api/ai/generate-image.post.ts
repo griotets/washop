@@ -19,9 +19,10 @@ export default defineEventHandler(async (event) => {
 
     return { imageUrl: dataUrl }
   } catch (e: any) {
+    console.error('Generate Image Error:', e)
     throw createError({
-      statusCode: 500,
-      statusMessage: e.message
+      statusCode: e.statusCode || 500,
+      statusMessage: e.statusMessage || e.message || 'Internal Server Error'
     })
   }
 })

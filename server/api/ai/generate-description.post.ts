@@ -27,9 +27,10 @@ Format de réponse : Uniquement le texte de la description, sans introduction ni
 
     return { description: text.trim() }
   } catch (e: any) {
+    console.error('Generate Description Error:', e)
     throw createError({
-      statusCode: 500,
-      statusMessage: e.message
+      statusCode: e.statusCode || 500,
+      statusMessage: e.statusMessage || e.message || 'Internal Server Error'
     })
   }
 })

@@ -91,9 +91,10 @@ JSON :`
     }
 
   } catch (e: any) {
+    console.error('Analyze URL Error:', e)
     throw createError({
-      statusCode: 500,
-      statusMessage: e.message
+      statusCode: e.statusCode || 500,
+      statusMessage: e.statusMessage || e.message || 'Internal Server Error'
     })
   }
 })
