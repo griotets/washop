@@ -4,6 +4,10 @@
       <h1 class="text-2xl font-bold">{{ t('admin.productEdit.title') }}</h1>
       <div class="flex items-center gap-2">
         <NuxtLink to="/admin/products" class="rounded-lg border bg-white px-3 py-2 text-sm">{{ t('admin.productForm.backToList') }}</NuxtLink>
+        <NuxtLink :to="`/admin/products/view/${route.params.id}`" class="rounded-lg border bg-blue-50 text-blue-700 border-blue-200 px-3 py-2 text-sm font-medium hover:bg-blue-100">
+          <Wand2 class="h-4 w-4 inline-block mr-1" />
+          {{ t('admin.productPage.viewDetail') }}
+        </NuxtLink>
         <button class="rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white" :disabled="saving || !isValid" @click="save">{{ saving ? t('common.saving') : t('admin.productForm.save') }}</button>
         <button class="rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white" :disabled="deleting" @click="remove">{{ deleting ? t('admin.productForm.deleting') : t('admin.productForm.delete') }}</button>
       </div>
@@ -233,7 +237,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
 import { useI18n } from '~/composables/i18n'
-import { Plus, Trash, Upload, X, Copy } from 'lucide-vue-next'
+import { Plus, Trash, Upload, X, Copy, Wand2, Download, Check } from 'lucide-vue-next'
 definePageMeta({ layout: 'admin', alias: ['/admin/product/:id'] })
 const route = useRoute()
 const id = computed(() => String(route.params.id || ''))
@@ -350,6 +354,7 @@ const isValid = computed(() => {
   const nameOk = !!(form.name && String(form.name).trim())
   return nameOk && !priceError.value && !stockError.value
 })
+
 onMounted(async () => {
   const storeId = admin.selectedShopId
   if (!storeId) return navigateTo('/admin/stores/create')

@@ -134,6 +134,9 @@
                   >
                     {{ p.is_visible ? t('admin.productsPage.visible') : t('admin.productsPage.hidden') }}
                   </button>
+                  <NuxtLink :to="`/admin/products/view/${p.id}`" class="rounded border px-2 py-1 text-xs bg-indigo-50 text-indigo-600 border-indigo-200" :title="t('admin.productForm.adGeneratorTitle')">
+                    <Wand2 class="h-3 w-3" />
+                  </NuxtLink>
                   <NuxtLink :to="`/admin/products/${p.id}`" class="rounded border px-2 py-1 text-xs">
                     {{ t('admin.productsPage.edit') }}
                   </NuxtLink>
@@ -428,7 +431,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
 import { useI18n } from '~/composables/i18n'
-import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, Lock, AlertTriangle, Upload, Globe, X, Download, Info, Check } from 'lucide-vue-next'
+import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, Lock, AlertTriangle, Upload, Globe, X, Download, Info, Check, Wand2 } from 'lucide-vue-next'
 definePageMeta({ layout: 'admin' })
 const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
