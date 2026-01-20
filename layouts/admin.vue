@@ -113,12 +113,7 @@
               <span>{{ t('admin.website') }}</span>
             </NuxtLink>
 
-            <NuxtLink to="/admin/whatsapp"
-              class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
-              :class="route.path.startsWith('/admin/whatsapp') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
-              <MessageCircle class="h-4 w-4" />
-              <span>{{ t('admin.whatsapp') }}</span>
-            </NuxtLink>
+
           </div>
         </nav>
 
@@ -411,12 +406,7 @@
               <span>{{ t('admin.website') }}</span>
             </NuxtLink>
 
-            <NuxtLink to="/admin/whatsapp"
-              class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
-              :class="route.path.startsWith('/admin/whatsapp') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
-              <MessageCircle class="h-4 w-4" />
-              <span>{{ t('admin.whatsapp') }}</span>
-            </NuxtLink>
+
           </div>
         </nav>
 
