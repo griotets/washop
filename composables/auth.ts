@@ -43,7 +43,12 @@ export function useAuth() {
         toast.error('Adresse email requise')
         return { error: error.value }
       }
-      const { error: e } = await supabase.auth.signInWithOtp({ email: identifier, options: { shouldCreateUser: true } })
+      
+      const otpPromise = supabase.auth.signInWithOtp({ email: identifier, options: { shouldCreateUser: true } })
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out after 30s')), 30000))
+      
+      const { error: e } = await Promise.race([otpPromise, timeoutPromise]) as any
+      
       if (e) {
         console.error('Send OTP error:', e)
         toast.error(e.message)
@@ -144,7 +149,12 @@ export function useAuth() {
       toast.error('Email requis')
       return { user: null, error: error.value }
     }
-    const { data, error: e } = await supabase.auth.signUp({ email: identifier, password } as any)
+    
+    const signUpPromise = supabase.auth.signUp({ email: identifier, password } as any)
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out after 30s')), 30000))
+    
+    const { data, error: e } = await Promise.race([signUpPromise, timeoutPromise]) as any
+    
     loading.value = false
     if (e) {
       console.error(e)
@@ -163,7 +173,19 @@ export function useAuth() {
       loading.value = false
       return { error: 'Supabase client not initialized' }
     }
-    const { error: e } = await supabase.auth.signOut()
+    
+    const signOutPromise = supabase.auth.signOut()
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('SignOut timed out')), 5000))
+    
+    let e = null
+    try {
+      const res = await Promise.race([signOutPromise, timeoutPromise]) as any
+      e = res?.error
+    } catch (err) {
+      console.error(err)
+      e = { message: 'Déconnexion lente ou échouée' }
+    }
+    
     loading.value = false
     if (e) {
       console.error(e)

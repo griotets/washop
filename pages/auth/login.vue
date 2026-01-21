@@ -175,7 +175,13 @@ onMounted(async () => {
   const { data } = await supabase.auth.getSession()
   if (data?.session) {
     console.log('[Login] Clearing existing session')
-    await supabase.auth.signOut()
+    const signOutPromise = supabase.auth.signOut()
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('SignOut timed out')), 5000))
+    try {
+      await Promise.race([signOutPromise, timeoutPromise])
+    } catch (e) {
+      console.warn('[Login] SignOut timeout or error:', e)
+    }
   }
 })
 

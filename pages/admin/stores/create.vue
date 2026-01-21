@@ -56,7 +56,8 @@
             </div>
           </div>
 
-          <button :disabled="!isValid || creating" type="submit" class="rounded-lg bg-primary px-5 py-2 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">
+          <button :disabled="!isValid || creating" type="submit" class="rounded-lg bg-primary px-5 py-2 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 flex items-center gap-2">
+            <span v-if="creating" class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
             {{ creating ? t('common.sending') : t('create.create') }}
           </button>
         </form>
@@ -107,6 +108,7 @@
 
 <script setup lang="ts">
 import { useI18n } from '~/composables/i18n'
+import { useToast } from '~/composables/useToast'
 import PhoneInput from '~/components/PhoneInput.vue'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
@@ -116,12 +118,10 @@ const colors = ['#111827', '#ef4444', '#f59e0b', '#10b981', '#06b6d4', '#3b82f6'
 const form = reactive({ name: '', phoneFull: '', slug: '', color: colors[0], logoUrl: '' })
 const canCreate = ref(true)
 const limitReachedMsg = ref('')
-const baseDomain = computed(() => {
-  if (process.client) return window.location.hostname || 'wa-shop.cm'
-  return 'wa-shop.cm'
-})
+const baseDomain = ref('wa-shop.cm')
 
 onMounted(async () => {
+  baseDomain.value = window.location.hostname || 'wa-shop.cm'
   const nuxt = useNuxtApp()
   const supabase = nuxt.$supabase as SupabaseClient
   const { data } = await supabase.auth.getUser()
@@ -213,6 +213,7 @@ async function submit() {
     if (error) {
       createError.value = error.message
       console.error(error.message)
+      useToast().error(error.message)
       return
     }
     if (created?.id) admin.selectShop(String(created.id))
