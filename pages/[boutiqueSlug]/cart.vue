@@ -23,7 +23,12 @@
 
       <!-- Step 1: Cart -->
       <div v-if="step === 1">
-        <h1 class="text-2xl font-bold">{{ t('checkout.cartTitle') }}</h1>
+        <div class="flex items-center justify-between">
+          <h1 class="text-2xl font-bold">{{ t('checkout.cartTitle') }}</h1>
+          <NuxtLink v-if="cart.items.length > 0" :to="`/${slug}`" class="text-sm font-medium text-primary hover:underline">
+            {{ t('checkout.backToStore') }}
+          </NuxtLink>
+        </div>
         
         <div v-if="cart.items.length === 0" class="mt-8 text-center">
           <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
