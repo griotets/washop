@@ -37,9 +37,39 @@
           <section class="space-y-6">
             <h3 class="font-semibold text-lg border-b pb-2">{{ t('admin.settings.profileTitle') }}</h3>
             
+            <!-- Logo Upload -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('admin.settings.logoLabel') || 'Logo de la boutique' }}</label>
+              <div class="flex items-center gap-4">
+                <div class="relative h-20 w-20 overflow-hidden rounded-full border bg-gray-100">
+                  <img v-if="previewLogoUrl || form.logoUrl" :src="previewLogoUrl || form.logoUrl" alt="Logo" class="h-full w-full object-cover" />
+                  <div v-else class="flex h-full w-full items-center justify-center text-gray-400">
+                    <Camera class="h-8 w-8" />
+                  </div>
+                </div>
+                <div>
+                  <input type="file" id="logo-upload" accept="image/*" class="hidden" @change="onLogoSelected" />
+                  <label for="logo-upload" class="cursor-pointer inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                    <Upload class="h-4 w-4" />
+                    {{ t('admin.settings.uploadLogo') || 'Changer le logo' }}
+                  </label>
+                  <p class="mt-1 text-xs text-gray-500">{{ t('admin.settings.logoHint') || 'JPG, PNG ou GIF. Max 2MB.' }}</p>
+                </div>
+              </div>
+            </div>
+
             <div>
               <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.nameLabel') }}</label>
               <input v-model="form.name" type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2" />
+            </div>
+
+            <!-- Brand Color -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700">{{ t('admin.settings.brandColorLabel') || 'Couleur de la marque' }}</label>
+              <div class="mt-1 flex items-center gap-3">
+                <input v-model="form.color" type="color" class="h-10 w-20 cursor-pointer rounded border border-gray-300 p-1" />
+                <input v-model="form.color" type="text" class="block w-32 rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2 uppercase" maxlength="7" />
+              </div>
             </div>
 
             <div>
@@ -762,7 +792,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
 import { useI18n } from '~/composables/i18n'
-import { ArrowLeft, Lock, Loader2 } from 'lucide-vue-next'
+import { ArrowLeft, Lock, Loader2, Upload, Camera } from 'lucide-vue-next'
 import { COUNTRY_DIAL_CODES } from '~/data/countryDialCodes'
 import { industriesFr, industriesEn } from '~/data/industries'
 import PhoneInput from '~/components/PhoneInput.vue'
@@ -882,6 +912,8 @@ watch(() => locale.value, () => {
 const form = reactive({
   name: '',
   description: '',
+  logoUrl: '',
+  color: '#000000',
   currency: 'XAF',
   slug: '',
   email: '',
@@ -1242,6 +1274,25 @@ const disableStoreComputed = computed({
   set: (val) => { form.isActive = !val }
 })
 
+const logoFile = ref<File | null>(null)
+const previewLogoUrl = ref<string | null>(null)
+
+function onLogoSelected(event: Event) {
+  const input = event.target as HTMLInputElement
+  if (input.files && input.files[0]) {
+    const file = input.files[0]
+    
+    // Validate size (e.g. 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      useToast().error(t('admin.settings.logoSizeError') || 'L\'image doit faire moins de 2MB')
+      return
+    }
+    
+    logoFile.value = file
+    previewLogoUrl.value = URL.createObjectURL(file)
+  }
+}
+
 onMounted(async () => {
   const queryEnterpriseId = typeof route.query.enterpriseId === 'string' ? route.query.enterpriseId : ''
 
@@ -1252,6 +1303,8 @@ onMounted(async () => {
     if (data) {
       form.name = data.name || ''
       form.description = data.description || ''
+      form.logoUrl = data.image_url || ''
+      form.color = data.color || '#000000'
       form.currency = data.currency || 'XAF'
       form.slug = data.slug || ''
       originalSlug.value = data.slug || ''
@@ -1333,10 +1386,41 @@ async function save() {
   const toast = useToast()
   
   try {
+    let logoUrl = form.logoUrl
+
+    if (logoFile.value) {
+      const fileExt = logoFile.value.name.split('.').pop()
+      const fileName = `${storeId}-${Date.now()}.${fileExt}`
+      const cfg = useRuntimeConfig()
+      const bucket = String((cfg.public as any)?.supabaseStorageBucket || 'product-images')
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from(bucket)
+        .upload(fileName, logoFile.value, {
+          cacheControl: '3600',
+          upsert: false
+        })
+
+      if (uploadError) {
+         // If bucket doesn't exist, try 'public' or fail gracefully?
+         console.error('Upload error:', uploadError)
+         // Fallback to 'avatars' maybe?
+         // For now, throw error to let user know
+         throw new Error('Erreur upload logo: ' + uploadError.message)
+      }
+      
+      const { data: { publicUrl } } = supabase.storage
+        .from(bucket)
+        .getPublicUrl(fileName)
+        
+      logoUrl = publicUrl
+    }
+
     const updates: any = {
       name: form.name,
       slug: form.slug,
-      phone: form.phone
+      phone: form.phone,
+      image_url: logoUrl,
+      color: form.color
     }
     
     updates.description = form.description

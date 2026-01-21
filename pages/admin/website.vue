@@ -288,14 +288,16 @@ async function handleLogoUpload(event: Event) {
 
   try {
     saving.value = true
+    const cfg = useRuntimeConfig()
+    const bucket = String((cfg.public as any)?.supabaseStorageBucket || 'product-images')
     const { data, error } = await supabase.storage
-      .from('store-images')
+      .from(bucket)
       .upload(fileName, file, { upsert: true })
 
     if (error) throw error
 
     const { data: publicUrl } = supabase.storage
-      .from('store-images')
+      .from(bucket)
       .getPublicUrl(fileName)
 
     form.image_url = publicUrl.publicUrl

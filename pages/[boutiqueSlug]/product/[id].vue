@@ -2,6 +2,12 @@
   <div>
     <CatalogHeader :store="store" />
     <main class="mx-auto max-w-6xl px-4 py-8">
+      <div class="mb-6">
+        <NuxtLink :to="`/${slug}`" class="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-primary transition-colors">
+          <ArrowLeft class="h-4 w-4" />
+          {{ t('checkout.backToStore') }}
+        </NuxtLink>
+      </div>
       <div class="grid gap-8 lg:grid-cols-2">
         <div>
           <div class="relative overflow-hidden rounded-xl border bg-white">

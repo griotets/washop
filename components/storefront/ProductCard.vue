@@ -11,13 +11,13 @@
       />
       
       <!-- Availability / Cart Controls -->
-      <div v-if="available" class="absolute top-2 right-2 transition-opacity" :class="cartQuantity > 0 ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'">
+      <div v-if="available || cartQuantity > 0" class="absolute top-2 right-2 transition-opacity z-20" :class="cartQuantity > 0 ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'">
         <div v-if="cartQuantity > 0" class="flex items-center gap-2 rounded-full bg-white p-1 shadow">
-          <button @click.prevent="updateQuantity(-1)" class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200">-</button>
+          <button @click.prevent.stop="updateQuantity(-1)" class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200">-</button>
           <span class="text-sm font-semibold">{{ cartQuantity }}</span>
-          <button @click.prevent="updateQuantity(1)" class="flex h-6 w-6 items-center justify-center rounded-full text-white hover:brightness-110" :style="{ backgroundColor: primaryColor }">+</button>
+          <button @click.prevent.stop="updateQuantity(1)" class="flex h-6 w-6 items-center justify-center rounded-full text-white hover:brightness-110" :style="{ backgroundColor: primaryColor, opacity: available ? 1 : 0.5, cursor: available ? 'pointer' : 'not-allowed' }" :disabled="!available">+</button>
         </div>
-        <button v-else @click.prevent="addToCart" class="p-2 rounded-full bg-white shadow text-gray-900 hover:text-primary transition-colors" :title="t('storefront.addToCartTitle')">
+        <button v-else-if="available" @click.prevent.stop="addToCart" class="p-2 rounded-full bg-white shadow text-gray-900 hover:text-primary transition-colors" :title="t('storefront.addToCartTitle')">
           <ShoppingCart class="h-5 w-5" />
         </button>
       </div>
@@ -36,7 +36,7 @@
           {{ product.description }}
         </p>
         <button 
-          v-if="product.description && product.description.length > 60" 
+          v-if="product.description && product.description.length > 80" 
           @click.prevent.stop="expanded = !expanded" 
           class="mt-1 text-xs font-medium hover:underline focus:outline-none"
           :style="{ color: primaryColor }"

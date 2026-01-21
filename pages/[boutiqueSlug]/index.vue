@@ -238,8 +238,10 @@ const popupLink = computed(() => appearance.popupLink || '')
 
 // Methods
 function getCartQuantity(productId: string | number) {
-  const item = cart.items.find(i => i.id === String(productId))
-  return item ? item.quantity : 0
+  const pid = String(productId)
+  return cart.items
+    .filter(i => i.id === pid || i.id.startsWith(pid + '|') || i.productId === pid)
+    .reduce((sum, i) => sum + i.quantity, 0)
 }
 
 function getProductImage(product: any) {
@@ -271,41 +273,73 @@ function scrollToCategory(catId: string) {
 }
 
 function handleUpdateQuantity(product: any, delta: number) {
-  const currentQty = getCartQuantity(product.id)
-  const newQty = currentQty + delta
-  const maxQty = Number(product.max_order_quantity || product.max_order_qty || 0)
-  const minQty = Number(product.min_order_quantity || product.min_order_qty || 0)
+  const pid = String(product.id)
+  const totalQty = getCartQuantity(product.id)
   
-  if (newQty < 0) return
+  // New Total Calculation for Check
+  const newTotalQty = totalQty + delta
+  const maxQty = Number(product.max_order_quantity || product.max_order_qty || 0)
+  
+  if (newTotalQty < 0) return
 
-  // Check Max Order Qty
-  if (maxQty > 0 && newQty > maxQty) {
+  // Check Max Order Qty (Global for product)
+  if (maxQty > 0 && newTotalQty > maxQty) {
     const toast = useToast()
     toast.error(t('storefront.maxQtyError', { max: maxQty }))
     return
   }
 
-  // Check Stock
-  if (product.track_inventory && newQty > product.stock_quantity) {
+  // Check Stock (Global)
+  // Note: This is a loose check. Variants might have their own stock.
+  // But for catalog "quick add", we check base product stock or sum?
+  // If track_inventory is true on product, it usually means base stock.
+  // If variants track inventory, product.track_inventory might be false or true depending on setup.
+  // We'll trust the product level check for now, but it might be inaccurate for variants.
+  if (product.track_inventory && newTotalQty > product.stock_quantity) {
     const toast = useToast()
     toast.error(t('storefront.stockError', { max: product.stock_quantity }))
     return
   }
   
-  if (currentQty === 0 && delta > 0) {
-    cart.add({
-      id: String(product.id),
-      name: product.name,
-      price: product.price,
-      image: getProductImage(product)
-    })
-    if (minQty > 1) {
-      cart.setQuantity(String(product.id), minQty)
-      const toast = useToast()
-      toast.error(t('storefront.minQtyError', { min: minQty }))
+  // Find Base Item (exact match)
+  const baseItem = cart.items.find(i => i.id === pid)
+  const baseQty = baseItem ? baseItem.quantity : 0
+
+  if (delta > 0) {
+    // ADDING
+    if (baseItem) {
+      cart.setQuantity(pid, baseQty + delta)
+    } else {
+      // Create new base item
+      cart.add({
+        id: pid,
+        productId: pid,
+        name: product.name,
+        price: product.price,
+        image: getProductImage(product)
+      })
+      const pMin = Number(product.min_order_quantity || product.min_order_qty || 0)
+      const minQty = pMin > 0 ? pMin : 1
+      if (minQty > 1) {
+        // If we just added 1 (via add), set to minQty
+        cart.setQuantity(pid, minQty)
+        const toast = useToast()
+        toast.error(t('storefront.minQtyError', { min: minQty }))
+      }
     }
   } else {
-    cart.setQuantity(String(product.id), newQty)
+    // REMOVING
+    if (baseQty > 0) {
+      // We can remove from base item
+      // Ensure we don't go below 0 (handled by setQuantity logic usually, but let's be safe)
+      const target = baseQty + delta
+      cart.setQuantity(pid, target)
+    } else {
+      // No base item to remove from, but totalQty > 0 implies variants exist.
+      const toast = useToast()
+      // Fallback message since we don't have a specific key for this edge case
+      toast.info("Veuillez modifier les variantes directement dans le panier")
+    }
   }
 }
 
