@@ -57,7 +57,7 @@
               <div class="text-sm font-medium text-primary">{{ formatMoney(item.price) }}</div>
             </div>
             <div class="flex items-center gap-3 rounded-lg bg-gray-50 p-1">
-              <button class="h-7 w-7 rounded bg-white shadow-sm hover:bg-gray-100 disabled:opacity-50" @click="updateItemQty(item, -1)" :disabled="item.quantity <= 1">
+              <button class="h-7 w-7 rounded bg-white shadow-sm hover:bg-gray-100 disabled:opacity-50" @click="updateItemQty(item, -1)">
                 -
               </button>
               <span class="w-4 text-center text-sm font-medium">{{ item.quantity }}</span>
@@ -65,8 +65,9 @@
                 +
               </button>
             </div>
-            <button class="text-red-500 hover:text-red-700" @click="cart.remove(item.id)">
+            <button class="flex items-center gap-1 text-red-500 hover:text-red-700" @click="cart.remove(item.id)" :title="t('common.remove')">
               <Trash2 class="h-5 w-5" />
+              <span class="hidden sm:inline text-sm font-medium">{{ t('common.remove') }}</span>
             </button>
           </div>
         </div>
