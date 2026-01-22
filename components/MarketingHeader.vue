@@ -28,43 +28,43 @@
               <div>
                 <div class="text-sm font-semibold text-gray-500">{{ t('nav.group.food') }}</div>
                 <div class="mt-2 flex flex-col">
-                  <NuxtLink to="/industry/restaurants" class="rounded px-2 py-1 hover:bg-gray-100">Restaurants</NuxtLink>
-                  <NuxtLink to="/industry/cafes" class="rounded px-2 py-1 hover:bg-gray-100">Cafes</NuxtLink>
-                  <NuxtLink to="/industry/home-based-food-business" class="rounded px-2 py-1 hover:bg-gray-100">Home-Based Food Business</NuxtLink>
-                  <NuxtLink to="/industry/bakery-pastry" class="rounded px-2 py-1 hover:bg-gray-100">Bakery & Pastry</NuxtLink>
-                  <NuxtLink to="/industry/catering-meal-subscription" class="rounded px-2 py-1 hover:bg-gray-100">Catering & Meal Subscription</NuxtLink>
-                  <NuxtLink to="/industry/hotel-bars-restaurants" class="rounded px-2 py-1 hover:bg-gray-100">Hotel Bars & Restaurants</NuxtLink>
-                  <NuxtLink to="/industry/grocer-butcher" class="rounded px-2 py-1 hover:bg-gray-100">Grocer & Butcher</NuxtLink>
-                  <NuxtLink to="/industry/b2b-wholesale" class="rounded px-2 py-1 hover:bg-gray-100">B2B and Wholesale</NuxtLink>
+                  <NuxtLink to="/industry/restaurants" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.restaurants') }}</NuxtLink>
+                  <NuxtLink to="/industry/cafes" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.cafes') }}</NuxtLink>
+                  <NuxtLink to="/industry/home-based-food-business" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.homeBasedFood') }}</NuxtLink>
+                  <NuxtLink to="/industry/bakery-pastry" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.bakery') }}</NuxtLink>
+                  <NuxtLink to="/industry/catering-meal-subscription" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.catering') }}</NuxtLink>
+                  <NuxtLink to="/industry/hotel-bars-restaurants" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.hotelBars') }}</NuxtLink>
+                  <NuxtLink to="/industry/grocer-butcher" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.grocer') }}</NuxtLink>
+                  <NuxtLink to="/industry/b2b-wholesale" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.b2b') }}</NuxtLink>
                 </div>
               </div>
               <div>
                 <div class="text-sm font-semibold text-gray-500">{{ t('nav.group.ecommerce') }}</div>
                 <div class="mt-2 flex flex-col">
-                  <NuxtLink to="/industry/ecommerce" class="rounded px-2 py-1 hover:bg-gray-100">Ecommerce</NuxtLink>
-                  <NuxtLink to="/industry/fashion-apparel" class="rounded px-2 py-1 hover:bg-gray-100">Fashion & Apparel</NuxtLink>
-                  <NuxtLink to="/industry/pharmacies-health" class="rounded px-2 py-1 hover:bg-gray-100">Pharmacies & Health</NuxtLink>
-                  <NuxtLink to="/industry/mobile-electronics" class="rounded px-2 py-1 hover:bg-gray-100">Mobile Phone & Electronics</NuxtLink>
-                  <NuxtLink to="/industry/digital-products-services" class="rounded px-2 py-1 hover:bg-gray-100">Digital Products & Services</NuxtLink>
-                  <NuxtLink to="/industry/popup-event-store" class="rounded px-2 py-1 hover:bg-gray-100">Popup and Event Store</NuxtLink>
-                  <NuxtLink to="/industry/personal-shopping" class="rounded px-2 py-1 hover:bg-gray-100">Personal Shopping</NuxtLink>
-                  <NuxtLink to="/industry/jewelry-accessories" class="rounded px-2 py-1 hover:bg-gray-100">Jewelry & Accessories</NuxtLink>
-                  <NuxtLink to="/industry/religious-community" class="rounded px-2 py-1 hover:bg-gray-100">Religious & Community</NuxtLink>
+                  <NuxtLink to="/industry/ecommerce" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.ecommerce') }}</NuxtLink>
+                  <NuxtLink to="/industry/fashion-apparel" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.fashion') }}</NuxtLink>
+                  <NuxtLink to="/industry/pharmacies-health" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.pharmacies') }}</NuxtLink>
+                  <NuxtLink to="/industry/mobile-electronics" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.mobile') }}</NuxtLink>
+                  <NuxtLink to="/industry/digital-products-services" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.digital') }}</NuxtLink>
+                  <NuxtLink to="/industry/popup-event-store" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.popup') }}</NuxtLink>
+                  <NuxtLink to="/industry/personal-shopping" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.personalShopping') }}</NuxtLink>
+                  <NuxtLink to="/industry/jewelry-accessories" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.jewelry') }}</NuxtLink>
+                  <NuxtLink to="/industry/religious-community" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.religious') }}</NuxtLink>
                 </div>
               </div>
               <div>
                 <div class="text-sm font-semibold text-gray-500">{{ t('nav.group.service') }}</div>
                 <div class="mt-2 flex flex-col">
-                  <NuxtLink to="/industry/salon" class="rounded px-2 py-1 hover:bg-gray-100">Salon</NuxtLink>
-                  <NuxtLink to="/industry/laundry" class="rounded px-2 py-1 hover:bg-gray-100">Laundry</NuxtLink>
-                  <NuxtLink to="/industry/professional-services" class="rounded px-2 py-1 hover:bg-gray-100">Professional Services</NuxtLink>
-                  <NuxtLink to="/industry/pets-grooming" class="rounded px-2 py-1 hover:bg-gray-100">Pets & Grooming</NuxtLink>
-                  <NuxtLink to="/industry/hotel-booking" class="rounded px-2 py-1 hover:bg-gray-100">Hotel Booking</NuxtLink>
-                  <NuxtLink to="/industry/education" class="rounded px-2 py-1 hover:bg-gray-100">Education</NuxtLink>
-                  <NuxtLink to="/industry/printing-services" class="rounded px-2 py-1 hover:bg-gray-100">Printing Services</NuxtLink>
-                  <NuxtLink to="/industry/rental" class="rounded px-2 py-1 hover:bg-gray-100">Rental</NuxtLink>
-                  <NuxtLink to="/industry/tour-travel-services" class="rounded px-2 py-1 hover:bg-gray-100">Tour & Travel Services</NuxtLink>
-                  <NuxtLink to="/industry/ticketing" class="rounded px-2 py-1 hover:bg-gray-100">Ticketing</NuxtLink>
+                  <NuxtLink to="/industry/salon" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.salon') }}</NuxtLink>
+                  <NuxtLink to="/industry/laundry" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.laundry') }}</NuxtLink>
+                  <NuxtLink to="/industry/professional-services" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.professional') }}</NuxtLink>
+                  <NuxtLink to="/industry/pets-grooming" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.pets') }}</NuxtLink>
+                  <NuxtLink to="/industry/hotel-booking" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.hotelBooking') }}</NuxtLink>
+                  <NuxtLink to="/industry/education" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.education') }}</NuxtLink>
+                  <NuxtLink to="/industry/printing-services" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.printing') }}</NuxtLink>
+                  <NuxtLink to="/industry/rental" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.rental') }}</NuxtLink>
+                  <NuxtLink to="/industry/tour-travel-services" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.travel') }}</NuxtLink>
+                  <NuxtLink to="/industry/ticketing" class="rounded px-2 py-1 hover:bg-gray-100">{{ t('nav.industry.ticketing') }}</NuxtLink>
                 </div>
               </div>
             </div>

@@ -184,6 +184,16 @@ const variantAvailability = ref<Record<string, boolean>>({})
 
 // Computed
 const canRenderCatalog = computed(() => !loading.value && !error.value && !!storeInfo.id)
+
+const filteredProducts = computed(() => {
+  if (!searchQuery.value || !searchQuery.value.trim()) return products.value
+  const q = searchQuery.value.toLowerCase()
+  return products.value.filter(p => 
+    (p.name && p.name.toLowerCase().includes(q)) || 
+    (p.description && p.description.toLowerCase().includes(q))
+  )
+})
+
 const productGroups = computed(() => {
   const groups: Record<string, any[]> = {}
   const categoryMap: Record<string, string> = {}
@@ -196,7 +206,7 @@ const productGroups = computed(() => {
   // Add "Uncategorized" if needed, or handle products with null category
   const uncategorizedKey = 'uncategorized'
   
-  products.value.forEach(p => {
+  filteredProducts.value.forEach(p => {
     const catId = p.category_id || uncategorizedKey
     if (groups[catId] === undefined && catId === uncategorizedKey) {
        groups[catId] = []
@@ -237,6 +247,10 @@ const productGroups = computed(() => {
 const popupTitle = computed(() => appearance.popupTitle || t('storefront.popupTitleFallback'))
 const popupDescription = computed(() => appearance.popupDescription || t('storefront.popupDescFallback'))
 const popupLink = computed(() => appearance.popupLink || '')
+
+watch(() => route.query.q, (newQ) => {
+  searchQuery.value = newQ ? String(newQ) : ''
+}, { immediate: true })
 
 // Methods
 function getCartQuantity(productId: string | number) {

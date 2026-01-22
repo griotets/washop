@@ -23,8 +23,9 @@
         <div>
           <div class="font-semibold">{{ t('footer.legal') }}</div>
           <ul class="mt-2 space-y-2 text-gray-600">
-            <li><NuxtLink to="/">{{ t('footer.terms') }}</NuxtLink></li>
-            <li><NuxtLink to="/">{{ t('footer.privacy') }}</NuxtLink></li>
+            <li><NuxtLink to="/cgu">{{ t('footer.terms') }}</NuxtLink></li>
+            <li><NuxtLink to="/privacy">{{ t('footer.privacy') }}</NuxtLink></li>
+            <li><NuxtLink to="/legal">{{ t('legal.title') }}</NuxtLink></li>
           </ul>
         </div>
       </div>

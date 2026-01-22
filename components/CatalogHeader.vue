@@ -9,14 +9,32 @@
         <div class="font-semibold">{{ store.name || t('catalog.storeFallback') }}</div>
       </div>
       <div class="flex items-center gap-4">
-        <div class="hidden sm:flex items-center gap-2">
+        <div v-if="isSearchOpen" class="absolute inset-x-0 top-0 z-50 flex h-full items-center bg-white px-4 md:relative md:inset-auto md:h-auto md:bg-transparent md:px-0">
+           <div class="relative w-full max-w-md mx-auto md:mx-0">
+             <input 
+               ref="searchInput"
+               v-model="headerSearchQuery"
+               type="text"
+               :placeholder="t('catalog.search')"
+               class="w-full rounded-full border border-gray-300 pl-10 pr-10 py-1.5 text-sm focus:border-primary focus:ring-primary"
+               @keyup.enter="handleSearch"
+               @blur="closeSearchIfEmpty"
+             />
+             <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+             <button @click="isSearchOpen = false" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+               <X class="h-4 w-4" />
+             </button>
+           </div>
+        </div>
+
+        <div v-else class="hidden sm:flex items-center gap-2">
           <select v-model="locale" class="rounded border border-gray-200 bg-gray-50 px-2 py-1 text-sm focus:border-primary focus:ring-primary">
             <option value="en">English</option>
             <option value="fr">Français</option>
             <option value="it">Italiano</option>
           </select>
         </div>
-        <button class="flex items-center gap-1 text-gray-700 hover:text-primary" :aria-label="t('catalog.search')">
+        <button v-if="!isSearchOpen" class="flex items-center gap-1 text-gray-700 hover:text-primary" :aria-label="t('catalog.search')" @click="openSearch">
           <Search class="h-5 w-5" />
           <span class="inline text-xs sm:text-sm">{{ t('catalog.search') }}</span>
         </button>
@@ -31,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { ShoppingCart, Search } from 'lucide-vue-next'
+import { ShoppingCart, Search, X } from 'lucide-vue-next'
 import { useCartStore } from '~/stores/cart'
 import { useI18n } from '~/composables/i18n'
 
@@ -46,6 +64,47 @@ const props = defineProps<{
 const route = useRoute()
 const slug = computed(() => String(route.params['boutiqueSlug'] || ''))
 const localStore = reactive({ name: '', logoUrl: '', color: '#111827' })
+
+// Search State
+const isSearchOpen = ref(false)
+const headerSearchQuery = ref('')
+const searchInput = ref<HTMLInputElement | null>(null)
+
+function openSearch() {
+  isSearchOpen.value = true
+  nextTick(() => {
+    searchInput.value?.focus()
+  })
+}
+
+function closeSearchIfEmpty() {
+  // Give time for X button click or other interactions
+  setTimeout(() => {
+    if (!headerSearchQuery.value) {
+      isSearchOpen.value = false
+    }
+  }, 200)
+}
+
+function handleSearch() {
+  navigateTo({
+    path: `/${slug.value}`,
+    query: { q: headerSearchQuery.value }
+  })
+  // We keep isSearchOpen true so user sees what they searched, or we can close it.
+  // Usually if we navigate, the component might remount or route changes.
+  // If we stay on same page (query change), we might want to close it to show results?
+  // Let's close it to show the full header again.
+  isSearchOpen.value = false
+}
+
+watch(() => route.query.q, (newQ) => {
+  if (newQ) {
+    headerSearchQuery.value = String(newQ)
+  } else {
+      headerSearchQuery.value = ''
+  }
+}, { immediate: true })
 
 // Merge props and local state
 const store = computed(() => {

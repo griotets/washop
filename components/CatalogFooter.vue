@@ -4,7 +4,13 @@
       <div class="flex flex-col md:flex-row items-center justify-between gap-6">
         <div class="text-sm text-gray-600">
           <div>{{ t('footer.poweredBy') }}</div>
-          <div class="mt-2"><NuxtLink to="/resources" class="text-gray-600 hover:text-primary">{{ t('footer.terms') }}</NuxtLink></div>
+          <div class="mt-2">
+            <NuxtLink to="/cgu" class="text-gray-600 hover:text-primary">{{ t('footer.terms') }}</NuxtLink>
+            <span class="mx-2">•</span>
+            <NuxtLink to="/privacy" class="text-gray-600 hover:text-primary">{{ t('footer.privacy') }}</NuxtLink>
+            <span class="mx-2">•</span>
+            <NuxtLink to="/legal" class="text-gray-600 hover:text-primary">{{ t('legal.title') }}</NuxtLink>
+          </div>
         </div>
 
         <!-- Social Links -->
