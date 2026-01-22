@@ -1,8 +1,8 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-gray-50 flex flex-col">
     <CatalogHeader :store="storeData" />
     
-    <main class="mx-auto max-w-3xl px-4 py-8 pb-32">
+    <main class="mx-auto max-w-3xl px-4 py-8 pb-32 flex-grow w-full">
       <!-- Stepper -->
       <div class="mb-8 flex items-center justify-between px-4">
         <div class="flex flex-col items-center gap-2">

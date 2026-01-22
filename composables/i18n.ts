@@ -636,7 +636,7 @@ export function useI18n() {
       'admin.productForm.saving': 'Enregistrement...',
       'admin.productForm.delete': 'Supprimer',
       'admin.productForm.deleting': 'Suppression...',
-      
+
       'admin.productForm.adGeneratorTitle': 'Générateur de Publicité IA',
       'admin.productForm.adGeneratorDesc': 'Créez instantanément un post Facebook/Instagram professionnel avec un texte accrocheur et un visuel unique.',
       'admin.productForm.adTone': 'Ton du message',
@@ -1341,7 +1341,10 @@ export function useI18n() {
       'countries.VN': 'Vietnam',
       'countries.YE': 'Yemen',
       'countries.ZM': 'Zambia',
-      'countries.ZW': 'Zimbabwe'
+      'countries.ZW': 'Zimbabwe',
+      'catalog.viewCart': 'Voir le panier',
+      'checkout.confirmOrder': 'Confirmer la commande',
+      'admin.productForm.optionType.radio': 'Bouton radio (Choix unique)'
     },
 
     en: {
@@ -2659,7 +2662,33 @@ export function useI18n() {
       'countries.VN': 'Vietnam',
       'countries.YE': 'Yemen',
       'countries.ZM': 'Zambia',
-      'countries.ZW': 'Zimbabwe'
+      'countries.ZW': 'Zimbabwe',
+      'common.remove': 'Remove',
+      'admin.settings.logoLabel': 'Store Logo',
+      'admin.settings.uploadLogo': 'Upload Logo',
+      'admin.settings.logoHint': 'JPG, PNG or GIF. Max 2MB.',
+      'admin.settings.brandColorLabel': 'Brand Color',
+      'admin.settings.logoSizeError': 'Image must be smaller than 2MB',
+      'admin.ordersNew.clientCreated': 'Client created successfully',
+      'units.G': 'g',
+      'units.KG': 'kg',
+      'units.L': 'L',
+      'units.ML': 'mL',
+      'units.PCS': 'pcs',
+      'units.PAX': 'pax',
+      'units.PERSON': 'person',
+      'units.ROOM': 'room',
+      'units.PACK': 'pack',
+      'units.QTY': 'qty',
+      'units.LBS': 'lbs',
+      'units.HOUR': 'hour',
+      'units.BOX': 'box',
+      'admin.productsNew.options.valuesMax10': 'Maximum 10 values',
+      'admin.productsNew.toast.productCreated': 'Product created successfully',
+      'admin.productsNew.toast.createError': 'Error creating product',
+      'catalog.viewCart': 'View Cart',
+      'checkout.confirmOrder': 'Confirm Order',
+      'admin.productForm.optionType.radio': 'Radio Button (Single Choice)'
     },
     it: {
       'product.stockLeft': 'Solo {n} rimasti in stock',
@@ -3939,11 +3968,68 @@ export function useI18n() {
       'countries.UZ': 'Uzbekistan',
       'countries.VU': 'Vanuatu',
       'countries.VA': 'Vatican City',
-    'countries.VE': 'Venezuela',
-    'countries.VN': 'Vietnam',
-    'countries.YE': 'Yemen',
-    'countries.ZM': 'Zambia',
-    'countries.ZW': 'Zimbabwe',
+      'countries.VE': 'Venezuela',
+      'countries.VN': 'Vietnam',
+      'countries.YE': 'Yemen',
+      'countries.ZM': 'Zambia',
+      'countries.ZW': 'Zimbabwe',
+      'common.remove': 'Rimuovi',
+      'admin.settings.logoLabel': 'Logo del negozio',
+      'admin.settings.uploadLogo': 'Carica logo',
+      'admin.settings.logoHint': 'JPG, PNG o GIF. Max 2MB.',
+      'admin.settings.brandColorLabel': 'Colore del brand',
+      'admin.settings.logoSizeError': 'L\'immagine deve essere inferiore a 2MB',
+      'admin.ordersNew.clientCreated': 'Cliente creato con successo',
+      'units.G': 'g',
+      'units.KG': 'kg',
+      'units.L': 'L',
+      'units.ML': 'mL',
+      'units.PCS': 'pz',
+      'units.PAX': 'pax',
+      'units.PERSON': 'persona',
+      'units.ROOM': 'camera',
+      'units.PACK': 'pacco',
+      'units.QTY': 'qtà',
+      'units.LBS': 'libbre',
+      'units.HOUR': 'ora',
+      'units.BOX': 'scatola',
+      'admin.productPage.edit': 'Modifica',
+      'admin.productPage.viewOnStore': 'Vedi sul negozio',
+      'admin.productPage.viewDetail': 'Vedi dettagli',
+      'admin.productForm.adGeneratorTitle': 'Generatore di Annunci',
+      'admin.productForm.adGeneratorDesc': 'Crea annunci per i social media.',
+      'admin.productForm.adTone': 'Tono',
+      'admin.productForm.adToneProfessional': 'Professionale',
+      'admin.productForm.adToneFun': 'Divertente',
+      'admin.productForm.adToneUrgent': 'Urgente',
+      'admin.productForm.adToneLuxury': 'Lusso',
+      'admin.productForm.adPlatform': 'Piattaforma',
+      'admin.productForm.saveAd': 'Salva annuncio',
+      'admin.productForm.savedAds': 'Annunci salvati',
+      'admin.productForm.adSaved': 'Annuncio salvato',
+      'admin.productForm.noSavedAds': 'Nessun annuncio salvato',
+      'admin.productForm.generateAdBtn': 'Genera Annuncio',
+      'admin.productForm.generatingAd': 'Generazione in corso...',
+      'admin.productForm.adVisual': 'Visuale',
+      'admin.productForm.adCopy': 'Testo',
+      'admin.productForm.downloadImage': 'Scarica immagine',
+      'admin.productForm.nameAndPriceRequiredForAd': 'Nome e prezzo richiesti per generare l\'annuncio',
+      'admin.productForm.adGenerated': 'Annuncio generato',
+      'admin.productForm.adError': 'Errore nella generazione',
+      'admin.productForm.textCopied': 'Testo copiato',
+      'admin.productForm.shareFallback': 'Condividi',
+      'admin.productForm.viewDetail': 'Vedi dettagli',
+      'admin.productForm.noVariants': 'Nessuna variante',
+      'admin.productForm.noOptions': 'Nessuna opzione',
+      'admin.productForm.optionTypeLabel': 'Tipo di opzione',
+      'admin.productForm.addValuePlaceholder': 'Valore',
+      'admin.productForm.addValueHint': 'Premi invio per aggiungere',
+      'admin.productForm.clone': 'Clona',
+      'admin.productForm.optionSelectValuesRequired': 'Valori richiesti per la selezione',
+      'common.share': 'Condividi',
+      'admin.settings.cannotSwitchToFreePlan': 'Impossibile passare al piano gratuito',
+      'storefront.seeMore': 'Vedi altro',
+      'storefront.seeLess': 'Vedi meno',
     }
   }
 
@@ -3968,7 +4054,7 @@ export function useI18n() {
 
   function setLocale(l: string) {
     locale.value = l
-    try { localStorage.setItem('locale', l) } catch {}
+    try { localStorage.setItem('locale', l) } catch { }
   }
 
   if (process.client) {
@@ -3976,12 +4062,12 @@ export function useI18n() {
       try {
         const saved = localStorage.getItem('locale')
         if (saved) locale.value = saved
-      } catch {}
+      } catch { }
     })
   }
 
   watch(() => locale.value, (l) => {
-    try { localStorage.setItem('locale', String(l || 'fr')) } catch {}
+    try { localStorage.setItem('locale', String(l || 'fr')) } catch { }
   })
 
   return { locale, t, setLocale, supportedLocales, hasKey }

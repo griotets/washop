@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="min-h-screen flex flex-col">
     <CatalogHeader :store="store" />
-    <main class="mx-auto max-w-6xl px-4 py-8">
+    <main class="mx-auto max-w-6xl px-4 py-8 flex-grow w-full">
       <div class="mb-6">
         <NuxtLink :to="`/${slug}`" class="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-primary transition-colors">
           <ArrowLeft class="h-4 w-4" />

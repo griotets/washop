@@ -1,12 +1,12 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-gray-50 flex flex-col">
     <CatalogHeader v-if="canRenderCatalog" :store="storeInfo" />
     
-    <div v-if="loading" class="flex items-center justify-center min-h-[60vh]">
+    <div v-if="loading" class="flex-grow flex items-center justify-center min-h-[60vh]">
       <div class="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-primary"></div>
     </div>
     
-    <div v-else-if="error" class="flex flex-col items-center justify-center py-20 text-center">
+    <div v-else-if="error" class="flex-grow flex flex-col items-center justify-center py-20 text-center">
       <div class="rounded-full bg-red-100 p-3 text-red-600 mb-4">
         <AlertCircle class="h-8 w-8" />
       </div>
@@ -17,7 +17,7 @@
       </button>
     </div>
     
-    <main v-if="canRenderCatalog" class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+    <main v-if="canRenderCatalog" class="flex-grow mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 w-full">
       <!-- Hero Section -->
       <div class="relative overflow-hidden rounded-2xl bg-white shadow-sm mb-12">
         <div class="absolute inset-0 bg-gradient-to-r from-gray-900/10 to-gray-900/5"></div>
