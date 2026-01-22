@@ -221,6 +221,7 @@
     </div>
 
     <CatalogFooter v-if="storeData" :social="storeData.social" />
+    <WhatsAppFloatButton v-if="storeData" :phone="storeData.phone" :visible="storeData.showWhatsappButton" />
   </div>
 </template>
 
@@ -270,7 +271,7 @@ onMounted(async () => {
   await loadConstraints()
   
   // Fetch store info
-  const { data, error } = await supabase.from('stores').select('id, name, phone, color, image_url, social_whatsapp, social_facebook, social_instagram, social_telegram').eq('slug', slug.value).maybeSingle()
+  const { data, error } = await supabase.from('stores').select('id, name, phone, color, image_url, social_whatsapp, social_facebook, social_instagram, social_telegram, design_settings').eq('slug', slug.value).maybeSingle()
   if (error) {
      console.error(error)
      const toast = useToast()
@@ -288,7 +289,8 @@ onMounted(async () => {
          facebook: data.social_facebook,
          instagram: data.social_instagram,
          telegram: data.social_telegram
-       }
+       },
+       showWhatsappButton: !!data.design_settings?.show_whatsapp_button
      }
      localStorage.setItem(`store:${slug.value}`, JSON.stringify(storeData.value))
   }

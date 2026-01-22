@@ -123,6 +123,7 @@
       </div>
     </main>
     <CatalogFooter />
+    <WhatsAppFloatButton :phone="store.phone" :visible="store.showWhatsappButton" />
 
     <div v-if="showPopup" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div class="w-80 rounded-xl border bg-white p-4">
@@ -157,7 +158,7 @@ function closePopup() {
   showPopup.value = false
   try { localStorage.setItem(`popupShown:${slug.value}`, '1') } catch {}
 }
-const store = reactive<{ id?: string; name?: string; logoUrl?: string; color?: string; phone?: string }>({})
+const store = reactive<{ id?: string; name?: string; logoUrl?: string; color?: string; phone?: string; showWhatsappButton?: boolean }>({})
 const product = reactive<{ 
   id?: string;
   name?: string; 
@@ -349,7 +350,7 @@ onMounted(async () => {
     const shown = localStorage.getItem(`popupShown:${slug.value}`)
     showPopup.value = !!popupBlock.value && !shown
   } catch {}
-  const { data: sone, error: sErr } = await supabase.from('stores').select('id,name,image_url,color,phone').eq('slug', slug.value).maybeSingle()
+  const { data: sone, error: sErr } = await supabase.from('stores').select('id,name,image_url,color,phone,design_settings').eq('slug', slug.value).maybeSingle()
   if (sErr) {
     console.error(sErr)
     const toast = useToast()
@@ -361,6 +362,7 @@ onMounted(async () => {
   store.logoUrl = String(sone?.image_url || '')
   store.color = String(sone?.color || '#111827')
   store.phone = String(sone?.phone || '')
+  store.showWhatsappButton = !!(sone?.design_settings as any)?.show_whatsapp_button
   if (storeId) {
     const { data: p, error: pErr } = await supabase.from('products')
       .select('id,name,description,price,images,track_inventory,stock_quantity,max_order_quantity,min_order_quantity,is_out_of_stock')

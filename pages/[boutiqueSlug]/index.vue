@@ -103,6 +103,7 @@
     <!-- Popup -->
     <!-- Footer -->
     <CatalogFooter v-if="canRenderCatalog" :social="storeInfo.social" />
+    <WhatsAppFloatButton v-if="canRenderCatalog" :phone="storeInfo.phone" :visible="appearance.showWhatsappButton" />
 
     <!-- Popup -->
     <div v-if="showPopup" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
@@ -172,7 +173,8 @@ const appearance = reactive({
   popupEnabled: false,
   popupTitle: '',
   popupDescription: '',
-  popupLink: ''
+  popupLink: '',
+  showWhatsappButton: false
 })
 
 const categories = ref<any[]>([])
@@ -442,6 +444,7 @@ onMounted(async () => {
       appearance.popupTitle = ds.popup_title || ''
       appearance.popupDescription = ds.popup_description || ''
       appearance.popupLink = ds.popup_link || ''
+      appearance.showWhatsappButton = !!ds.show_whatsapp_button
 
       // Handle Popup Display Logic
       if (appearance.popupEnabled) {

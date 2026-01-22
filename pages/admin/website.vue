@@ -137,6 +137,21 @@
               </label>
               <input v-model="form.social_telegram" type="text" :placeholder="t('admin.website.socialTelegramPlaceholder')" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-primary focus:ring-2 focus:ring-primary sm:text-sm" />
             </div>
+            <div class="sm:col-span-2 border-t pt-4 mt-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">{{ t('admin.website.showWhatsappButtonLabel') }}</label>
+                  <p class="text-xs text-gray-500">{{ t('admin.website.showWhatsappButtonHint') }}</p>
+                </div>
+                <button 
+                  @click="form.design_settings.show_whatsapp_button = !form.design_settings.show_whatsapp_button" 
+                  :class="form.design_settings.show_whatsapp_button ? 'bg-green-600' : 'bg-gray-200'"
+                  class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                >
+                  <span :class="form.design_settings.show_whatsapp_button ? 'translate-x-5' : 'translate-x-0'" class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -239,7 +254,8 @@ const form = reactive({
     popup_enabled: false,
     popup_title: '',
     popup_description: '',
-    popup_link: ''
+    popup_link: '',
+    show_whatsapp_button: false
   }
 })
 
