@@ -10,11 +10,30 @@
         class="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
       />
       
+      <!-- WhatsApp Button -->
+      <a 
+        v-if="whatsappLink" 
+        :href="whatsappLink" 
+        target="_blank" 
+        @click.stop
+        class="absolute top-2 left-2 z-20 p-2 rounded-full bg-green-500 text-white shadow hover:bg-green-600 transition-colors opacity-0 group-hover:opacity-100"
+        :title="t('storefront.whatsapp')"
+      >
+        <MessageCircle class="h-5 w-5" />
+      </a>
+
       <!-- Availability / Cart Controls -->
       <div v-if="available || cartQuantity > 0" class="absolute top-2 right-2 transition-opacity z-20" :class="cartQuantity > 0 ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'">
-        <div v-if="cartQuantity > 0" class="flex items-center gap-2 rounded-full bg-white p-1 shadow">
+        <div v-if="cartQuantity > 0" class="flex items-center gap-1 rounded-full bg-white p-1 shadow">
           <button @click.prevent.stop="updateQuantity(-1)" class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200">-</button>
-          <span class="text-sm font-semibold">{{ cartQuantity }}</span>
+          <input 
+            type="number" 
+            :value="cartQuantity" 
+            @input="onInputQty" 
+            @click.stop
+            class="w-8 text-center text-sm font-semibold border-none bg-transparent p-0 focus:ring-0 appearance-none"
+            min="0"
+          />
           <button @click.prevent.stop="updateQuantity(1)" class="flex h-6 w-6 items-center justify-center rounded-full text-white hover:brightness-110" :style="{ backgroundColor: primaryColor, opacity: available ? 1 : 0.5, cursor: available ? 'pointer' : 'not-allowed' }" :disabled="!available">+</button>
         </div>
         <button v-else-if="available" @click.prevent.stop="addToCart" class="p-2 rounded-full bg-white shadow text-gray-900 hover:text-primary transition-colors" :title="t('storefront.addToCartTitle')">
@@ -60,7 +79,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { ShoppingCart } from 'lucide-vue-next'
+import { ShoppingCart, MessageCircle } from 'lucide-vue-next'
 import { useI18n } from '~/composables/i18n'
 
 const props = defineProps<{
@@ -68,15 +87,32 @@ const props = defineProps<{
   cartQuantity: number
   primaryColor: string
   storeSlug: string
+  storePhone?: string
   available: boolean
 }>()
 
 const emit = defineEmits<{
   (e: 'update-quantity', delta: number): void
+  (e: 'update-quantity-input', qty: number): void
 }>()
 
 const { t, locale } = useI18n()
 const expanded = ref(false)
+
+const whatsappLink = computed(() => {
+  const phone = String(props.storePhone || '').trim()
+  if (!phone) return ''
+  const text = encodeURIComponent(t('storefront.whatsappInterestedMsg', { name: props.product.name || t('storefront.productFallback') }))
+  return `https://wa.me/${phone.replace(/\D/g, '')}?text=${text}`
+})
+
+function onInputQty(e: Event) {
+  const target = e.target as HTMLInputElement
+  const val = parseInt(target.value)
+  if (!isNaN(val) && val >= 0) {
+    emit('update-quantity-input', val)
+  }
+}
 
 const imageUrl = computed(() => {
   const p = props.product

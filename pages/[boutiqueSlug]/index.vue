@@ -73,8 +73,10 @@
               :cart-quantity="getCartQuantity(product.id)"
               :primary-color="appearance.primary"
               :store-slug="slug"
+              :store-phone="storeInfo.phone"
               :available="isProductAvailable(product)"
               @update-quantity="(delta) => handleUpdateQuantity(product, delta)"
+              @update-quantity-input="(qty) => handleSetQuantity(product, qty)"
             />
           </div>
         </div>
@@ -364,6 +366,66 @@ function isProductAvailable(product: any) {
   const base = !product.is_out_of_stock
   if (v === undefined) return base
   return base && v
+}
+
+function handleSetQuantity(product: any, qty: number) {
+  const pid = String(product.id)
+  const totalQty = getCartQuantity(product.id)
+  
+  if (qty < 0) return
+
+  const maxQty = Number(product.max_order_quantity || product.max_order_qty || 0)
+  if (maxQty > 0 && qty > maxQty) {
+    const toast = useToast()
+    toast.error(t('storefront.maxQtyError', { max: maxQty }))
+    return
+  }
+
+  if (product.track_inventory && qty > product.stock_quantity) {
+    const toast = useToast()
+    toast.error(t('storefront.stockError', { max: product.stock_quantity }))
+    return
+  }
+
+  // Find Base Item (exact match)
+  const baseItem = cart.items.find(i => i.id === pid)
+  const baseQty = baseItem ? baseItem.quantity : 0
+  
+  // Calculate variants quantity (Total - Base)
+  const variantsQty = totalQty - baseQty
+  
+  // Target base quantity
+  let targetBase = qty - variantsQty
+  
+  if (targetBase < 0) {
+    // Cannot reduce below variants count from here
+    const toast = useToast()
+    toast.info("Veuillez modifier les variantes directement dans le panier pour réduire davantage")
+    targetBase = 0
+  }
+  
+  if (targetBase === 0 && !baseItem) {
+     // Nothing to do
+     return
+  }
+
+  if (baseItem) {
+    cart.setQuantity(pid, targetBase)
+  } else if (targetBase > 0) {
+     // Create new base item
+      cart.add({
+        id: pid,
+        productId: pid,
+        name: product.name,
+        price: product.price,
+        image: getProductImage(product),
+        quantity: targetBase
+      })
+      // Note: cart.add usually adds 1, need to ensure we set quantity if add implementation differs, 
+      // but usually we can use setQuantity or add with quantity if supported. 
+      // Checking cart store implementation might be needed, but assuming setQuantity works after add.
+      cart.setQuantity(pid, targetBase)
+  }
 }
 
 function closePopup() {

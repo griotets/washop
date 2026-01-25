@@ -107,7 +107,13 @@
                 </button>
                 <div v-if="getCartQuantity() > 0" class="flex items-center gap-3 rounded-lg border border-primary p-1">
                   <button class="flex h-10 w-12 items-center justify-center rounded-md bg-gray-100 font-bold hover:bg-gray-200" @click="handleUpdateQuantity(-1)">-</button>
-                  <div class="flex-1 text-center font-bold text-lg">{{ getCartQuantity() }}</div>
+                  <input 
+                    type="number" 
+                    :value="getCartQuantity()" 
+                    @input="handleInputQuantity" 
+                    class="flex-1 w-full text-center font-bold text-lg border-none bg-transparent focus:ring-0 appearance-none p-0" 
+                    min="0"
+                  />
                   <button class="flex h-10 w-12 items-center justify-center rounded-md bg-primary font-bold text-white hover:brightness-110" @click="handleUpdateQuantity(1)">+</button>
                 </div>
                 <button v-else-if="!isSelectedVariantUnavailable" class="block w-full rounded border border-primary px-4 py-3 text-sm font-bold text-primary hover:bg-primary/5" @click="addToCart">
@@ -297,9 +303,15 @@ function handleUpdateQuantity(delta: number) {
       price: displayPrice.value || 0,
       image: selectedVariant.value?.image_url || images.value[0]
     })
+    
+    // Ensure quantity is set if delta > 1 (e.g. from input)
+    if (newQty > 1) {
+      cart.setQuantity(currentItemKey.value, newQty)
+    }
+
     const pMin = Number(product.min_order_quantity || 0)
     const minQty = pMin > 0 ? pMin : 1
-    if (minQty > 1) {
+    if (minQty > 1 && newQty < minQty) {
       cart.setQuantity(currentItemKey.value, minQty)
       const toast = useToast()
       toast.error(t('storefront.minQtyError', { min: minQty }))
@@ -309,6 +321,14 @@ function handleUpdateQuantity(delta: number) {
     console.log('Updating quantity:', productId.value, newQty)
     cart.setQuantity(currentItemKey.value, newQty)
   }
+}
+
+function handleInputQuantity(e: Event) {
+  const target = e.target as HTMLInputElement
+  const val = parseInt(target.value)
+  if (isNaN(val) || val < 0) return
+  const currentQty = getCartQuantity()
+  handleUpdateQuantity(val - currentQty)
 }
 
 function addToCart() {

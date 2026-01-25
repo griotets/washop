@@ -108,18 +108,27 @@
           </div>
 
             <div v-if="form.method === 'delivery'" class="space-y-4">
+              <!-- Address Autocomplete -->
+              <div class="mb-4">
+                <label class="mb-1 block text-sm font-medium text-gray-700">{{ t('checkout.searchAddressPlaceholder') }}</label>
+                <AddressAutocomplete 
+                   :placeholder="t('checkout.searchAddressPlaceholder')" 
+                   @select="handleAddressSelect"
+                />
+              </div>
+
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700">{{ t('checkout.city') }}</label>
+                <label class="mb-1 block text-sm font-medium text-gray-700">{{ t('checkout.field.cityDetail') }}</label>
                 <input v-model="form.city" type="text" class="w-full rounded-lg border-gray-300 px-4 py-2 focus:border-primary focus:ring-primary" :placeholder="t('checkout.cityPlaceholder')" />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700">{{ t('checkout.address') }}</label>
+                <label class="mb-1 block text-sm font-medium text-gray-700">{{ t('checkout.field.addressDetail') }}</label>
                 <textarea v-model="form.address" rows="2" class="w-full rounded-lg border-gray-300 px-4 py-2 focus:border-primary focus:ring-primary" :placeholder="t('checkout.addressPlaceholder')"></textarea>
               </div>
             </div>
 
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">{{ t('checkout.noteOptional') }}</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700">{{ form.method === 'delivery' ? 'Note pour le livreur' : t('checkout.noteOptional') }}</label>
               <textarea v-model="form.note" rows="2" class="w-full rounded-lg border-gray-300 px-4 py-2 focus:border-primary focus:ring-primary" :placeholder="t('checkout.notePlaceholder')"></textarea>
             </div>
           </div>
@@ -181,7 +190,7 @@
                 </dd>
               </div>
               <div v-if="form.note">
-                <dt class="mt-2 text-gray-500">{{ t('checkout.field.note') }}</dt>
+                <dt class="mt-2 text-gray-500">{{ form.method === 'delivery' ? t('checkout.field.note') : 'Note' }}</dt>
                 <dd class="mt-1 italic text-gray-600">"{{ form.note }}"</dd>
               </div>
             </dl>
@@ -230,6 +239,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { ShoppingCart, Trash2, Store, Truck, MessageCircle } from 'lucide-vue-next'
 import { useCartStore } from '~/stores/cart'
 import PhoneInput from '~/components/PhoneInput.vue'
+import AddressAutocomplete from '~/components/AddressAutocomplete.vue'
 import { useI18n } from '~/composables/i18n'
 const { t, locale } = useI18n()
 
@@ -294,6 +304,8 @@ onMounted(async () => {
      }
      localStorage.setItem(`store:${slug.value}`, JSON.stringify(storeData.value))
   }
+  
+  loadCustomerDetails()
 })
 
 function loadStoreConfig() {
@@ -309,6 +321,36 @@ function loadStoreConfig() {
   } catch {}
 }
 
+function loadCustomerDetails() {
+  try {
+    const raw = localStorage.getItem('customer:info')
+    if (raw) {
+      const info = JSON.parse(raw)
+      if (info.name) form.name = info.name
+      if (info.phone) form.phone = info.phone
+      if (info.city) form.city = info.city
+      if (info.address) form.address = info.address
+      // Note: We don't restore 'method' or 'note' as these are usually order-specific
+    }
+  } catch (e) {
+    console.error('Error loading customer info', e)
+  }
+}
+
+function saveCustomerDetails() {
+  try {
+    const info = {
+      name: form.name,
+      phone: form.phone,
+      city: form.city,
+      address: form.address
+    }
+    localStorage.setItem('customer:info', JSON.stringify(info))
+  } catch (e) {
+    console.error('Error saving customer info', e)
+  }
+}
+
 function validateStep2() {
   const toast = useToast()
   if (!form.name.trim()) return toast.error(t('checkout.error.nameRequired'))
@@ -316,7 +358,14 @@ function validateStep2() {
   if (form.method === 'delivery' && (!form.city.trim() || !form.address.trim())) {
     return toast.error(t('checkout.error.addressRequired'))
   }
+  
+  saveCustomerDetails()
   step.value = 3
+}
+
+function handleAddressSelect(data: { city: string; address: string; full: any }) {
+  if (data.city) form.city = data.city
+  if (data.address) form.address = data.address
 }
 
 async function submitOrder() {
@@ -401,9 +450,16 @@ async function submitOrder() {
       if (form.method === 'pickup') {
         deliveryDetails = `📍 *${t('checkout.whatsapp.mode')}:* ${t('checkout.method.pickupStore')}\n👤 *${t('checkout.field.name')}:* ${form.name}\n📞 *${t('checkout.field.phone')}:* ${form.phone}`
       } else {
-        deliveryDetails = `🚚 *${t('checkout.whatsapp.mode')}:* ${t('checkout.delivery')}\n👤 *${t('checkout.field.name')}:* ${form.name}\n📞 *${t('checkout.field.phone')}:* ${form.phone}\n🏠 *${t('checkout.whatsapp.address')}:* ${form.city}, ${form.address}`
+        deliveryDetails = `🚚 *DÉTAILS DE LIVRAISON*
+👤 *Nom complet:* ${form.name}
+📞 *Numero de telephone:* ${form.phone}
+🏠 *Adresse (N° et Rue):* ${form.address}
+city *Ville et Code Postal:* ${form.city}`
       }
-      if (form.note) deliveryDetails += `\n📝 *${t('checkout.field.note')}:* ${form.note}`
+      if (form.note) {
+        const noteLabel = form.method === 'delivery' ? 'Note pour le livreur' : 'Note'
+        deliveryDetails += `\n📝 *${noteLabel}:* ${form.note}`
+      }
       
       const message = `${baseUrl}\n\n*${t('checkout.whatsapp.newOrderTitle', { id: order.id.slice(0, 8) })}*\n\n${lines}\n\n*${t('checkout.total')}: ${formatMoney(cart.total)}*\n\n----------------\n${deliveryDetails}\n\n📄 ${t('checkout.whatsapp.invoice')}: ${billUrl}\n🏪 ${t('checkout.whatsapp.store')}: ${storeUrl}`
       
@@ -415,8 +471,8 @@ async function submitOrder() {
          }).then(() => {}) 
       }
 
-      // const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
-      // window.open(whatsappUrl, '_blank')
+      const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
+      window.open(whatsappUrl, '_blank')
     }
 
     // 4. Success - Clear cart and Redirect
