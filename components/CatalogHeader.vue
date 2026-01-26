@@ -46,7 +46,7 @@
 
         <!-- Auth UI -->
         <div v-if="!isSearchOpen" class="flex items-center ml-1 pl-2 border-l border-gray-200">
-          <NuxtLink v-if="user" to="/account" class="flex items-center gap-1 text-gray-700 hover:text-primary" :title="t('account.dashboard')">
+          <NuxtLink v-if="user" :to="`/${slug}/myAccount`" class="flex items-center gap-1 text-gray-700 hover:text-primary" :title="t('account.dashboard')">
             <div class="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200">
               <User class="h-5 w-5 text-gray-500" />
             </div>

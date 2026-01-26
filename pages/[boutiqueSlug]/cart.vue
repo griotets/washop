@@ -292,7 +292,7 @@
             <div v-if="registerMethod === 'whatsapp'" class="space-y-4">
                <div v-if="registerWhatsappStep === 'phone'" class="space-y-4">
                   <div class="space-y-2">
-                    <label class="text-sm font-medium">Numéro WhatsApp</label>
+                    <label class="text-sm font-medium">{{ t('auth.whatsapp.label') }}</label>
                     <PhoneInput v-model="registerWhatsappPhone" />
                   </div>
                   <button 
@@ -301,15 +301,15 @@
                      class="w-full rounded-lg bg-[#25D366] py-3 font-semibold text-white disabled:opacity-50 hover:bg-[#128C7E]"
                   >
                      <span v-if="loadingAuth" class="animate-spin mr-2 inline-block h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
-                     Créer mon compte
+                     {{ t('auth.whatsapp.createAccount') }}
                   </button>
                </div>
                
                <div v-else class="space-y-4">
                   <div class="space-y-2">
-                    <label class="text-sm font-medium">Code de vérification</label>
+                    <label class="text-sm font-medium">{{ t('auth.whatsapp.verifyLabel') }}</label>
                     <input v-model="registerWhatsappCode" type="text" class="w-full rounded-lg border p-2 text-center text-xl tracking-widest font-mono" placeholder="123456" maxlength="6" />
-                    <p class="text-xs text-gray-500">Un code a été envoyé au {{ registerWhatsappPhone }}</p>
+                    <p class="text-xs text-gray-500">{{ t('auth.whatsapp.codeSent', { phone: registerWhatsappPhone }) }}</p>
                   </div>
                   <button 
                      @click="handleRegisterWhatsAppVerify" 
@@ -318,7 +318,7 @@
                      Vérifier & Terminer
                   </button>
                   <button @click="registerWhatsappStep = 'phone'" class="w-full text-sm text-gray-500 hover:underline">
-                    Modifier le numéro
+                    {{ t('auth.whatsapp.changePhone') }}
                   </button>
                </div>
             </div>

@@ -94,9 +94,40 @@ export function useAuth() {
       }
       console.log('[Auth] Calling supabase.auth.verifyOtp with:', { email: identifier, tokenLength: token.length, type: 'email' })
       
-      // Re-introducing a safety timeout (30s) to prevent infinite spinner
-      const verifyPromise = supabase.auth.verifyOtp({ token: token.trim(), type: 'email', email: identifier } as any)
-      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Verification timed out after 30s')), 30000))
+      // Re-introducing a safety timeout (60s) to prevent infinite spinner
+      const verifyPromise = (async () => {
+        console.log('[Auth] verifyPromise started')
+        const cleanEmail = identifier.trim().toLowerCase()
+        const cleanToken = token.trim()
+        
+        // 1. Try 'email' type (Magic Link / OTP)
+        console.log('[Auth] Attempting verifyOtp type: email')
+        let res = await supabase.auth.verifyOtp({ token: cleanToken, type: 'email', email: cleanEmail } as any)
+        console.log('[Auth] verifyOtp type: email result:', res)
+        
+        // 2. If invalid, try 'signup' type (New user confirmation)
+        if (res.error && res.error.message.includes('Token has expired or is invalid')) {
+          console.log('[Auth] Retrying verifyOtp with type: signup')
+          const resSignup = await supabase.auth.verifyOtp({ token: cleanToken, type: 'signup', email: cleanEmail } as any)
+          console.log('[Auth] verifyOtp type: signup result:', resSignup)
+          if (!resSignup.error) {
+            return resSignup
+          }
+          
+          // 3. If still invalid, try 'recovery' type (Password reset) - just in case
+          if (resSignup.error && resSignup.error.message.includes('Token has expired or is invalid')) {
+             console.log('[Auth] Retrying verifyOtp with type: recovery')
+             const resRecovery = await supabase.auth.verifyOtp({ token: cleanToken, type: 'recovery', email: cleanEmail } as any)
+             console.log('[Auth] verifyOtp type: recovery result:', resRecovery)
+             if (!resRecovery.error) {
+               return resRecovery
+             }
+          }
+        }
+        return res
+      })()
+
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Verification timed out after 60s')), 60000))
       
       const { data, error: e } = await Promise.race([verifyPromise, timeoutPromise]) as any
       
@@ -133,6 +164,18 @@ export function useAuth() {
       toast.error('Email requis')
       return { user: null, error: error.value }
     }
+
+    // Ensure clean state before signIn
+    try {
+      const { data: currentSession } = await supabase.auth.getSession()
+      if (currentSession?.session) {
+         console.log('[Auth] Cleaning up existing session before signIn')
+         await supabase.auth.signOut()
+      }
+    } catch (cleanupError) {
+      console.warn('[Auth] Session cleanup skipped/failed:', cleanupError)
+    }
+
     const { data, error: e } = await supabase.auth.signInWithPassword({ email: identifier, password } as any)
     loading.value = false
     if (e) {
@@ -161,6 +204,17 @@ export function useAuth() {
       return { user: null, error: error.value }
     }
     
+    // Ensure clean state before signUp
+    try {
+      const { data: currentSession } = await supabase.auth.getSession()
+      if (currentSession?.session) {
+         console.log('[Auth] Cleaning up existing session before signUp')
+         await supabase.auth.signOut()
+      }
+    } catch (cleanupError) {
+      console.warn('[Auth] Session cleanup skipped/failed:', cleanupError)
+    }
+
     const signUpPromise = supabase.auth.signUp({ email: identifier, password } as any)
     const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out after 30s')), 30000))
     

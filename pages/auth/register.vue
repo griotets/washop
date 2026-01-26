@@ -31,7 +31,8 @@
           <div class="space-y-3">
             <label class="block text-sm font-medium">{{ t('register.codeLabel') }}</label>
             <input v-model.trim="enteredCode" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="12345678"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary tracking-widest text-center" />
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary tracking-widest text-center"
+              @keyup.enter="codeValid && !authLoading && !verifying ? verifyCode() : null" />
             <p v-if="codeError" class="text-sm text-red-600">{{ t('register.codeInvalid') }}</p>
             <p v-if="authError" class="text-sm text-red-600">{{ authError }}</p>
           </div>

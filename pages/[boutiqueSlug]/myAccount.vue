@@ -5,7 +5,33 @@
     <main class="mx-auto max-w-5xl px-4 py-8">
       <h1 class="text-3xl font-bold mb-8">{{ t('account.dashboard') }}</h1>
 
-      <div class="grid gap-8 md:grid-cols-[300px_1fr]">
+      <div v-if="checkingSession" class="grid gap-8 md:grid-cols-[300px_1fr]">
+         <!-- Skeleton Sidebar -->
+         <div class="space-y-6">
+           <div class="rounded-xl bg-white p-6 shadow-sm animate-pulse">
+             <div class="flex flex-col items-center text-center">
+               <div class="mb-4 h-20 w-20 rounded-full bg-gray-200"></div>
+               <div class="h-6 w-32 bg-gray-200 rounded mb-2"></div>
+               <div class="h-4 w-48 bg-gray-200 rounded"></div>
+             </div>
+             <div class="mt-6 border-t pt-6 space-y-2">
+               <div class="h-10 w-full bg-gray-200 rounded"></div>
+               <div class="h-10 w-full bg-gray-200 rounded"></div>
+               <div class="h-10 w-full bg-gray-200 rounded"></div>
+             </div>
+           </div>
+         </div>
+         <!-- Skeleton Content -->
+         <div class="space-y-6">
+            <div class="h-8 w-48 bg-gray-200 rounded mb-4 animate-pulse"></div>
+            <div class="space-y-4">
+              <div class="rounded-xl bg-white p-6 shadow-sm h-32 animate-pulse"></div>
+              <div class="rounded-xl bg-white p-6 shadow-sm h-32 animate-pulse"></div>
+            </div>
+         </div>
+      </div>
+
+      <div v-else class="grid gap-8 md:grid-cols-[300px_1fr]">
         <!-- Sidebar -->
         <div class="space-y-6">
           <div class="rounded-xl bg-white p-6 shadow-sm">
@@ -13,7 +39,7 @@
               <div class="mb-4 h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                 <User class="h-10 w-10" />
               </div>
-              <h2 class="text-xl font-bold">{{ user?.user_metadata?.full_name || 'Client' }}</h2>
+              <h2 class="text-xl font-bold">{{ user?.user_metadata?.full_name || t('account.defaultName') }}</h2>
               <p class="text-sm text-gray-500">{{ user?.email }}</p>
             </div>
             
@@ -51,8 +77,8 @@
           <div v-if="activeTab === 'orders'">
             <h2 class="text-xl font-bold mb-4">{{ t('account.orderHistory') }}</h2>
             
-            <div v-if="loadingOrders" class="py-12 text-center">
-               <div class="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+            <div v-if="loadingOrders" class="space-y-4">
+               <div class="rounded-xl bg-white p-6 shadow-sm h-32 animate-pulse" v-for="i in 3" :key="i"></div>
             </div>
 
             <div v-else-if="orders.length === 0" class="rounded-xl bg-white p-12 text-center shadow-sm">
@@ -97,39 +123,12 @@
               </div>
             </div>
           </div>
-
-          <!-- Profile Tab -->
+          
+          <!-- Profile Tab (Placeholder) -->
           <div v-if="activeTab === 'profile'">
-            <h2 class="text-xl font-bold mb-4">{{ t('account.personalInfo') }}</h2>
             <div class="rounded-xl bg-white p-6 shadow-sm">
-              <div class="grid gap-6 md:grid-cols-2">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('checkout.field.name') }}</label>
-                  <div class="rounded-lg border bg-gray-50 px-4 py-2 text-gray-900">{{ user?.user_metadata?.full_name || '-' }}</div>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('checkout.field.phone') }}</label>
-                  <div class="rounded-lg border bg-gray-50 px-4 py-2 text-gray-900">{{ user?.user_metadata?.phone || '-' }}</div>
-                </div>
-                <div>
-                   <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                   <div class="rounded-lg border bg-gray-50 px-4 py-2 text-gray-900">{{ user?.email }}</div>
-                </div>
-                 <div class="md:col-span-2">
-                  <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('checkout.field.cityDetail') }}</label>
-                  <div class="rounded-lg border bg-gray-50 px-4 py-2 text-gray-900">{{ user?.user_metadata?.city || '-' }}</div>
-                </div>
-                <div class="md:col-span-2">
-                  <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('checkout.field.addressDetail') }}</label>
-                  <div class="rounded-lg border bg-gray-50 px-4 py-2 text-gray-900">{{ user?.user_metadata?.address || '-' }}</div>
-                </div>
-              </div>
-              
-              <div class="mt-6 flex justify-end">
-                <p class="text-xs text-gray-500">
-                  {{ t('account.editInfoHint') }}
-                </p>
-              </div>
+              <h2 class="text-xl font-bold mb-4">{{ t('account.profile') }}</h2>
+              <p class="text-gray-500">{{ t('account.profileComingSoon') || 'Gestion du profil bientôt disponible' }}</p>
             </div>
           </div>
         </div>
@@ -140,28 +139,44 @@
 
 <script setup lang="ts">
 import { User, ShoppingBag, LogOut, UserCog, MapPin, MessageSquare } from 'lucide-vue-next'
+import { useAuth } from '~/composables/auth'
 
 const { t } = useI18n()
-const { user, signOut } = useAuth()
+const { user, signOut, refreshUser } = useAuth()
 const nuxt = useNuxtApp()
 const client = nuxt.$supabase as any
 const router = useRouter()
+const route = useRoute()
+const slug = computed(() => String(route.params['boutiqueSlug'] || ''))
 
 const activeTab = ref('orders')
 const loadingOrders = ref(false)
 const orders = ref<any[]>([])
+const checkingSession = ref(true)
 
-// Redirect if not logged in
-watchEffect(() => {
+onMounted(async () => {
+  checkingSession.value = true
+  // Ensure we have the latest user state
   if (!user.value) {
-    router.push('/')
+    await refreshUser()
+  }
+  
+  if (!user.value) {
+    // Not logged in, redirect
+    router.push(slug.value ? `/${slug.value}` : '/')
+  } else {
+    // Logged in, fetch data
+    checkingSession.value = false
+    fetchOrders()
   }
 })
 
-onMounted(() => {
-  if (user.value) {
-    fetchOrders()
-  }
+// Watch for logout or session loss
+watch(() => user.value, (newUser) => {
+   // Only redirect if we are not currently initializing/checking session
+   if (!newUser && !checkingSession.value) {
+     router.push(slug.value ? `/${slug.value}` : '/')
+   }
 })
 
 async function fetchOrders() {
@@ -194,7 +209,7 @@ async function fetchOrders() {
 
 async function handleLogout() {
   await signOut()
-  router.push('/')
+  router.push(slug.value ? `/${slug.value}` : '/')
 }
 
 function getStatusColor(status: string) {

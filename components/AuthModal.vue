@@ -6,8 +6,8 @@
       </button>
 
       <div class="mb-6 text-center">
-        <h2 class="text-xl font-bold">{{ title || (isLogin ? t('checkout.login.title') : t('auth.login.createAccount')) }}</h2>
-        <p class="text-sm text-gray-600">{{ subtitle || (isLogin ? t('checkout.login.subtitle') : t('auth.login.manageStore')) }}</p>
+        <h2 class="text-xl font-bold">{{ title || (isLogin ? t('checkout.login.title') : t('checkout.register.title')) }}</h2>
+        <p class="text-sm text-gray-600">{{ subtitle || (isLogin ? t('checkout.login.subtitle') : t('checkout.register.subtitle')) }}</p>
       </div>
 
       <!-- Tabs -->
@@ -30,7 +30,7 @@
       <div v-if="loginMethod === 'whatsapp'" class="space-y-4">
         <div v-if="whatsappStep === 'phone'" class="space-y-4">
            <div class="space-y-2">
-             <label class="text-sm font-medium">Numéro WhatsApp</label>
+             <label class="text-sm font-medium">{{ t('auth.whatsapp.label') }}</label>
              <PhoneInput v-model="whatsappPhone" />
            </div>
            <button 
@@ -39,30 +39,30 @@
               class="w-full rounded-lg bg-[#25D366] py-3 font-semibold text-white disabled:opacity-50 hover:bg-[#128C7E]"
            >
               <span v-if="loading" class="animate-spin mr-2 inline-block h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
-              {{ isLogin ? 'Recevoir le code' : 'Créer mon compte' }}
+              {{ isLogin ? t('auth.whatsapp.sendCode') : t('auth.whatsapp.createAccount') }}
            </button>
         </div>
         
         <div v-else class="space-y-4">
            <div class="space-y-2">
-             <label class="text-sm font-medium">Code de vérification</label>
+             <label class="text-sm font-medium">{{ t('auth.whatsapp.verifyLabel') }}</label>
              <input v-model="whatsappCode" type="text" class="w-full rounded-lg border p-2 text-center text-xl tracking-widest font-mono" placeholder="123456" maxlength="6" />
-             <p class="text-xs text-gray-500">Un code a été envoyé au {{ whatsappPhone }}</p>
+             <p class="text-xs text-gray-500">{{ t('auth.whatsapp.codeSent', { phone: whatsappPhone }) }}</p>
            </div>
            <button 
               @click="handleWhatsAppVerify" 
               class="w-full rounded-lg bg-primary py-3 font-semibold text-white disabled:opacity-50"
            >
-              Vérifier & Continuer
+              {{ t('auth.whatsapp.verify') }}
            </button>
            <button @click="whatsappStep = 'phone'" class="w-full text-sm text-gray-500 hover:underline">
-             Modifier le numéro
+             {{ t('auth.whatsapp.changePhone') }}
            </button>
         </div>
 
         <div class="text-center text-sm text-gray-600">
           <button @click="isLogin = !isLogin" class="text-primary hover:underline">
-            {{ isLogin ? t('auth.login.noAccount') + ' ' + t('auth.login.createAccount') : t('auth.login.signIn') }}
+            {{ isLogin ? t('auth.login.noAccount') + ' ' + t('checkout.register.action') : t('auth.login.signIn') }}
           </button>
         </div>
       </div>
@@ -100,8 +100,8 @@
                 type="text" 
                 inputmode="numeric"
                 class="w-full rounded-lg border p-2 text-center text-xl tracking-widest font-mono" 
-                placeholder="123456" 
-                maxlength="6" 
+                placeholder="12345678" 
+                maxlength="8" 
                 @keyup.enter="handleEmailOtpVerify"
               />
               <p class="text-xs text-gray-500">{{ t('register.codeMessage', { email: form.email }) || `Code envoyé à ${form.email}` }}</p>
@@ -121,7 +121,7 @@
 
           <div class="text-center text-sm text-gray-600">
             <button @click="isLogin = !isLogin" class="text-primary hover:underline">
-              {{ isLogin ? t('auth.login.noAccount') + ' ' + t('auth.login.createAccount') : t('auth.login.signIn') }}
+              {{ isLogin ? t('auth.login.noAccount') + ' ' + t('checkout.register.action') : t('auth.login.signIn') }}
             </button>
           </div>
         </div>
@@ -224,9 +224,9 @@ async function handleWhatsAppVerify() {
        user_metadata: { phone: whatsappPhone.value } 
      })
      
-     toast.success('Téléphone vérifié !')
+     toast.success(t('auth.phoneVerified'))
   } else {
-    toast.error('Code incorrect')
+    toast.error(t('auth.codeIncorrect'))
   }
 }
 </script>

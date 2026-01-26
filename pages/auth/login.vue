@@ -51,6 +51,7 @@
                 v-model.trim="code" 
                 inputmode="numeric" 
                 pattern="[0-9]*" 
+                autocomplete="one-time-code"
                 maxlength="8" 
                 placeholder="12345678" 
                 class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:ring-primary tracking-widest text-center text-lg letter-spacing-2"
