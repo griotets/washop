@@ -453,39 +453,54 @@ async function fetchStoreData() {
   
   // Use server API to avoid client-side Supabase issues
   console.log('[fetchStoreData] Fetching from API for:', slug.value)
-  const { data: apiData, error } = await useFetch(`/api/stores/${slug.value}`)
   
-  if (error.value) {
-     console.error('[fetchStoreData] API error:', error.value)
+  try {
+    const data: any = await $fetch(`/api/stores/${slug.value}`)
+    console.log('[fetchStoreData] API Data found:', data ? 'Yes' : 'No', data)
+
+    if (data) {
+       const sData = {
+         id: data.id,
+         name: data.name,
+         phone: data.phone,
+         color: data.color || data.color_theme, // Fallback if column name differs
+         logoUrl: data.image_url,
+         social: {
+           whatsapp: data.social_whatsapp,
+           facebook: data.social_facebook,
+           instagram: data.social_instagram,
+           telegram: data.social_telegram
+         },
+         showWhatsappButton: !!data.design_settings?.show_whatsapp_button
+       }
+       
+       // Update storeConfig and localStorage to match loadStoreConfig expectations
+       if (data.design_settings) {
+         storeConfig.value = data.design_settings
+         try {
+           localStorage.setItem(`design:${slug.value}`, JSON.stringify(data.design_settings))
+           // Apply defaults
+           const deliveryConfig = storeConfig.value.checkout?.delivery
+           if (deliveryConfig?.pickup && !deliveryConfig?.delivery) form.method = 'pickup'
+           else if (!deliveryConfig?.pickup && deliveryConfig?.delivery) form.method = 'delivery'
+         } catch (e) {
+           console.error('Error saving design settings', e)
+         }
+       }
+
+       storeData.value = sData
+       try {
+          localStorage.setItem(`store:${slug.value}`, JSON.stringify(sData))
+       } catch {}
+       return sData
+    }
+  } catch (error: any) {
+     console.error('[fetchStoreData] API error:', error)
      const toast = useToast()
-     toast.error(`Erreur chargement boutique: ${error.value.message || error.value}`)
+     toast.error(`Erreur chargement boutique: ${error.message || error}`)
      return null
   }
   
-  const data = apiData.value
-  console.log('[fetchStoreData] API Data found:', data ? 'Yes' : 'No', data)
-
-  if (data) {
-     const sData = {
-       id: data.id,
-       name: data.name,
-       phone: data.phone,
-       color: data.color || data.color_theme, // Fallback if column name differs
-       logoUrl: data.image_url,
-       social: {
-         whatsapp: data.social_whatsapp,
-         facebook: data.social_facebook,
-         instagram: data.social_instagram,
-         telegram: data.social_telegram
-       },
-       showWhatsappButton: !!data.design_settings?.show_whatsapp_button
-     }
-     storeData.value = sData
-     try {
-        localStorage.setItem(`store:${slug.value}`, JSON.stringify(sData))
-     } catch {}
-     return sData
-  }
   return null
 }
 
@@ -706,19 +721,13 @@ async function submitOrder() {
     console.error('Error fetching store data:', e)
   }
 
+  console.log('!storeData.value?.id:', storeData.value)
   if (!storeData.value?.id) {
      loading.value = false
      return toast.error(t('checkout.error.storeMissing') || 'Boutique introuvable')
   }
   
   try {
-    // 1. Create Order
-    // Note: We attempt to save delivery details. If columns don't exist, this might fail.
-    // However, usually these are standard columns. If not, we might need to adjust.
-    // Based on standard e-commerce schemas, these should be there or in a json column.
-    // For now, I'll assume they exist or I'll try to put them in a metadata field if I knew the schema better.
-    // Since I can't check schema, I'll assume the best case.
-    
     // Construct payload
     const orderPayload: any = {
       store_id: storeData.value.id,
@@ -733,17 +742,11 @@ async function submitOrder() {
       note: form.note
     }
 
-    const { data: order, error: orderErr } = await supabase
-      .from('orders')
-      .insert(orderPayload)
-      .select('id')
-      .single()
-
-    if (orderErr) throw orderErr
-
-    // 2. Create Order Items
+    // 1. Create Order via Server API
+    console.log('[submitOrder] Sending payload to server:', orderPayload)
+    
+    // Prepare items payload for server (without order_id yet)
     const itemsPayload = cart.items.map(item => ({
-      order_id: order.id,
       product_id: item.productId ? Number(item.productId) : null,
       variant_id: item.variantId ? Number(item.variantId) : null,
       product_name: item.name,
@@ -752,15 +755,15 @@ async function submitOrder() {
       options: item.options ? item.options : null
     }))
 
-    const { error: itemsErr } = await supabase
-      .from('order_items')
-      .insert(itemsPayload)
+    const { order } = await $fetch('/api/orders/create', {
+      method: 'POST',
+      body: {
+        order: orderPayload,
+        items: itemsPayload
+      }
+    })
 
-    if (itemsErr) {
-        // If items fail, we might want to delete the order or just log it. 
-        // For now, log and proceed (order exists but empty items)
-        console.error('Error inserting items:', itemsErr)
-    }
+    console.log('[submitOrder] Success:', order)
 
     // 3. Open WhatsApp with Bill & Store Links
     const phone = getStorePhone()
@@ -853,32 +856,33 @@ async function loadConstraints() {
   try {
     const productIds = Array.from(new Set(cart.items.map(parseProductId))).filter(Boolean)
     const variantIds = Array.from(new Set(cart.items.map(i => i.variantId).filter(Boolean)))
-    if (productIds.length > 0) {
-      const { data, error } = await supabase
-        .from('products')
-        .select('id,track_inventory,stock_quantity,max_order_quantity,min_order_quantity,is_out_of_stock,max_order_qty,min_order_qty')
-        .in('id', productIds.map(id => Number(id)))
-      if (error) console.error('loadConstraints products error', error)
-      const prods: any[] = Array.isArray(data) ? data : []
-      prods.forEach((p: any) => {
+    
+    if (productIds.length === 0 && variantIds.length === 0) return
+
+    const { products, variants } = await $fetch<{ products: any[], variants: any[] }>('/api/products/constraints', {
+      method: 'POST',
+      body: {
+        productIds: productIds.map(id => Number(id)),
+        variantIds: variantIds.map(id => Number(id))
+      }
+    })
+
+    if (products) {
+      products.forEach((p: any) => {
         const max = Number(p.max_order_quantity || p.max_order_qty || 0)
         const min = Number(p.min_order_quantity || p.min_order_qty || 0)
         productConstraints[String(p.id)] = { max, min, stock: Number(p.stock_quantity || 0), track: !!p.track_inventory, out: !!p.is_out_of_stock }
       })
     }
-    if (variantIds.length > 0) {
-      const { data, error } = await supabase
-        .from('variants')
-        .select('id,track_inventory,stock_quantity,max_order_quantity,is_out_of_stock')
-        .in('id', variantIds.map(id => Number(id)))
-      if (error) console.error('loadConstraints variants error', error)
-      const vars: any[] = Array.isArray(data) ? data : []
-      vars.forEach((v: any) => {
+
+    if (variants) {
+      variants.forEach((v: any) => {
         const max = Number(v.max_order_quantity || 0)
         const min = Number(v.min_order_quantity || 0)
         variantConstraints[String(v.id)] = { max, min, stock: Number(v.stock_quantity || 0), track: !!v.track_inventory, out: !!v.is_out_of_stock }
       })
     }
+
   } catch (e) {
     console.error('loadConstraints error', e)
   }

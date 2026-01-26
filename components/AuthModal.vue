@@ -126,13 +126,16 @@
             {{ isLogin ? t('auth.login.noAccount') + ' ' + t('auth.login.createAccount') : t('auth.login.signIn') }}
           </button>
         </div>
-        
-        <div v-if="allowGuest && isLogin" class="relative my-4 text-center">
+      </div>
+
+      <!-- Guest Option (Always Visible) -->
+      <div v-if="allowGuest" class="mt-4">
+        <div class="relative my-4 text-center">
           <div class="absolute inset-0 flex items-center"><div class="w-full border-t"></div></div>
           <span class="relative bg-white px-2 text-xs text-gray-500">OU</span>
         </div>
 
-        <button v-if="allowGuest && isLogin" @click="$emit('guest-continue')" class="w-full rounded-lg border border-gray-300 py-3 font-semibold text-gray-700 hover:bg-gray-50">
+        <button @click="$emit('guest-continue')" class="w-full rounded-lg border border-gray-300 py-3 font-semibold text-gray-700 hover:bg-gray-50">
           {{ t('checkout.login.guest') }}
         </button>
       </div>
