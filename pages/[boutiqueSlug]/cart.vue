@@ -451,30 +451,19 @@ async function fetchStoreData() {
     return null
   }
   
-  console.log('[fetchStoreData] Supabase Client check:', !!supabase, supabase?.supabaseUrl)
-
-  // Add timeout to prevent infinite hanging
-  const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Supabase request timed out after 5s')), 5000))
+  // Use server API to avoid client-side Supabase issues
+  console.log('[fetchStoreData] Fetching from API for:', slug.value)
+  const { data: apiData, error } = await useFetch(`/api/stores/${slug.value}`)
   
-  let data, error;
-  try {
-      const result = await Promise.race([
-          supabase.from('stores').select('*').eq('slug', slug.value).maybeSingle(),
-          timeoutPromise
-      ]) as any
-      data = result.data
-      error = result.error
-  } catch (e: any) {
-      console.error('[fetchStoreData] Exception or Timeout:', e)
-      return null
-  }
-  
-  if (error) {
-     console.error('[fetchStoreData] Supabase error:', error)
+  if (error.value) {
+     console.error('[fetchStoreData] API error:', error.value)
+     const toast = useToast()
+     toast.error(`Erreur chargement boutique: ${error.value.message || error.value}`)
      return null
   }
   
-  console.log('[fetchStoreData] Data found:', data ? 'Yes' : 'No', data)
+  const data = apiData.value
+  console.log('[fetchStoreData] API Data found:', data ? 'Yes' : 'No', data)
 
   if (data) {
      const sData = {
