@@ -569,31 +569,39 @@ function loadStoreConfig() {
 }
 
 function loadCustomerDetails() {
-  // 1. Try User Profile (Supabase) if logged in
-  if (user.value?.user_metadata) {
-    const m = user.value.user_metadata
-    if (m.full_name) form.name = m.full_name
-    if (m.phone) form.phone = m.phone
-    if (m.city) form.city = m.city
-    if (m.address) form.address = m.address
-    // If we have profile data, we prioritize it, but we could also merge with localStorage if needed.
-    // For now, profile data wins.
-    return 
-  }
+  // Initialize with empty or current values
+  const info = { name: form.name, phone: form.phone, city: form.city, address: form.address }
 
-  // 2. Fallback to LocalStorage
+  // 1. Load from LocalStorage first (as base)
   try {
     const raw = localStorage.getItem('customer:info')
     if (raw) {
-      const info = JSON.parse(raw)
-      if (info.name) form.name = info.name
-      if (info.phone) form.phone = info.phone
-      if (info.city) form.city = info.city
-      if (info.address) form.address = info.address
+      const saved = JSON.parse(raw)
+      if (saved.name) info.name = saved.name
+      if (saved.phone) info.phone = saved.phone
+      if (saved.city) info.city = saved.city
+      if (saved.address) info.address = saved.address
     }
   } catch (e) {
     console.error('Error loading customer info', e)
   }
+
+  // 2. Override/Fill with User Profile (Supabase) if logged in
+  // Profile data is considered more "authoritative" for verified fields like phone,
+  // but for others we might want to keep what's in local storage if profile is empty.
+  if (user.value?.user_metadata) {
+    const m = user.value.user_metadata
+    if (m.full_name) info.name = m.full_name
+    if (m.phone) info.phone = m.phone
+    if (m.city) info.city = m.city
+    if (m.address) info.address = m.address
+  }
+
+  // Apply to form
+  form.name = info.name
+  form.phone = info.phone
+  form.city = info.city
+  form.address = info.address
 }
 
 async function saveCustomerDetails() {

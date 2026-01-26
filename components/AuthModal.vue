@@ -212,17 +212,30 @@ async function handleWhatsAppSend() {
 async function handleWhatsAppVerify() {
   if (whatsappCode.value === sentCode.value) {
      // Verified! 
-     // For AuthModal, we treat this as a successful login. 
-     // Since we don't have a backend verified user yet, we pass a mock user object or handle it as guest-verified.
-     // However, the prompt implies "Login". 
-     // Ideally, we should create a user or link it. 
-     // For now, we will emit login-success with a metadata object.
-     
-     emit('login-success', { 
+     // Create a session-like user object
+     const mockUser = { 
        id: 'guest-verified', 
+       aud: 'authenticated',
+       created_at: new Date().toISOString(),
+       app_metadata: { provider: 'whatsapp' },
+       user_metadata: { phone: whatsappPhone.value },
        email: whatsappPhone.value + '@whatsapp.local',
-       user_metadata: { phone: whatsappPhone.value } 
-     })
+       phone: whatsappPhone.value,
+       role: 'authenticated',
+       updated_at: new Date().toISOString()
+     }
+     
+     // Update global auth state
+     auth.user.value = mockUser as any
+     
+     // Persist to LocalStorage for page refresh
+     try {
+       localStorage.setItem('whatsapp-session', JSON.stringify(mockUser))
+     } catch (e) {
+       console.error('Failed to save whatsapp session', e)
+     }
+
+     emit('login-success', mockUser)
      
      toast.success(t('auth.phoneVerified'))
   } else {

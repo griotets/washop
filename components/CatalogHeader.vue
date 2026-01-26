@@ -48,7 +48,8 @@
         <div v-if="!isSearchOpen" class="flex items-center ml-1 pl-2 border-l border-gray-200">
           <NuxtLink v-if="user" :to="`/${slug}/myAccount`" class="flex items-center gap-1 text-gray-700 hover:text-primary" :title="t('account.dashboard')">
             <div class="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200">
-              <User class="h-5 w-5 text-gray-500" />
+              <span v-if="userInitials" class="text-xs font-bold text-gray-700">{{ userInitials }}</span>
+              <User v-else class="h-5 w-5 text-gray-500" />
             </div>
           </NuxtLink>
           <button v-else @click="showAuthModal = true" class="flex items-center gap-1 text-gray-700 hover:text-primary">
@@ -75,6 +76,14 @@ import { useI18n } from '~/composables/i18n'
 const { locale, t } = useI18n()
 const { user } = useAuth()
 const showAuthModal = ref(false)
+
+const userInitials = computed(() => {
+  if (!user.value?.user_metadata?.full_name) return null
+  const parts = user.value.user_metadata.full_name.trim().split(/\s+/)
+  if (parts.length === 0) return null
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+  return (parts[0][0] + parts[1][0]).toUpperCase()
+})
 
 const props = defineProps<{
   store?: {
@@ -143,6 +152,12 @@ onMounted(() => {
     if (raw) Object.assign(localStore, JSON.parse(raw))
   } catch {}
 })
+
+// Log user changes to verify reactivity
+watch(user, (newUser) => {
+  console.log('CatalogHeader user state changed:', newUser)
+}, { immediate: true })
+
 const cart = useCartStore()
 onMounted(() => cart.load(slug.value))
 const count = computed(() => cart.count)

@@ -4,9 +4,9 @@ import { parsePhoneNumber } from 'libphonenumber-js'
 export function useAuth() {
   const nuxt = useNuxtApp()
   const supabase = nuxt.$supabase as SupabaseClient
-  const user = ref<User | null>(null)
-  const loading = ref(false)
-  const error = ref<string | null>(null)
+  const user = useState<User | null>('auth-user', () => null)
+  const loading = useState('auth-loading', () => false)
+  const error = useState<string | null>('auth-error', () => null)
 
   const toast = useToast()
 
@@ -56,7 +56,7 @@ export function useAuth() {
       }
       
       const otpPromise = supabase.auth.signInWithOtp({ email: identifier, options: { shouldCreateUser: true } })
-      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out after 15s')), 15000))
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out after 60s')), 60000))
       
       const { error: e } = await Promise.race([otpPromise, timeoutPromise]) as any
       
@@ -103,13 +103,11 @@ export function useAuth() {
         // 1. Try 'email' type (Magic Link / OTP)
         console.log('[Auth] Attempting verifyOtp type: email')
         let res = await supabase.auth.verifyOtp({ token: cleanToken, type: 'email', email: cleanEmail } as any)
-        console.log('[Auth] verifyOtp type: email result:', res)
         
         // 2. If invalid, try 'signup' type (New user confirmation)
         if (res.error && res.error.message.includes('Token has expired or is invalid')) {
           console.log('[Auth] Retrying verifyOtp with type: signup')
           const resSignup = await supabase.auth.verifyOtp({ token: cleanToken, type: 'signup', email: cleanEmail } as any)
-          console.log('[Auth] verifyOtp type: signup result:', resSignup)
           if (!resSignup.error) {
             return resSignup
           }
@@ -118,7 +116,6 @@ export function useAuth() {
           if (resSignup.error && resSignup.error.message.includes('Token has expired or is invalid')) {
              console.log('[Auth] Retrying verifyOtp with type: recovery')
              const resRecovery = await supabase.auth.verifyOtp({ token: cleanToken, type: 'recovery', email: cleanEmail } as any)
-             console.log('[Auth] verifyOtp type: recovery result:', resRecovery)
              if (!resRecovery.error) {
                return resRecovery
              }
@@ -129,9 +126,24 @@ export function useAuth() {
 
       const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Verification timed out after 60s')), 60000))
       
-      const { data, error: e } = await Promise.race([verifyPromise, timeoutPromise]) as any
+      let data, e
+      try {
+        const result = await Promise.race([verifyPromise, timeoutPromise]) as any
+        data = result.data
+        e = result.error
+      } catch (err: any) {
+        console.warn('[Auth] Verification timed out or failed. Checking session status...', err)
+        // Recovery check: if timeout occurred but session was actually established
+        const { data: sessionData } = await supabase.auth.getSession()
+        if (sessionData?.session) {
+          console.log('[Auth] Session found despite verification error/timeout. Treating as success.')
+          data = { user: sessionData.session.user, session: sessionData.session }
+          e = null
+        } else {
+          e = err
+        }
+      }
       
-      console.log('[Auth] verifyOtp result:', { data, error: e })
       if (e) {
         console.error(e)
         toast.error('Erreur vérification: ' + e.message)
@@ -216,7 +228,7 @@ export function useAuth() {
     }
 
     const signUpPromise = supabase.auth.signUp({ email: identifier, password } as any)
-    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out after 30s')), 30000))
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out after 60s')), 60000))
     
     const { data, error: e } = await Promise.race([signUpPromise, timeoutPromise]) as any
     
@@ -260,6 +272,9 @@ export function useAuth() {
     }
     error.value = e ? e.message : null
     user.value = null
+    if (process.client) {
+      localStorage.removeItem('whatsapp-session')
+    }
     return { error: error.value }
   }
 

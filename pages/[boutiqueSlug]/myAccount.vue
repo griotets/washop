@@ -5,7 +5,7 @@
     <main class="mx-auto max-w-5xl px-4 py-8">
       <h1 class="text-3xl font-bold mb-8">{{ t('account.dashboard') }}</h1>
 
-      <div v-if="checkingSession" class="grid gap-8 md:grid-cols-[300px_1fr]">
+      <div v-if="checkingSession" class="grid grid-cols-1 gap-8 md:grid-cols-[300px_1fr]">
          <!-- Skeleton Sidebar -->
          <div class="space-y-6">
            <div class="rounded-xl bg-white p-6 shadow-sm animate-pulse">
@@ -31,7 +31,7 @@
          </div>
       </div>
 
-      <div v-else class="grid gap-8 md:grid-cols-[300px_1fr]">
+      <div v-else class="grid grid-cols-1 gap-8 md:grid-cols-[300px_1fr]">
         <!-- Sidebar -->
         <div class="space-y-6">
           <div class="rounded-xl bg-white p-6 shadow-sm">
@@ -62,9 +62,11 @@
               </button>
               <button 
                 @click="handleLogout"
-                class="flex w-full items-center gap-3 rounded-lg px-4 py-2 text-left text-red-600 hover:bg-red-50"
+                :disabled="loggingOut"
+                class="flex w-full items-center gap-3 rounded-lg px-4 py-2 text-left text-red-600 hover:bg-red-50 disabled:opacity-50"
               >
-                <LogOut class="h-5 w-5" />
+                <Loader2 v-if="loggingOut" class="h-5 w-5 animate-spin" />
+                <LogOut v-else class="h-5 w-5" />
                 {{ t('auth.logout') }}
               </button>
             </div>
@@ -124,11 +126,99 @@
             </div>
           </div>
           
-          <!-- Profile Tab (Placeholder) -->
+          <!-- Profile Tab -->
           <div v-if="activeTab === 'profile'">
             <div class="rounded-xl bg-white p-6 shadow-sm">
-              <h2 class="text-xl font-bold mb-4">{{ t('account.profile') }}</h2>
-              <p class="text-gray-500">{{ t('account.profileComingSoon') || 'Gestion du profil bientôt disponible' }}</p>
+              <h2 class="text-xl font-bold mb-6">{{ t('account.personalInfo') }}</h2>
+              
+              <div class="space-y-6">
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <!-- Name -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                      {{ t('checkout.fullName') }}
+                    </label>
+                    <input 
+                      v-model="profileForm.full_name"
+                      type="text"
+                      class="w-full rounded-lg border-gray-300 px-4 py-2 focus:border-primary focus:ring-primary shadow-sm"
+                      :placeholder="t('checkout.namePlaceholder')"
+                    />
+                  </div>
+
+                  <!-- Email -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                      {{ t('checkout.email') }}
+                    </label>
+                    <input 
+                      v-model="profileForm.email"
+                      type="email"
+                      class="w-full rounded-lg border-gray-300 px-4 py-2 focus:border-primary focus:ring-primary shadow-sm"
+                      :placeholder="t('checkout.emailPlaceholder')"
+                    />
+                  </div>
+
+                  <!-- Phone -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                      {{ t('checkout.phone') }}
+                    </label>
+                    <PhoneInput v-model="profileForm.phone" />
+                  </div>
+
+                  <!-- City -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                      {{ t('checkout.field.city') }}
+                    </label>
+                    <input 
+                      v-model="profileForm.city"
+                      type="text"
+                      class="w-full rounded-lg border-gray-300 px-4 py-2 focus:border-primary focus:ring-primary shadow-sm"
+                      placeholder="Douala, Yaoundé..."
+                    />
+                  </div>
+                </div>
+
+                <!-- Address -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ t('checkout.field.address') }}
+                  </label>
+                  <AddressAutocomplete 
+                    :initial-value="profileForm.address"
+                    :placeholder="t('checkout.searchAddressPlaceholder')"
+                    @select="handleAddressSelect"
+                  />
+                  <!-- Fallback manual input if needed, but AddressAutocomplete handles text input too via its query model if we bind it right. 
+                       Actually AddressAutocomplete uses its own internal query. 
+                       We should probably sync it or just use a simple input if AddressAutocomplete is too strict. 
+                       Looking at AddressAutocomplete code, it emits 'select' but doesn't bind v-model nicely for simple text updates that aren't selections.
+                       Let's add a simple input below it or instead of it if we want full manual control? 
+                       Actually, let's just use a simple input for address for now to be safe, as AddressAutocomplete is specialized. 
+                       Wait, the user wants 'custom information'. 
+                       Let's use a simple textarea/input for address to ensure they can type whatever they want.
+                  -->
+                   <textarea 
+                      v-model="profileForm.address"
+                      rows="2"
+                      class="mt-2 w-full rounded-lg border-gray-300 px-4 py-2 focus:border-primary focus:ring-primary shadow-sm"
+                      :placeholder="t('checkout.addressPlaceholder')"
+                    ></textarea>
+                </div>
+
+                <div class="flex justify-end pt-4 border-t">
+                  <button 
+                    @click="saveProfile" 
+                    :disabled="savingProfile"
+                    class="rounded-lg bg-primary px-6 py-2.5 font-semibold text-white hover:bg-primary/90 disabled:opacity-50 flex items-center gap-2"
+                  >
+                    <Loader2 v-if="savingProfile" class="h-4 w-4 animate-spin" />
+                    {{ t('common.save') || 'Enregistrer' }}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -138,8 +228,10 @@
 </template>
 
 <script setup lang="ts">
-import { User, ShoppingBag, LogOut, UserCog, MapPin, MessageSquare } from 'lucide-vue-next'
+import { User, ShoppingBag, LogOut, UserCog, MapPin, MessageSquare, Loader2 } from 'lucide-vue-next'
 import { useAuth } from '~/composables/auth'
+import PhoneInput from '~/components/PhoneInput.vue'
+import AddressAutocomplete from '~/components/AddressAutocomplete.vue'
 
 const { t } = useI18n()
 const { user, signOut, refreshUser } = useAuth()
@@ -147,12 +239,24 @@ const nuxt = useNuxtApp()
 const client = nuxt.$supabase as any
 const router = useRouter()
 const route = useRoute()
+const toast = useToast()
 const slug = computed(() => String(route.params['boutiqueSlug'] || ''))
 
 const activeTab = ref('orders')
 const loadingOrders = ref(false)
 const orders = ref<any[]>([])
 const checkingSession = ref(true)
+
+// Profile Form
+const savingProfile = ref(false)
+const loggingOut = ref(false)
+const profileForm = reactive({
+  full_name: '',
+  email: '',
+  phone: '',
+  city: '',
+  address: ''
+})
 
 onMounted(async () => {
   checkingSession.value = true
@@ -165,19 +269,109 @@ onMounted(async () => {
     // Not logged in, redirect
     router.push(slug.value ? `/${slug.value}` : '/')
   } else {
+    console.log('MyAccount user:', user.value)
+    
+    // Log user info as requested
+    console.log('[MyAccount] User info loaded:', { 
+      userId: user.value.id, 
+      name: user.value.user_metadata?.full_name, 
+      email: user.value.email 
+    })
+
+    // Init form
+    initProfileForm()
+
     // Logged in, fetch data
     checkingSession.value = false
     fetchOrders()
   }
 })
 
+function initProfileForm() {
+  if (!user.value) return
+  const m = user.value.user_metadata || {}
+  profileForm.full_name = m.full_name || ''
+  profileForm.email = user.value.email || m.email || ''
+  profileForm.phone = m.phone || ''
+  profileForm.city = m.city || ''
+  profileForm.address = m.address || ''
+}
+
 // Watch for logout or session loss
 watch(() => user.value, (newUser) => {
    // Only redirect if we are not currently initializing/checking session
    if (!newUser && !checkingSession.value) {
      router.push(slug.value ? `/${slug.value}` : '/')
+   } else if (newUser) {
+     initProfileForm()
    }
 })
+
+function handleAddressSelect(data: { city: string; address: string; full: any }) {
+  if (data.city) profileForm.city = data.city
+  if (data.address) profileForm.address = data.address
+}
+
+async function saveProfile() {
+  if (!user.value) return
+  savingProfile.value = true
+  
+  try {
+    const updates = {
+      full_name: profileForm.full_name,
+      email: profileForm.email, // Note: updating email in metadata doesn't change auth email
+      phone: profileForm.phone,
+      city: profileForm.city,
+      address: profileForm.address
+    }
+
+    // 1. Update Supabase User
+    // Note: This only updates metadata. To update actual email/phone requires different calls and re-verification.
+    // For this simple profile, we assume metadata is the source of truth for display.
+    const updatePromise = client.auth.updateUser({
+      data: updates
+    })
+    
+    // Timeout safety
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Timeout updating user')), 15000)
+    )
+
+    const { error } = await Promise.race([updatePromise, timeoutPromise]) as any
+
+    if (error) throw error
+
+    // 2. If Guest/WhatsApp Session (check if it exists in local storage)
+    if (process.client && localStorage.getItem('whatsapp-session')) {
+       // Merge updates into existing session object
+       const currentSession = JSON.parse(localStorage.getItem('whatsapp-session') || '{}')
+       const updatedSession = {
+         ...currentSession,
+         email: profileForm.email, // Allow updating email property on the object
+         user_metadata: {
+           ...currentSession.user_metadata,
+           ...updates
+         }
+       }
+       localStorage.setItem('whatsapp-session', JSON.stringify(updatedSession))
+       
+       // Force update local reactive state
+       user.value = updatedSession
+    } else {
+       // Force refresh to get latest metadata in UI if it was a real Supabase update
+       // (Supabase client should handle this, but explicit refresh helps)
+       await refreshUser() 
+    }
+
+    toast.success(t('common.saved') || 'Profil mis à jour')
+  } catch (e: any) {
+    console.error('Error saving profile:', e)
+    toast.error(e.message || 'Erreur lors de la sauvegarde')
+  } finally {
+    savingProfile.value = false
+  }
+}
+
 
 async function fetchOrders() {
   loadingOrders.value = true
@@ -208,8 +402,17 @@ async function fetchOrders() {
 }
 
 async function handleLogout() {
-  await signOut()
-  router.push(slug.value ? `/${slug.value}` : '/')
+  loggingOut.value = true
+  try {
+    // Add timeout for signOut too
+    const signOutPromise = signOut()
+    const timeoutPromise = new Promise(resolve => setTimeout(resolve, 5000))
+    await Promise.race([signOutPromise, timeoutPromise])
+    
+    router.push(slug.value ? `/${slug.value}` : '/')
+  } finally {
+    loggingOut.value = false
+  }
 }
 
 function getStatusColor(status: string) {
