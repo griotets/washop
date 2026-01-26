@@ -2,6 +2,42 @@
   <div class="min-h-screen flex flex-col">
     <CatalogHeader :store="store" />
     <main class="mx-auto max-w-6xl px-4 py-8 flex-grow w-full">
+      <div v-if="loading" class="animate-pulse">
+        <div class="h-4 w-24 bg-gray-200 rounded mb-6"></div>
+        <div class="grid gap-8 lg:grid-cols-2">
+          <div>
+            <div class="h-80 w-full bg-gray-200 rounded-xl mb-4"></div>
+            <div class="flex gap-2">
+               <div class="h-10 w-10 bg-gray-200 rounded" v-for="i in 4" :key="i"></div>
+            </div>
+          </div>
+          <div>
+            <div class="rounded-xl border bg-white p-4 space-y-4">
+              <div class="flex items-center gap-3 border-b pb-3">
+                 <div class="h-10 w-10 bg-gray-200 rounded-full"></div>
+                 <div class="flex-1 space-y-2">
+                    <div class="h-4 w-32 bg-gray-200 rounded"></div>
+                    <div class="h-3 w-16 bg-gray-200 rounded"></div>
+                 </div>
+              </div>
+              <div class="h-8 w-3/4 bg-gray-200 rounded"></div>
+              <div class="h-20 w-full bg-gray-200 rounded"></div>
+              <div class="h-6 w-24 bg-gray-200 rounded"></div>
+              <div class="space-y-2 mt-4">
+                 <div class="h-4 w-20 bg-gray-200 rounded"></div>
+                 <div class="flex gap-2">
+                    <div class="h-10 w-20 bg-gray-200 rounded" v-for="i in 3" :key="i"></div>
+                 </div>
+              </div>
+              <div class="mt-6 space-y-3">
+                 <div class="h-12 w-full bg-gray-200 rounded"></div>
+                 <div class="h-12 w-full bg-gray-200 rounded"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-else>
       <div class="mb-6">
         <NuxtLink :to="`/${slug}`" class="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-primary transition-colors">
           <ArrowLeft class="h-4 w-4" />
@@ -127,6 +163,7 @@
           </div>
         </div>
       </div>
+      </div>
     </main>
     <CatalogFooter />
     <WhatsAppFloatButton :phone="store.phone" :visible="store.showWhatsappButton" />
@@ -158,6 +195,7 @@ const supabase = nuxt.$supabase as SupabaseClient
 const { t, locale } = useI18n()
 const slug = computed(() => String(route.params['boutiqueSlug'] || ''))
 const productId = computed(() => String(route.params.id || ''))
+const loading = ref(true)
 const showPopup = ref(false)
 const popupBlock = ref<any>(null)
 function closePopup() {
@@ -387,6 +425,8 @@ function shareProduct() {
 shareProduct
 
 onMounted(async () => {
+  loading.value = true
+  try {
   if (!supabase) return
   cart.load(slug.value)
   try {
@@ -456,6 +496,9 @@ onMounted(async () => {
       store_id: storeId,
       event_type: 'product_view'
     }).then(({ error }) => { if(error) console.error('Track view error', error) })
+  }
+  } finally {
+    loading.value = false
   }
 })
 useHead({ title: `Produit ${route.params.id} | Wa-Shop` })

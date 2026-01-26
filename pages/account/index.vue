@@ -143,7 +143,8 @@ import { User, ShoppingBag, LogOut, UserCog, MapPin, MessageSquare } from 'lucid
 
 const { t } = useI18n()
 const { user, signOut } = useAuth()
-const client = useSupabaseClient()
+const nuxt = useNuxtApp()
+const client = nuxt.$supabase as any
 const router = useRouter()
 
 const activeTab = ref('orders')

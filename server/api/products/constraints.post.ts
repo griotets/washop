@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   if (productIds && productIds.length > 0) {
     const { data, error } = await supabase
       .from('products')
-      .select('id,track_inventory,stock_quantity,max_order_quantity,min_order_quantity,is_out_of_stock,max_order_qty,min_order_qty')
+      .select('id,track_inventory,stock_quantity,max_order_quantity,min_order_quantity,is_out_of_stock')
       .in('id', productIds)
     
     if (error) {

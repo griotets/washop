@@ -3,6 +3,27 @@
     <CatalogHeader :store="storeData" />
     
     <main class="mx-auto max-w-3xl px-4 py-8 pb-32 flex-grow w-full">
+      <div v-if="loadingData" class="animate-pulse space-y-8">
+        <div class="flex items-center justify-between px-4 mb-8">
+          <div class="h-8 w-8 rounded-full bg-gray-200"></div>
+          <div class="h-1 flex-1 mx-2 bg-gray-200"></div>
+          <div class="h-8 w-8 rounded-full bg-gray-200"></div>
+          <div class="h-1 flex-1 mx-2 bg-gray-200"></div>
+          <div class="h-8 w-8 rounded-full bg-gray-200"></div>
+        </div>
+        <div class="h-8 w-48 bg-gray-200 rounded mb-6"></div>
+        <div class="space-y-4">
+          <div v-for="i in 3" :key="i" class="flex gap-4 p-4 border rounded-xl">
+            <div class="h-16 w-16 bg-gray-200 rounded-lg"></div>
+            <div class="flex-1 space-y-2">
+              <div class="h-5 w-3/4 bg-gray-200 rounded"></div>
+              <div class="h-4 w-1/2 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div v-else>
       <!-- Stepper -->
       <div class="mb-8 flex items-center justify-between px-4">
         <div class="flex flex-col items-center gap-2">
@@ -345,6 +366,7 @@
           </div>
         </div>
       </div>
+      </div>
     </main>
 
     <!-- Bottom Action Bar -->
@@ -424,6 +446,7 @@ const saveInfo = ref(true)
 const storeConfig = ref<any>({})
 const storeData = ref<any>(null)
 const loading = ref(false)
+const loadingData = ref(true)
 const form = reactive({
   name: '',
   phone: '',
@@ -505,20 +528,27 @@ async function fetchStoreData() {
 }
 
 onMounted(async () => {
-  cart.load(slug.value)
-  loadStoreConfig()
-  await loadConstraints()
-  
-  // Try to load from cache first
+  loadingData.value = true
   try {
-    const raw = localStorage.getItem(`store:${slug.value}`)
-    if (raw) storeData.value = JSON.parse(raw)
-  } catch {}
+    cart.load(slug.value)
+    loadStoreConfig()
+    
+    // Try to load from cache first
+    try {
+      const raw = localStorage.getItem(`store:${slug.value}`)
+      if (raw) {
+        storeData.value = JSON.parse(raw)
+        loadingData.value = false
+      }
+    } catch {}
 
-  // Fetch fresh data
-  await fetchStoreData()
-  
-  loadCustomerDetails()
+    await loadConstraints()
+    await fetchStoreData()
+    
+    loadCustomerDetails()
+  } finally {
+    loadingData.value = false
+  }
 })
 
 watch(user, (u) => {

@@ -2,8 +2,36 @@
   <div class="min-h-screen bg-gray-50 flex flex-col">
     <CatalogHeader v-if="canRenderCatalog" :store="storeInfo" />
     
-    <div v-if="loading" class="flex-grow flex items-center justify-center min-h-[60vh]">
-      <div class="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-primary"></div>
+    <div v-if="loading" class="flex-grow mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <!-- Hero Skeleton -->
+      <div class="relative overflow-hidden rounded-2xl bg-gray-100 mb-12 h-64 animate-pulse"></div>
+      
+      <!-- Search Skeleton -->
+      <div class="relative mb-8 max-w-lg mx-auto">
+        <Skeleton class="h-12 w-full rounded-full" />
+      </div>
+
+      <!-- Categories Skeleton -->
+      <div class="flex gap-4 overflow-x-auto pb-4 mb-8">
+         <Skeleton class="h-10 w-24 rounded-full flex-shrink-0" v-for="i in 5" :key="i" />
+      </div>
+
+      <!-- Products Grid Skeleton -->
+      <div class="space-y-16">
+        <div v-for="j in 2" :key="j">
+           <div class="flex items-center justify-between mb-6">
+              <Skeleton class="h-8 w-48" />
+              <Skeleton class="h-5 w-24" />
+           </div>
+           <div class="grid grid-cols-2 gap-x-4 gap-y-8 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8">
+              <div v-for="k in 4" :key="k" class="space-y-3">
+                 <Skeleton class="aspect-square w-full rounded-lg" />
+                 <Skeleton class="h-4 w-3/4" />
+                 <Skeleton class="h-4 w-1/2" />
+              </div>
+           </div>
+        </div>
+      </div>
     </div>
     
     <div v-else-if="error" class="flex-grow flex flex-col items-center justify-center py-20 text-center">
@@ -137,6 +165,7 @@ import { Search, PackageSearch, X, AlertCircle } from 'lucide-vue-next'
 import { useCartStore } from '~/stores/cart'
 import { useI18n } from '~/composables/i18n'
 import { showError, createError } from '#app'
+import Skeleton from '~/components/ui/Skeleton.vue'
 const { t, locale } = useI18n()
 
 const route = useRoute()
