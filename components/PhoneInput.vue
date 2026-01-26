@@ -4,6 +4,7 @@
       <select
         v-model="selectedCode"
         class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-primary focus:ring-primary sm:text-sm bg-white"
+        @change="onCountryChange"
       >
         <option
           v-for="c in countries"
@@ -16,16 +17,23 @@
     </div>
     <div class="flex-1">
       <input
-        v-model="localNumber"
+        v-model="displayValue"
         type="tel"
         class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+        @input="onInput"
         @blur="emit('blur')"
+        placeholder="6..."
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, computed, watch, onMounted } from 'vue'
+import { parsePhoneNumber, AsYouType, type CountryCode } from 'libphonenumber-js'
+import { COUNTRY_DIAL_CODES } from '~/data/countryDialCodes'
+import { useI18n } from '~/composables/i18n'
+
 const props = defineProps<{
   phone?: string
   country?: string
@@ -39,9 +47,9 @@ const emit = defineEmits<{
   (e: 'blur'): void
 }>()
 
-import { COUNTRY_DIAL_CODES } from '~/data/countryDialCodes'
-import { useI18n } from '~/composables/i18n'
 const { t, locale } = useI18n()
+
+// Countries list with translations
 const countries = computed(() => {
   const lang = String(locale.value || 'en')
   let dn: any
@@ -58,45 +66,113 @@ const countries = computed(() => {
   }).sort((a, b) => a.label.localeCompare(b.label))
 })
 
-const selectedCode = ref(props.country || 'CM')
-const localNumber = ref('')
+const selectedCode = ref<CountryCode>((props.country as CountryCode) || 'CM')
+const displayValue = ref('')
 
-const findCountry = (code: string) => {
-  const list = countries.value
-  return list.find((c) => c.code === code) || list[0]
-}
-
-const normalizeDigits = (value: string) => {
-  return String(value || '').replace(/\D/g, '')
-}
-
-const rebuildPhone = () => {
-  const country = findCountry(selectedCode.value)
-  const digits = normalizeDigits(localNumber.value)
-  const e164 = digits ? country.dial + digits : ''
-  emit('update:country', country.code)
-  emit('update:phone', e164)
-  emit('update:modelValue', e164)
-}
-
-watch(
-  () => [props.phone, props.modelValue, props.country] as const,
-  ([phone, modelValue, country]) => {
-    const base = findCountry(country || selectedCode.value)
-    selectedCode.value = base.code
-    const raw = String(phone ?? modelValue ?? '')
-    const digits = normalizeDigits(raw)
-    const dialDigits = normalizeDigits(base.dial)
-    if (digits && dialDigits && digits.startsWith(dialDigits)) {
-      localNumber.value = digits.slice(dialDigits.length)
+// Initialize from props
+const initPhone = (val: string) => {
+  if (!val) {
+    displayValue.value = ''
+    return
+  }
+  try {
+    const parsed = parsePhoneNumber(val, selectedCode.value)
+    if (parsed) {
+      if (parsed.country) selectedCode.value = parsed.country
+      displayValue.value = parsed.format('NATIONAL')
     } else {
-      localNumber.value = digits
+      displayValue.value = val
     }
-  },
-  { immediate: true }
-)
+  } catch (e) {
+    // Fallback for incomplete/invalid numbers
+    displayValue.value = val
+  }
+}
 
-watch([selectedCode, localNumber], () => {
-  rebuildPhone()
-})
+// Watch props changes
+watch(() => props.modelValue || props.phone, (newVal) => {
+  // Check if current display value matches the new prop to avoid re-formatting while typing (cursor jumps)
+  try {
+    const currentParsed = parsePhoneNumber(displayValue.value, selectedCode.value)
+    if (currentParsed && currentParsed.number === newVal) {
+      return // No change needed
+    }
+  } catch {}
+  
+  // If it's a real change, re-init
+  if (newVal) initPhone(newVal)
+}, { immediate: true })
+
+function onInput(e: Event) {
+  const val = (e.target as HTMLInputElement).value
+  
+  // Use AsYouType for live formatting
+  const asYouType = new AsYouType(selectedCode.value)
+  const formatted = asYouType.input(val)
+  
+  // Note: We don't force displayValue = formatted here because it can mess up cursor position
+  // But we can use asYouType to get the underlying number
+  
+  const parsed = asYouType.getNumber()
+  
+  if (parsed) {
+    // If we detected a country change (e.g. pasted +33...)
+    if (parsed.country && parsed.country !== selectedCode.value) {
+      selectedCode.value = parsed.country
+      // Update display to national format of new country
+      displayValue.value = parsed.format('NATIONAL')
+    }
+    
+    if (parsed.isValid()) {
+      const e164 = parsed.format('E.164')
+      emit('update:phone', e164)
+      emit('update:modelValue', e164)
+      emit('update:country', parsed.country || selectedCode.value)
+    } else {
+      // Emit partial/invalid if possible, or nothing?
+      // Better to emit what we have if it looks like a number
+      if (parsed.number) {
+        emit('update:phone', parsed.number)
+        emit('update:modelValue', parsed.number)
+      }
+    }
+  } else {
+    // Fallback manual construction
+    const digits = val.replace(/\D/g, '')
+    const country = countries.value.find(c => c.code === selectedCode.value)
+    if (country && digits) {
+      const manual = country.dial + digits
+      emit('update:phone', manual)
+      emit('update:modelValue', manual)
+    } else {
+      emit('update:phone', '')
+      emit('update:modelValue', '')
+    }
+  }
+}
+
+function onCountryChange() {
+  // Re-parse current input with new country
+  const raw = displayValue.value
+  const asYouType = new AsYouType(selectedCode.value)
+  asYouType.input(raw)
+  const parsed = asYouType.getNumber()
+  
+  if (parsed && parsed.isValid()) {
+    const e164 = parsed.format('E.164')
+    emit('update:phone', e164)
+    emit('update:modelValue', e164)
+    emit('update:country', selectedCode.value)
+  } else {
+     // If invalid, just emit the new prefix + raw digits
+     const digits = raw.replace(/\D/g, '')
+     const country = countries.value.find(c => c.code === selectedCode.value)
+     if (country) {
+       const manual = country.dial + digits
+       emit('update:phone', manual)
+       emit('update:modelValue', manual)
+       emit('update:country', selectedCode.value)
+     }
+  }
+}
 </script>

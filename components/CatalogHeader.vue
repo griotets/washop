@@ -43,17 +43,39 @@
           <span class="inline text-xs sm:text-sm">{{ t('catalog.cart') }}</span>
           <span v-if="count>0" class="absolute -right-2 -top-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs text-white">{{ count }}</span>
         </NuxtLink>
+
+        <!-- Auth UI -->
+        <div v-if="!isSearchOpen" class="flex items-center ml-1 pl-2 border-l border-gray-200">
+          <NuxtLink v-if="user" to="/account" class="flex items-center gap-1 text-gray-700 hover:text-primary" :title="t('account.dashboard')">
+            <div class="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200">
+              <User class="h-5 w-5 text-gray-500" />
+            </div>
+          </NuxtLink>
+          <button v-else @click="showAuthModal = true" class="flex items-center gap-1 text-gray-700 hover:text-primary">
+            <LogIn class="h-5 w-5" />
+            <span class="inline text-xs sm:text-sm">{{ t('auth.login.signIn') }}</span>
+          </button>
+        </div>
       </div>
     </div>
   </header>
+
+  <AuthModal 
+    :is-open="showAuthModal" 
+    @close="showAuthModal = false" 
+    @login-success="showAuthModal = false"
+  />
 </template>
 
 <script setup lang="ts">
-import { ShoppingCart, Search, X } from 'lucide-vue-next'
+import { ShoppingCart, Search, X, LogIn, User } from 'lucide-vue-next'
 import { useCartStore } from '~/stores/cart'
 import { useI18n } from '~/composables/i18n'
 
 const { locale, t } = useI18n()
+const { user } = useAuth()
+const showAuthModal = ref(false)
+
 const props = defineProps<{
   store?: {
     name?: string

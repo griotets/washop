@@ -21,6 +21,17 @@
         </div>
       </div>
 
+      <!-- Login/Guest Modal -->
+      <AuthModal 
+        :isOpen="showLoginPrompt" 
+        :allowGuest="true" 
+        :title="t('checkout.login.title')"
+        :subtitle="t('checkout.login.subtitle')"
+        @close="showLoginPrompt = false" 
+        @login-success="onLoginSuccess"
+        @guest-continue="proceedAsGuest"
+      />
+
       <!-- Step 1: Cart -->
       <div v-if="step === 1">
         <div class="flex items-center justify-between">
@@ -28,6 +39,27 @@
           <NuxtLink v-if="cart.items.length > 0" :to="`/${slug}`" class="text-sm font-medium text-primary hover:underline">
             {{ t('checkout.backToStore') }}
           </NuxtLink>
+        </div>
+
+        <!-- Conflict Banner -->
+        <div v-if="cart.hasConflict" class="mt-6 rounded-xl border border-orange-200 bg-orange-50 p-4">
+          <div class="flex items-start gap-3">
+            <AlertTriangle class="h-5 w-5 flex-shrink-0 text-orange-600" />
+            <div>
+              <h3 class="font-semibold text-orange-900">{{ t('storefront.cartConflictTitle') }}</h3>
+              <p class="mt-1 text-sm text-orange-800">
+                {{ t('storefront.cartConflictDesc', { slug: cart.cartStoreSlug }) }}
+              </p>
+              <div class="mt-3 flex gap-3">
+                <button @click="cart.clear()" class="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-orange-700 shadow-sm ring-1 ring-inset ring-orange-300 hover:bg-orange-50">
+                  {{ t('storefront.clearCart') }}
+                </button>
+                <NuxtLink :to="`/${cart.cartStoreSlug}`" class="rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-500">
+                  {{ t('storefront.goToOrigin') }}
+                </NuxtLink>
+              </div>
+            </div>
+          </div>
         </div>
         
         <div v-if="cart.items.length === 0" class="mt-8 text-center">
@@ -60,7 +92,13 @@
               <button class="h-7 w-7 rounded bg-white shadow-sm hover:bg-gray-100 disabled:opacity-50" @click="updateItemQty(item, -1)">
                 -
               </button>
-              <span class="w-4 text-center text-sm font-medium">{{ item.quantity }}</span>
+              <input 
+                type="text" 
+                inputmode="numeric" 
+                :value="item.quantity" 
+                @input="onInputQty(item, $event)"
+                class="w-10 bg-transparent text-center text-sm font-medium focus:outline-none"
+              />
               <button class="h-7 w-7 rounded bg-white shadow-sm hover:bg-gray-100" @click="updateItemQty(item, 1)">
                 +
               </button>
@@ -131,6 +169,16 @@
               <label class="mb-1 block text-sm font-medium text-gray-700">{{ form.method === 'delivery' ? 'Note pour le livreur' : t('checkout.noteOptional') }}</label>
               <textarea v-model="form.note" rows="2" class="w-full rounded-lg border-gray-300 px-4 py-2 focus:border-primary focus:ring-primary" :placeholder="t('checkout.notePlaceholder')"></textarea>
             </div>
+
+            <div class="flex items-start gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3">
+              <div class="flex h-5 items-center">
+                <input id="saveInfo" v-model="saveInfo" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+              </div>
+              <div class="text-sm">
+                <label for="saveInfo" class="font-medium text-gray-700">{{ t('checkout.saveInfo') }}</label>
+                <p class="text-gray-500">Gagnez du temps lors de vos prochaines commandes.</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -195,6 +243,106 @@
               </div>
             </dl>
           </div>
+
+          <!-- Register Card (Guest only) -->
+          <div v-if="!user && !isGuestVerified && step === 3" class="rounded-xl border border-primary/20 bg-primary/5 p-6 shadow-sm">
+            <div class="mb-4">
+              <h3 class="font-semibold text-gray-900">{{ t('checkout.register.title') }}</h3>
+              <p class="mt-1 text-sm text-gray-600">{{ t('checkout.register.subtitle') }}</p>
+            </div>
+
+            <!-- Register Tabs -->
+            <div class="mb-6 flex rounded-lg bg-white/50 p-1">
+              <button 
+                @click="registerMethod = 'whatsapp'" 
+                :class="['flex-1 rounded-md py-2 text-sm font-medium transition-colors', registerMethod === 'whatsapp' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700']"
+              >
+                WhatsApp
+              </button>
+              <button 
+                @click="registerMethod = 'email'" 
+                :class="['flex-1 rounded-md py-2 text-sm font-medium transition-colors', registerMethod === 'email' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700']"
+              >
+                Email
+              </button>
+            </div>
+            
+            <!-- WhatsApp Register -->
+            <div v-if="registerMethod === 'whatsapp'" class="space-y-4">
+               <div v-if="registerWhatsappStep === 'phone'" class="space-y-4">
+                  <div class="space-y-2">
+                    <label class="text-sm font-medium">Numéro WhatsApp</label>
+                    <PhoneInput v-model="registerWhatsappPhone" />
+                  </div>
+                  <button 
+                     @click="handleRegisterWhatsAppSend" 
+                     :disabled="loadingAuth || !registerWhatsappPhone"
+                     class="w-full rounded-lg bg-[#25D366] py-3 font-semibold text-white disabled:opacity-50 hover:bg-[#128C7E]"
+                  >
+                     <span v-if="loadingAuth" class="animate-spin mr-2 inline-block h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+                     Créer mon compte
+                  </button>
+               </div>
+               
+               <div v-else class="space-y-4">
+                  <div class="space-y-2">
+                    <label class="text-sm font-medium">Code de vérification</label>
+                    <input v-model="registerWhatsappCode" type="text" class="w-full rounded-lg border p-2 text-center text-xl tracking-widest font-mono" placeholder="123456" maxlength="6" />
+                    <p class="text-xs text-gray-500">Un code a été envoyé au {{ registerWhatsappPhone }}</p>
+                  </div>
+                  <button 
+                     @click="handleRegisterWhatsAppVerify" 
+                     class="w-full rounded-lg bg-primary py-3 font-semibold text-white disabled:opacity-50"
+                  >
+                     Vérifier & Terminer
+                  </button>
+                  <button @click="registerWhatsappStep = 'phone'" class="w-full text-sm text-gray-500 hover:underline">
+                    Modifier le numéro
+                  </button>
+               </div>
+            </div>
+
+            <!-- Email Register -->
+            <div v-else class="space-y-4">
+              <div>
+                <label class="mb-1 block text-sm font-medium text-gray-700">{{ t('auth.login.emailLabel') }}</label>
+                <input v-model="registerForm.email" type="email" class="w-full rounded-lg border-gray-300 px-4 py-2 focus:border-primary focus:ring-primary" placeholder="email@exemple.com" />
+              </div>
+              <div>
+                <label class="mb-1 block text-sm font-medium text-gray-700">{{ t('auth.login.passwordLabel') }}</label>
+                <div class="relative">
+                  <input 
+                    v-model="registerForm.password" 
+                    :type="showPassword ? 'text' : 'password'"
+                    class="w-full rounded-lg border-gray-300 px-4 py-2 pr-10 focus:border-primary focus:ring-primary" 
+                    placeholder="********" 
+                  />
+                  <button 
+                    @click="showPassword = !showPassword" 
+                    type="button"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    <component :is="showPassword ? EyeOff : Eye" class="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label class="mb-1 block text-sm font-medium text-gray-700">{{ t('auth.login.confirmPassword') || 'Confirmer le mot de passe' }}</label>
+                <div class="relative">
+                  <input 
+                    v-model="registerForm.confirmPassword" 
+                    :type="showPassword ? 'text' : 'password'"
+                    class="w-full rounded-lg border-gray-300 px-4 py-2 pr-10 focus:border-primary focus:ring-primary" 
+                    placeholder="********" 
+                  />
+                </div>
+              </div>
+              <button @click="handleRegister" :disabled="isRegistering" class="w-full rounded-lg bg-primary px-4 py-2 font-semibold text-white shadow-sm hover:brightness-110 disabled:opacity-50">
+                <span v-if="isRegistering" class="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                {{ t('checkout.register.action') }}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </main>
@@ -210,7 +358,7 @@
           {{ t('checkout.back') }}
         </button>
         
-        <button v-if="step === 1" @click="step++" :disabled="cart.items.length === 0" class="ml-auto rounded-lg bg-primary px-8 py-3 font-semibold text-white shadow-sm hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed">
+        <button v-if="step === 1" @click="handleNextStep1" :disabled="cart.items.length === 0 || cart.hasConflict" class="ml-auto rounded-lg bg-primary px-8 py-3 font-semibold text-white shadow-sm hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed">
           {{ t('checkout.order') }}
         </button>
         
@@ -236,14 +384,17 @@
 
 <script setup lang="ts">
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { ShoppingCart, Trash2, Store, Truck, MessageCircle } from 'lucide-vue-next'
+import { ShoppingCart, Trash2, Store, Truck, MessageCircle, Eye, EyeOff, AlertTriangle } from 'lucide-vue-next'
 import { useCartStore } from '~/stores/cart'
+import { useAuth } from '~/composables/auth'
 import PhoneInput from '~/components/PhoneInput.vue'
 import AddressAutocomplete from '~/components/AddressAutocomplete.vue'
 import { useI18n } from '~/composables/i18n'
 const { t, locale } = useI18n()
+const { user, signIn, signUp, sendWhatsAppOtp } = useAuth()
 
 const route = useRoute()
+const router = useRouter()
 const nuxt = useNuxtApp()
 const supabase = nuxt.$supabase as SupabaseClient
 const slug = computed(() => String(route.params['boutiqueSlug'] || ''))
@@ -253,6 +404,23 @@ useHead({ title: computed(() => `${t('checkout.seoTitle')} | ${slug.value}`) })
 
 // State
 const step = ref(1)
+
+// WhatsApp Register State
+const registerMethod = ref<'email' | 'whatsapp'>('whatsapp')
+const registerWhatsappStep = ref<'phone' | 'code'>('phone')
+const registerWhatsappPhone = ref('')
+const registerWhatsappCode = ref('')
+const registerSentCode = ref('')
+
+const showLoginPrompt = ref(false)
+const guestMode = ref(false)
+const isGuestVerified = ref(false)
+const loadingAuth = ref(false)
+const registerForm = reactive({ email: '', password: '', confirmPassword: '' })
+const isRegistering = ref(false)
+const showPassword = ref(false)
+const saveInfo = ref(true)
+
 const storeConfig = ref<any>({})
 const storeData = ref<any>(null)
 const loading = ref(false)
@@ -275,24 +443,45 @@ const availableMethods = computed(() => {
 })
 
 // Methods
-onMounted(async () => {
-  cart.load(slug.value)
-  loadStoreConfig()
-  await loadConstraints()
+async function fetchStoreData() {
+  console.log('[fetchStoreData] START slug:', slug.value)
   
-  // Fetch store info
-  const { data, error } = await supabase.from('stores').select('id, name, phone, color, image_url, social_whatsapp, social_facebook, social_instagram, social_telegram, design_settings').eq('slug', slug.value).maybeSingle()
-  if (error) {
-     console.error(error)
-     const toast = useToast()
-     toast.error('Erreur chargement infos boutique: ' + error.message)
+  if (!slug.value) {
+    console.warn('[fetchStoreData] Slug is empty')
+    return null
   }
+  
+  console.log('[fetchStoreData] Supabase Client check:', !!supabase, supabase?.supabaseUrl)
+
+  // Add timeout to prevent infinite hanging
+  const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Supabase request timed out after 5s')), 5000))
+  
+  let data, error;
+  try {
+      const result = await Promise.race([
+          supabase.from('stores').select('*').eq('slug', slug.value).maybeSingle(),
+          timeoutPromise
+      ]) as any
+      data = result.data
+      error = result.error
+  } catch (e: any) {
+      console.error('[fetchStoreData] Exception or Timeout:', e)
+      return null
+  }
+  
+  if (error) {
+     console.error('[fetchStoreData] Supabase error:', error)
+     return null
+  }
+  
+  console.log('[fetchStoreData] Data found:', data ? 'Yes' : 'No', data)
+
   if (data) {
-     storeData.value = {
+     const sData = {
        id: data.id,
        name: data.name,
        phone: data.phone,
-       color: data.color,
+       color: data.color || data.color_theme, // Fallback if column name differs
        logoUrl: data.image_url,
        social: {
          whatsapp: data.social_whatsapp,
@@ -302,10 +491,34 @@ onMounted(async () => {
        },
        showWhatsappButton: !!data.design_settings?.show_whatsapp_button
      }
-     localStorage.setItem(`store:${slug.value}`, JSON.stringify(storeData.value))
+     storeData.value = sData
+     try {
+        localStorage.setItem(`store:${slug.value}`, JSON.stringify(sData))
+     } catch {}
+     return sData
   }
+  return null
+}
+
+onMounted(async () => {
+  cart.load(slug.value)
+  loadStoreConfig()
+  await loadConstraints()
+  
+  // Try to load from cache first
+  try {
+    const raw = localStorage.getItem(`store:${slug.value}`)
+    if (raw) storeData.value = JSON.parse(raw)
+  } catch {}
+
+  // Fetch fresh data
+  await fetchStoreData()
   
   loadCustomerDetails()
+})
+
+watch(user, (u) => {
+  if (u) loadCustomerDetails()
 })
 
 function loadStoreConfig() {
@@ -322,6 +535,19 @@ function loadStoreConfig() {
 }
 
 function loadCustomerDetails() {
+  // 1. Try User Profile (Supabase) if logged in
+  if (user.value?.user_metadata) {
+    const m = user.value.user_metadata
+    if (m.full_name) form.name = m.full_name
+    if (m.phone) form.phone = m.phone
+    if (m.city) form.city = m.city
+    if (m.address) form.address = m.address
+    // If we have profile data, we prioritize it, but we could also merge with localStorage if needed.
+    // For now, profile data wins.
+    return 
+  }
+
+  // 2. Fallback to LocalStorage
   try {
     const raw = localStorage.getItem('customer:info')
     if (raw) {
@@ -330,14 +556,16 @@ function loadCustomerDetails() {
       if (info.phone) form.phone = info.phone
       if (info.city) form.city = info.city
       if (info.address) form.address = info.address
-      // Note: We don't restore 'method' or 'note' as these are usually order-specific
     }
   } catch (e) {
     console.error('Error loading customer info', e)
   }
 }
 
-function saveCustomerDetails() {
+async function saveCustomerDetails() {
+  if (!saveInfo.value) return // Only save if checked
+
+  // 1. Save to LocalStorage (Always good backup)
   try {
     const info = {
       name: form.name,
@@ -349,6 +577,114 @@ function saveCustomerDetails() {
   } catch (e) {
     console.error('Error saving customer info', e)
   }
+
+  // 2. Save to Supabase Profile if logged in
+  if (user.value) {
+    try {
+      await supabase.auth.updateUser({
+        data: {
+          full_name: form.name,
+          phone: form.phone,
+          city: form.city,
+          address: form.address
+        }
+      })
+    } catch (e) {
+      console.error('Error syncing profile', e)
+    }
+  }
+}
+
+function handleNextStep1() {
+  if (user.value || guestMode.value) {
+    step.value = 2
+  } else {
+    showLoginPrompt.value = true
+  }
+}
+
+function onLoginSuccess(u: any) {
+  if (u.id === 'guest-verified') {
+    guestMode.value = true
+    form.phone = u.user_metadata?.phone || ''
+    // Save to customer info
+    localStorage.setItem('customer:info', JSON.stringify({
+      phone: form.phone
+    }))
+  }
+  showLoginPrompt.value = false
+  step.value = 2
+}
+
+async function handleRegisterWhatsAppSend() {
+  if (!registerWhatsappPhone.value) return
+  loadingAuth.value = true
+  const { code, error } = await sendWhatsAppOtp(registerWhatsappPhone.value)
+  loadingAuth.value = false
+  if (!error && code) {
+    registerSentCode.value = code
+    registerWhatsappStep.value = 'code'
+  }
+}
+
+async function handleRegisterWhatsAppVerify() {
+  if (registerWhatsappCode.value === registerSentCode.value) {
+     if (registerWhatsappPhone.value !== form.phone) {
+       form.phone = registerWhatsappPhone.value
+       saveCustomerDetails()
+     }
+     
+     isGuestVerified.value = true
+     const toast = useToast()
+     toast.success(t('checkout.register.success') || 'Compte vérifié avec succès !')
+  } else {
+    const toast = useToast()
+    toast.error('Code incorrect')
+  }
+}
+
+async function handleRegister() {
+  if (!registerForm.email || !registerForm.password) return
+  
+  if (registerForm.password !== registerForm.confirmPassword) {
+    const toast = useToast()
+    toast.error(t('auth.error.passwordMismatch') || 'Les mots de passe ne correspondent pas')
+    return
+  }
+
+  isRegistering.value = true
+  
+  const { user: newUser, error } = await signUp(registerForm.email, registerForm.password)
+  
+  if (error) {
+    isRegistering.value = false
+    return
+  }
+  
+  if (newUser) {
+    try {
+      await supabase.auth.updateUser({
+        data: {
+          full_name: form.name,
+          phone: form.phone,
+          city: form.city,
+          address: form.address
+        }
+      })
+      const toast = useToast()
+      toast.success(t('checkout.register.success'))
+      registerForm.password = ''
+    } catch (e) {
+      console.error('Profile update error', e)
+    }
+  }
+  isRegistering.value = false
+}
+
+function proceedAsGuest() {
+  guestMode.value = true
+  showLoginPrompt.value = false
+  step.value = 2
 }
 
 function validateStep2() {
@@ -360,6 +696,7 @@ function validateStep2() {
   }
   
   saveCustomerDetails()
+  registerWhatsappPhone.value = form.phone // Pre-fill register phone
   step.value = 3
 }
 
@@ -370,10 +707,21 @@ function handleAddressSelect(data: { city: string; address: string; full: any })
 
 async function submitOrder() {
   const toast = useToast()
-  if (!storeData.value?.id) return toast.error(t('checkout.error.storeMissing'))
+  loading.value = true // Feedback immédiat
   
-  loading.value = true
+  try {
+    if (!storeData.value?.id) {
+       await fetchStoreData()
+    }
+  } catch (e) {
+    console.error('Error fetching store data:', e)
+  }
 
+  if (!storeData.value?.id) {
+     loading.value = false
+     return toast.error(t('checkout.error.storeMissing') || 'Boutique introuvable')
+  }
+  
   try {
     // 1. Create Order
     // Note: We attempt to save delivery details. If columns don't exist, this might fail.
@@ -427,7 +775,9 @@ async function submitOrder() {
 
     // 3. Open WhatsApp with Bill & Store Links
     const phone = getStorePhone()
-    if (phone) {
+    if (!phone) {
+      toast.error('Numéro WhatsApp de la boutique introuvable')
+    } else {
       let baseUrl = ''
       if (import.meta.client) {
         baseUrl = window.location.origin
@@ -436,7 +786,6 @@ async function submitOrder() {
       const billUrl = `${baseUrl}/${slug.value}/orders/${order.id}`
       const storeUrl = `${baseUrl}/${slug.value}`
       
-      // Construct detailed message
       const lines = cart.items.map(i => {
         let text = `- ${i.quantity}x ${i.name} (${formatMoney(i.price * i.quantity)})`
         if (i.options && Object.keys(i.options).length > 0) {
@@ -472,7 +821,14 @@ city *Ville et Code Postal:* ${form.city}`
       }
 
       const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
-      window.open(whatsappUrl, '_blank')
+      
+      // Try to open in new tab, fallback to current window if blocked
+      const newWindow = window.open(whatsappUrl, '_blank')
+      if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+        window.location.href = whatsappUrl
+      } else {
+        toast.success(t('checkout.success.whatsappOpened') || 'Commande créée, ouverture de WhatsApp...')
+      }
     }
 
     // 4. Success - Clear cart and Redirect
@@ -542,6 +898,38 @@ async function loadConstraints() {
 watch(() => cart.items.map(i => i.id), async () => {
   await loadConstraints()
 })
+
+function onInputQty(item: any, event: any) {
+  const val = event.target.value
+  if (val === '') return
+  const qty = parseInt(val)
+  if (isNaN(qty) || qty < 0) return
+
+  const pid = parseProductId(item)
+  const p = productConstraints[pid] || { max: 0, min: 0, stock: 0, track: false, out: false }
+  const v = item.variantId ? (variantConstraints[String(item.variantId)] || { max: 0, min: 0, stock: 0, track: false, out: false }) : null
+  
+  const max = v ? v.max : p.max
+  if (max > 0 && qty > max) {
+    const toast = useToast()
+    toast.error(t('storefront.maxQtyError', { max }))
+    cart.setQuantity(item.id, max)
+    event.target.value = max
+    return
+  }
+  
+  const track = v ? v.track : p.track
+  const stock = v ? v.stock : p.stock
+  if (track && qty > stock) {
+    const toast = useToast()
+    toast.error(t('storefront.stockError', { max: stock }))
+    cart.setQuantity(item.id, stock)
+    event.target.value = stock
+    return
+  }
+  
+  cart.setQuantity(item.id, qty)
+}
 
 function updateItemQty(item: any, delta: number) {
   const toast = useToast()

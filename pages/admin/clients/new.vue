@@ -11,19 +11,9 @@
           <label class="block text-sm font-medium">{{ t('admin.clientForm.nameLabel') }}</label>
           <input v-model.trim="form.name" :placeholder="t('admin.clientForm.namePlaceholder')" class="mt-1 w-full rounded-lg border px-3 py-2 focus:border-primary focus:ring-primary" />
         </div>
-        <div class="grid gap-3 sm:grid-cols-[120px_1fr]">
-          <div>
-            <label class="block text-sm font-medium">{{ t('admin.clientForm.phoneCodeLabel') }}</label>
-            <select v-model="phonePrefix" class="mt-1 w-full rounded-lg border px-3 py-2 focus:border-primary focus:ring-primary">
-              <option value="+237">+237</option>
-              <option value="+33">+33</option>
-              <option value="+1">+1</option>
-            </select>
-          </div>
-          <div>
+        <div>
             <label class="block text-sm font-medium">{{ t('admin.clientForm.phoneLabel') }}</label>
-            <input v-model.trim="form.phone" :placeholder="t('admin.clientForm.phonePlaceholder')" class="mt-1 w-full rounded-lg border px-3 py-2 focus:border-primary focus:ring-primary" />
-          </div>
+            <PhoneInput v-model="form.phone" :placeholder="t('admin.clientForm.phonePlaceholder')" />
         </div>
         <div>
           <label class="block text-sm font-medium">{{ t('admin.clientForm.emailLabel') }}</label>
@@ -61,6 +51,7 @@
 </template>
 
 <script setup lang="ts">
+import PhoneInput from '~/components/PhoneInput.vue'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useAdminStore } from '~/stores/admin'
 import { useI18n } from '~/composables/i18n'
@@ -70,7 +61,6 @@ const supabase = nuxt.$supabase as SupabaseClient
 const admin = useAdminStore()
 const { t } = useI18n()
 const saving = ref(false)
-const phonePrefix = ref('+237')
 const form = reactive<any>({ name: '', phone: '', email: '', birthday: null as Date | null, address: '', notes: '', referral_code: '' })
 const birthdayStr = computed({
   get() { return form.birthday ? new Date(form.birthday).toISOString().slice(0,10) : '' },
@@ -115,7 +105,7 @@ async function save() {
     const payload = {
       store_id: storeId,
       name: form.name,
-      phone: `${phonePrefix.value}${form.phone}`,
+      phone: form.phone,
       email: form.email || null,
       birthday: form.birthday ? new Date(form.birthday as Date).toISOString().slice(0,10) : null,
       address: form.address || null,

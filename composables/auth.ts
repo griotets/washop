@@ -1,4 +1,5 @@
 import type { SupabaseClient, User } from '@supabase/supabase-js'
+import { parsePhoneNumber } from 'libphonenumber-js'
 
 export function useAuth() {
   const nuxt = useNuxtApp()
@@ -198,6 +199,64 @@ export function useAuth() {
     return { error: error.value }
   }
 
+  async function sendWhatsAppOtp(phone: string) {
+    loading.value = true
+    try {
+      if (!supabase?.functions) {
+        throw new Error('Supabase functions not initialized')
+      }
+
+      // Validate phone number with libphonenumber-js
+      let formattedPhone = phone
+      try {
+        const parsed = parsePhoneNumber(phone)
+        if (!parsed || !parsed.isValid()) {
+          throw new Error('Numéro de téléphone invalide')
+        }
+        formattedPhone = parsed.number
+      } catch (e: any) {
+        throw new Error(e.message || 'Numéro de téléphone invalide (format international requis)')
+      }
+      
+      const generatedCode = Math.floor(100000 + Math.random() * 900000).toString()
+
+      // Use direct fetch to avoid Supabase client timeout issues
+      const config = useRuntimeConfig()
+      const supabaseUrl = config.public.supabaseUrl
+      const supabaseKey = config.public.supabaseAnonKey
+
+      const invokePromise = fetch(`${supabaseUrl}/functions/v1/send-whatsapp-otp`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${supabaseKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ phone: formattedPhone, code: generatedCode })
+      }).then(async res => {
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error?.message || data.error || 'Erreur inconnue')
+        return { data, error: null }
+      })
+
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Request timed out after 30s')), 30000)
+      )
+
+      const { data, error: e } = (await Promise.race([invokePromise, timeoutPromise])) as any
+
+      if (e) throw e
+      
+      toast.success('Code WhatsApp envoyé')
+      return { code: generatedCode, error: null }
+    } catch (err: any) {
+      console.error(err)
+      toast.error(err.message || 'Erreur lors de l\'envoi du code')
+      return { code: null, error: err.message }
+    } finally {
+      loading.value = false
+    }
+  }
+
   onMounted(() => {
     if (supabase?.auth) {
       supabase.auth.onAuthStateChange(async () => {
@@ -207,5 +266,16 @@ export function useAuth() {
     }
   })
 
-  return { user, loading, error, sendOtp, verifyOtp, signIn, signUp, signOut, refreshUser }
+  return {
+    user,
+    loading,
+    error,
+    refreshUser,
+    sendOtp,
+    verifyOtp,
+    signIn,
+    signUp,
+    signOut,
+    sendWhatsAppOtp
+  }
 }

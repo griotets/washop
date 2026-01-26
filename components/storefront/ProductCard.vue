@@ -24,21 +24,19 @@
 
       <!-- Availability / Cart Controls -->
       <div v-if="available || cartQuantity > 0" class="absolute top-2 right-2 transition-opacity z-20" :class="cartQuantity > 0 ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'">
-        <div v-if="cartQuantity > 0" class="flex items-center gap-1 rounded-full bg-white p-1 shadow">
-          <button @click.prevent.stop="updateQuantity(-1)" class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200">-</button>
+        <div class="flex items-center gap-1 rounded-full bg-white p-1 shadow">
+          <button @click.prevent.stop="updateQuantity(-1)" class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200" :disabled="cartQuantity <= 0" :class="{ 'opacity-50 cursor-not-allowed': cartQuantity <= 0 }">-</button>
           <input 
-            type="number" 
+            type="text" 
+            inputmode="numeric"
             :value="cartQuantity" 
             @input="onInputQty" 
             @click.stop
-            class="w-8 text-center text-sm font-semibold border-none bg-transparent p-0 focus:ring-0 appearance-none"
+            class="w-10 text-center text-sm font-semibold border border-gray-200 rounded px-1 bg-transparent focus:border-primary focus:ring-1 focus:ring-primary outline-none"
             min="0"
           />
           <button @click.prevent.stop="updateQuantity(1)" class="flex h-6 w-6 items-center justify-center rounded-full text-white hover:brightness-110" :style="{ backgroundColor: primaryColor, opacity: available ? 1 : 0.5, cursor: available ? 'pointer' : 'not-allowed' }" :disabled="!available">+</button>
         </div>
-        <button v-else-if="available" @click.prevent.stop="addToCart" class="p-2 rounded-full bg-white shadow text-gray-900 hover:text-primary transition-colors" :title="t('storefront.addToCartTitle')">
-          <ShoppingCart class="h-5 w-5" />
-        </button>
       </div>
     </div>
     
@@ -108,6 +106,10 @@ const whatsappLink = computed(() => {
 
 function onInputQty(e: Event) {
   const target = e.target as HTMLInputElement
+  if (target.value === '') {
+    emit('update-quantity-input', 0)
+    return
+  }
   const val = parseInt(target.value)
   if (!isNaN(val) && val >= 0) {
     emit('update-quantity-input', val)

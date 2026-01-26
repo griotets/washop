@@ -329,13 +329,35 @@ function handleUpdateQuantity(product: any, delta: number) {
       cart.setQuantity(pid, baseQty + delta)
     } else {
       // Create new base item
-      cart.add({
+      const added = cart.add({
         id: pid,
         productId: pid,
         name: product.name,
         price: product.price,
         image: getProductImage(product)
       })
+
+      if (!added) {
+         if (confirm(t('storefront.cartConflictMsg'))) {
+             cart.clearAndAdd({
+                id: pid,
+                productId: pid,
+                name: product.name,
+                price: product.price,
+                image: getProductImage(product)
+             })
+             // Set minQty logic
+             const pMin = Number(product.min_order_quantity || product.min_order_qty || 0)
+             const minQty = pMin > 0 ? pMin : 1
+             if (minQty > 1) {
+                cart.setQuantity(pid, minQty)
+             }
+             const toast = useToast()
+             toast.success(`${product.name} ajouté au panier`)
+         }
+         return
+      }
+
       const pMin = Number(product.min_order_quantity || product.min_order_qty || 0)
       const minQty = pMin > 0 ? pMin : 1
       if (minQty > 1) {
@@ -413,7 +435,7 @@ function handleSetQuantity(product: any, qty: number) {
     cart.setQuantity(pid, targetBase)
   } else if (targetBase > 0) {
      // Create new base item
-      cart.add({
+      const added = cart.add({
         id: pid,
         productId: pid,
         name: product.name,
@@ -421,6 +443,24 @@ function handleSetQuantity(product: any, qty: number) {
         image: getProductImage(product),
         quantity: targetBase
       })
+
+      if (!added) {
+         if (confirm(t('storefront.cartConflictMsg'))) {
+             cart.clearAndAdd({
+                id: pid,
+                productId: pid,
+                name: product.name,
+                price: product.price,
+                image: getProductImage(product),
+                quantity: targetBase
+             })
+             cart.setQuantity(pid, targetBase)
+             const toast = useToast()
+             toast.success(`${product.name} ajouté au panier`)
+         }
+         return
+      }
+
       // Note: cart.add usually adds 1, need to ensure we set quantity if add implementation differs, 
       // but usually we can use setQuantity or add with quantity if supported. 
       // Checking cart store implementation might be needed, but assuming setQuantity works after add.

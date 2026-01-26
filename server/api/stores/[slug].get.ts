@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
 
   const { data: store, error: storeError } = await supabase
     .from('stores')
-    .select('id,slug,name,image_url,phone,description,currency,color,social_whatsapp,social_facebook,social_instagram,social_telegram,delivery_settings,opening_hours_enabled')
+    .select('id,slug,name,image_url,phone,description,currency,color,social_whatsapp,social_facebook,social_instagram,social_telegram,delivery_settings,opening_hours_enabled,design_settings')
     .eq('slug', slug)
     .maybeSingle()
 

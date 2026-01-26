@@ -170,6 +170,7 @@ import { Store, Phone, MessageCircle, Printer, Image as ImageIcon, FileText } fr
 import type { SupabaseClient } from '@supabase/supabase-js'
 import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
+import { parsePhoneNumber } from 'libphonenumber-js'
 
 const route = useRoute()
 const nuxt = useNuxtApp()
@@ -249,7 +250,14 @@ function formatDate(date: string, withTime = false) {
 }
 
 function formatPhone(phone: string) {
-  return phone // You can add better formatting logic here
+  if (!phone) return ''
+  try {
+    const parsed = parsePhoneNumber(phone)
+    if (parsed) return parsed.formatInternational()
+    return phone
+  } catch {
+    return phone
+  }
 }
 
 // --- Tools ---

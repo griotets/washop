@@ -294,7 +294,7 @@ function handleUpdateQuantity(delta: number) {
     }
 
     const vName = selectedVariant.value?.name ? ` - ${selectedVariant.value.name}` : ''
-    cart.add({
+    const added = cart.add({
       id: currentItemKey.value,
       productId: productId.value,
       variantId: selectedVariantId.value || undefined,
@@ -304,6 +304,33 @@ function handleUpdateQuantity(delta: number) {
       image: selectedVariant.value?.image_url || images.value[0]
     })
     
+    if (!added) {
+        if (confirm(t('storefront.cartConflictMsg'))) {
+             cart.clearAndAdd({
+                id: currentItemKey.value,
+                productId: productId.value,
+                variantId: selectedVariantId.value || undefined,
+                options: { ...selectedOptions },
+                name: (product.name || t('storefront.productFallback')) + vName,
+                price: displayPrice.value || 0,
+                image: selectedVariant.value?.image_url || images.value[0]
+             })
+             if (newQty > 1) {
+                cart.setQuantity(currentItemKey.value, newQty)
+             }
+             const pMin = Number(product.min_order_quantity || 0)
+             const minQty = pMin > 0 ? pMin : 1
+             if (minQty > 1 && newQty < minQty) {
+               cart.setQuantity(currentItemKey.value, minQty)
+               const toast = useToast()
+               toast.error(t('storefront.minQtyError', { min: minQty }))
+             }
+             const toast = useToast()
+             toast.success(`${product.name} ajouté au panier`)
+        }
+        return
+    }
+
     // Ensure quantity is set if delta > 1 (e.g. from input)
     if (newQty > 1) {
       cart.setQuantity(currentItemKey.value, newQty)
