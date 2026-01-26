@@ -33,10 +33,20 @@ export function useAuth() {
       }
 
       // Ensure clean state before sending OTP
-      const { data: currentSession } = await supabase.auth.getSession()
-      if (currentSession?.session) {
-         console.log('[Auth] Cleaning up existing session before sending OTP')
-         await supabase.auth.signOut()
+      try {
+        const sessionPromise = supabase.auth.getSession()
+        const sessionTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Session check timeout')), 2000))
+        const { data: currentSession } = await Promise.race([sessionPromise, sessionTimeout]) as any
+        
+        if (currentSession?.session) {
+           console.log('[Auth] Cleaning up existing session before sending OTP')
+           const signOutPromise = supabase.auth.signOut()
+           const signOutTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error('SignOut timeout')), 2000))
+           await Promise.race([signOutPromise, signOutTimeout])
+        }
+      } catch (cleanupError) {
+        console.warn('[Auth] Session cleanup skipped/failed:', cleanupError)
+        // Continue anyway - don't block login
       }
 
       if (!isEmail(identifier)) {
@@ -46,7 +56,7 @@ export function useAuth() {
       }
       
       const otpPromise = supabase.auth.signInWithOtp({ email: identifier, options: { shouldCreateUser: true } })
-      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out after 30s')), 30000))
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out after 15s')), 15000))
       
       const { error: e } = await Promise.race([otpPromise, timeoutPromise]) as any
       

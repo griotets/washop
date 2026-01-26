@@ -69,62 +69,61 @@
 
       <!-- Login/Register Form (Email) -->
       <div v-else class="space-y-4">
-        <div class="space-y-2">
-          <label class="text-sm font-medium">{{ t('auth.login.emailLabel') || 'Email' }}</label>
-          <input 
-            v-model="form.email" 
-            type="email" 
-            class="w-full rounded-lg border p-2 focus:border-primary focus:ring-primary" 
-            placeholder="email@exemple.com" 
-            @keyup.enter="handleSubmit"
-          />
-        </div>
-        <div class="space-y-2">
-          <label class="text-sm font-medium">{{ t('auth.login.passwordLabel') || 'Mot de passe' }}</label>
-          <div class="relative">
-            <input 
-              v-model="form.password" 
-              :type="showPassword ? 'text' : 'password'"
-              class="w-full rounded-lg border p-2 pr-10 focus:border-primary focus:ring-primary" 
-              placeholder="********" 
-              @keyup.enter="handleSubmit"
-            />
+        <!-- OTP Mode (Only option now) -->
+        <div class="space-y-4">
+          <div v-if="emailStep === 'email'" class="space-y-4">
+            <div class="space-y-2">
+              <label class="text-sm font-medium">{{ t('auth.login.emailLabel') || 'Email' }}</label>
+              <input 
+                v-model="form.email" 
+                type="email" 
+                class="w-full rounded-lg border p-2 focus:border-primary focus:ring-primary" 
+                placeholder="email@exemple.com" 
+                @keyup.enter="handleEmailOtpSend"
+              />
+            </div>
             <button 
-              @click="showPassword = !showPassword" 
-              type="button"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              @click="handleEmailOtpSend" 
+              :disabled="loading || !form.email"
+              class="w-full rounded-lg bg-primary py-3 font-semibold text-white disabled:opacity-50 hover:brightness-110 transition-all"
             >
-              <component :is="showPassword ? EyeOff : Eye" class="h-4 w-4" />
+              <span v-if="loading" class="animate-spin mr-2 inline-block h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+              {{ t('register.continueEmail') || 'Recevoir le code' }}
             </button>
           </div>
-        </div>
-        
-        <div v-if="!isLogin" class="space-y-2">
-          <label class="text-sm font-medium">{{ t('auth.login.confirmPassword') || 'Confirmer le mot de passe' }}</label>
-          <div class="relative">
-            <input 
-              v-model="form.confirmPassword" 
-              :type="showPassword ? 'text' : 'password'"
-              class="w-full rounded-lg border p-2 pr-10 focus:border-primary focus:ring-primary" 
-              placeholder="********" 
-              @keyup.enter="handleSubmit"
-            />
+
+          <div v-else class="space-y-4">
+            <div class="space-y-2">
+              <label class="text-sm font-medium">{{ t('register.codeLabel') || 'Code de vérification' }}</label>
+              <input 
+                v-model="emailOtpCode" 
+                type="text" 
+                inputmode="numeric"
+                class="w-full rounded-lg border p-2 text-center text-xl tracking-widest font-mono" 
+                placeholder="123456" 
+                maxlength="6" 
+                @keyup.enter="handleEmailOtpVerify"
+              />
+              <p class="text-xs text-gray-500">{{ t('register.codeMessage', { email: form.email }) || `Code envoyé à ${form.email}` }}</p>
+            </div>
+            <button 
+              @click="handleEmailOtpVerify" 
+              :disabled="loading || !emailOtpCode"
+              class="w-full rounded-lg bg-primary py-3 font-semibold text-white disabled:opacity-50 hover:brightness-110 transition-all"
+            >
+              <span v-if="loading" class="animate-spin mr-2 inline-block h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+              {{ t('register.verifyContinue') || 'Vérifier & Continuer' }}
+            </button>
+            <button @click="emailStep = 'email'" class="w-full text-sm text-gray-500 hover:underline">
+              {{ t('auth.login.editEmail') || "Modifier l'email" }}
+            </button>
           </div>
-        </div>
 
-        <button 
-          @click="handleSubmit" 
-          :disabled="loading"
-          class="w-full rounded-lg bg-primary py-3 font-semibold text-white disabled:opacity-50 hover:brightness-110 transition-all"
-        >
-          <span v-if="loading" class="animate-spin mr-2 inline-block h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
-          {{ isLogin ? t('auth.login.signIn') : t('auth.login.createAccount') }}
-        </button>
-
-        <div class="text-center text-sm text-gray-600">
-          <button @click="isLogin = !isLogin" class="text-primary hover:underline">
-            {{ isLogin ? t('auth.login.noAccount') + ' ' + t('auth.login.createAccount') : t('auth.login.signIn') }}
-          </button>
+          <div class="text-center text-sm text-gray-600">
+            <button @click="isLogin = !isLogin" class="text-primary hover:underline">
+              {{ isLogin ? t('auth.login.noAccount') + ' ' + t('auth.login.createAccount') : t('auth.login.signIn') }}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -144,7 +143,7 @@
 </template>
 
 <script setup lang="ts">
-import { X, Eye, EyeOff } from 'lucide-vue-next'
+import { X } from 'lucide-vue-next'
 
 const props = defineProps<{
   isOpen: boolean
@@ -169,12 +168,34 @@ const whatsappCode = ref('')
 const sentCode = ref('')
 
 // Email State
-const showPassword = ref(false)
+const emailStep = ref<'email' | 'code'>('email')
+const emailOtpCode = ref('')
 const form = ref({
-  email: '',
-  password: '',
-  confirmPassword: ''
+  email: ''
 })
+
+async function handleEmailOtpSend() {
+  if (!form.value.email) return
+  loading.value = true
+  const res = await auth.sendOtp(form.value.email)
+  loading.value = false
+  if (!res.error) {
+    emailStep.value = 'code'
+  }
+}
+
+async function handleEmailOtpVerify() {
+  if (!emailOtpCode.value) return
+  loading.value = true
+  const res = await auth.verifyOtp(form.value.email, emailOtpCode.value)
+  loading.value = false
+  if (res.user) {
+    emit('login-success', res.user)
+    form.value.email = ''
+    emailOtpCode.value = ''
+    emailStep.value = 'email'
+  }
+}
 
 async function handleWhatsAppSend() {
   if (!whatsappPhone.value) return
@@ -206,35 +227,6 @@ async function handleWhatsAppVerify() {
      toast.success('Téléphone vérifié !')
   } else {
     toast.error('Code incorrect')
-  }
-}
-
-async function handleSubmit() {
-  if (!form.value.email || !form.value.password) return
-  
-  if (!isLogin.value) {
-    if (form.value.password !== form.value.confirmPassword) {
-      toast.error(t('auth.error.passwordMismatch') || 'Les mots de passe ne correspondent pas')
-      return
-    }
-  }
-
-  loading.value = true
-  let res
-  
-  if (isLogin.value) {
-    res = await auth.signIn(form.value.email, form.value.password)
-  } else {
-    res = await auth.signUp(form.value.email, form.value.password)
-  }
-  
-  loading.value = false
-  
-  if (res.user) {
-    emit('login-success', res.user)
-    form.value.email = ''
-    form.value.password = ''
-    isLogin.value = true
   }
 }
 </script>
